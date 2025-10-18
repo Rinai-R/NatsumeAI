@@ -1,0 +1,66 @@
+services:
+  gitea:
+    image: docker.gitea.com/gitea:1.24.6
+    container_name: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=db:5432
+      - GITEA__database__NAME=gitea-postgre
+      - GITEA__database__USER=gitea-postgre
+      - GITEA__database__PASSWD=gitea-postgre
+    restart: always
+    networks:
+      - application
+    volumes:
+      - ./data/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "222:22"
+    depends_on:
+      - db
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=application
+      - traefik.http.routers.gitea.rule=Host(`gitea.natsume.com`)
+      - traefik.http.routers.gitea.entrypoints=web
+      - traefik.http.services.gitea.loadbalancer.server.port=3000
+  db:
+    image: docker.io/library/postgres:14
+    restart: always
+    container_name: db
+    environment:
+      - POSTGRES_USER=gitea-postgre
+      - POSTGRES_PASSWORD=gitea-postgre
+      - POSTGRES_DB=gitea-postgre
+    networks:
+      - application
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+  gitea-runner:
+    image: gitea/act_runner:latest
+    container_name: gitea-runner
+    restart: always
+    networks:
+      - application
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/runner-data:/data
+    environment:
+      # docker 网络过于垃圾，只能用容器名替代了。
+      - GITEA_INSTANCE_URL=http://gitea:3000
+      - GITEA_RUNNER_REGISTRATION_TOKEN=nhM4xI2OUeFnffCt9EHEv2pzCnh8ecx9SRmmiQ1k
+    entrypoint: ["/bin/sh","-c"]
+    command:
+      - |
+        act_runner register --no-interactive \
+          --instance "$$GITEA_INSTANCE_URL" \
+          --token "$$GITEA_RUNNER_REGISTRATION_TOKEN" \
+          --name "runner-1" \
+          --labels "docker:host" \
+          && act_runner daemon
+networks:
+  application:
+    external: true

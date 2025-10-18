@@ -1,0 +1,91 @@
+syntax = "v1"
+
+type (
+	// 地址
+	Address {
+		AddressId int64  `json:"addressId,omitempty"`
+		Detail    string `json:"detail"`
+		IsDefault bool   `json:"isDefault,omitempty"`
+		CreatedAt int64  `json:"createdAt,omitempty"`
+		UpdatedAt int64  `json:"updatedAt,omitempty"`
+	}
+	// 用户信息
+	UserProfile {
+		UserId    int64  `json:"userId"`
+		Username  string `json:"username"`
+		CreatedAt int64  `json:"createdAt"`
+		UpdatedAt int64  `json:"updatedAt"`
+	}
+	// 注册请求
+	RegisterUserRequest {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	// 注册响应
+	RegisterUserResponse {
+		User UserProfile `json:"user"`
+	}
+	// 登录请求
+	LoginUserRequest {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	// 登录响应
+	LoginUserResponse {
+		AccessToken  string      `json:"-"`
+		RefreshToken string      `json:"-"`
+		ExpiresIn    int64       `json:"expiresIn"`
+		User         UserProfile `json:"user"`
+	}
+	// 新增地址请求
+	CreateAddressRequest {
+		Detail    string `json:"detail"`
+		IsDefault bool   `json:"isDefault"`
+	}
+	// 更新地址的数据
+	UpdateAddressRequest {
+		AddressId int64  `path:"addressId"`
+		Detail    string `json:"detail,omitempty"`
+	}
+	// 删除地址
+	DeleteAddressRequest {
+		AddressId int64 `path:"addressId"`
+	}
+	// 列出自己的地址请求
+	ListAddressesRequest  {}
+	// 列出地址的响应
+	ListAddressesResponse {
+		Addresses []Address `json:"addresses"`
+	}
+)
+
+@server (
+	group: user
+)
+service user-api {
+	@handler RegisterUser
+	post /api/v1/users/register (RegisterUserRequest) returns (RegisterUserResponse)
+
+	@handler LoginUser
+	post /api/v1/users/login (LoginUserRequest) returns (LoginUserResponse)
+}
+
+@server (
+	middleware: AuthMiddleware
+	group:      user_address
+)
+service user-api {
+	// 经典增删查改
+	@handler CreateUserAddress
+	post /api/v1/users/addresses (CreateAddressRequest) returns (Address)
+
+	@handler UpdateUserAddress
+	put /api/v1/users/addresses/:addressId (UpdateAddressRequest) returns (Address)
+
+	@handler DeleteUserAddress
+	delete /api/v1/users/addresses/:addressId (DeleteAddressRequest)
+
+	@handler ListUserAddresses
+	get /api/v1/users/addresses (ListAddressesRequest) returns (ListAddressesResponse)
+}
+

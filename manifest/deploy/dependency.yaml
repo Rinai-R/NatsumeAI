@@ -1,0 +1,93 @@
+services:
+  consul:
+    image: hashicorp/consul:1.16
+    container_name: consul
+    restart: unless-stopped
+    command:
+      - agent
+      - -server
+      - -bootstrap-expect=1
+      - -ui
+      - -client=0.0.0.0
+      - -bind=0.0.0.0
+      - -data-dir=/consul/data
+      - -config-dir=/consul/config
+    volumes:
+      - ./data/consul/data:/consul/data:rw
+      - ./data/consul/config:/consul/config:rw
+    ports:
+      - "8500:8500"        # HTTP API & Web UI
+      - "8600:8600/tcp"    # DNS
+      - "8600:8600/udp"    # DNS
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8500/v1/status/leader | grep '\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - application
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=application
+      - traefik.http.routers.consul.rule=Host(`consul.natsume.com`)
+      - traefik.http.services.consul.loadbalancer.server.port=8500
+  mysql:
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 'Natsume'
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - /config/mysql/my.cnf:/etc/my.cnf
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - application
+  redis:
+    image: redis:7.2.5
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./data/redis:/data
+    environment:
+      TZ: Asia/Shanghai
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - application
+
+  traefik:
+    image: traefik:v3.5
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false" 
+
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "8081:8080"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - application
+networks:
+  application:
+    external: true

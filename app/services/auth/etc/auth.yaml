@@ -1,0 +1,15 @@
+Name: auth.rpc
+ListenOn: 0.0.0.0:12000
+
+Consul:
+  Host: consul:8500 # consul endpoint
+  Key: auth.rpc
+  Meta:
+    Protocol: grpc
+  Tag:
+    - "auth-rpc"
+
+AccessSecret: "like playing genshin, boy"
+RefreshSecret: "like playing genshin, girl"
+AccessExpire: 2h
+RefreshExpire: 168h

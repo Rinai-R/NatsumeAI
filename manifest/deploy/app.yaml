@@ -1,0 +1,38 @@
+# app
+services:
+  user-api:
+    build:
+      context: ../..
+      dockerfile: app/api/user/dockerfile
+    image: user-api
+    container_name: user-api
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=application
+      - traefik.http.routers.user-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/users`)
+      - traefik.http.routers.user-api.entrypoints=web
+      - traefik.http.services.user-api.loadbalancer.server.port=10001
+    networks:
+      - application
+
+  user-rpc:
+    build:
+      context: ../..
+      dockerfile: app/services/user/dockerfile
+    image: user-rpc
+    container_name: user-rpc
+    networks:
+      - application
+
+  auth-rpc:
+    build:
+      context: ../..
+      dockerfile: app/services/auth/dockerfile
+    image: auth-rpc
+    container_name: auth-rpc
+    networks:
+      - application
+
+networks:
+  application:
+    external: true
