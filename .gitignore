@@ -1,1 +1,3 @@
-/manifest/deploy/data
+manifest/deploy/data
+app/api/*/*-api
+app/services/*/*-rpc

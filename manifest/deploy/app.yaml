@@ -32,6 +32,15 @@ services:
     container_name: auth-rpc
     networks:
       - application
+  
+  inventory:
+    build:
+      context: ../..
+      dockerfile: app/services/inventory/dockerfile
+    image: inventory-rpc
+    container_name: inventory-rpc
+    networks:
+      - application
 
 networks:
   application:

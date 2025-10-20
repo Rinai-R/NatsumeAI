@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package inventory;
+
+option go_package = "./inventory";
+
+message Items {
+    int64 product_id = 1;
+    int64 quantity = 2;
+}
+
+message InventoryReq {
+    repeated Items items = 2;
+}
+
+message InventoryResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+}
+
+message GetInventoryReq {
+    repeated int64 product_ids = 1;
+}
+
+message GetInventoryItem {
+    int64 product_id = 1;
+    int64 inventory = 2;
+    int64 sold_count = 3;
+}
+
+message GetInventoryResp{
+    int32 status_code = 1;
+    string status_msg = 2;
+    repeated GetInventoryItem items = 3;
+}
+
+
+message UpdateInventoryReq {
+    repeated Items items = 2;
+}
+
+service Inventory {
+    // 获取库存
+    rpc GetInventory (GetInventoryReq) returns (GetInventoryResp);
+    // 更新库存，商家调用
+    rpc UpdateInventory (UpdateInventoryReq) returns (InventoryResp);
+    // 预扣
+    rpc DecreasePreInventory (InventoryReq) returns (InventoryResp);
+    // 实际扣减
+    rpc DecreaseInventory (InventoryReq) returns (InventoryResp);
+    // 归还预扣
+    rpc ReturnPreInventory (InventoryReq) returns (InventoryResp);
+    // 归还库存
+    rpc ReturnInventory (InventoryReq) returns (InventoryResp);
+}

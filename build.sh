@@ -15,6 +15,7 @@ GOCACHE="${GOCACHE:-${ROOT_DIR}/.cache/go-build}"
 TARGETS=(
   "auth-rpc:app/services/auth:app/services/auth"
   "user-rpc:app/services/user:app/services/user"
+  "inventory-rpc:app/services/inventory:app/services/inventory"
   "user-api:app/api/user:app/api/user"
 )
 
