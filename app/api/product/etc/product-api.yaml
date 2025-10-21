@@ -1,0 +1,11 @@
+Name: product-api
+Host: 0.0.0.0
+Port: 10003
+
+
+AuthRpc:
+  Target: consul://consul:8500/auth.rpc?wait=14s
+  NonBlock: true 
+ProductRpc:
+  Target: consul://consul:8500/product.rpc?wait=14s
+  NonBlock: true 

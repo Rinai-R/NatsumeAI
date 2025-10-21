@@ -14,7 +14,7 @@ import (
 
 type InventoryServer struct {
 	svcCtx *svc.ServiceContext
-	inventory.UnimplementedInventoryServer
+	inventory.UnimplementedInventoryServiceServer
 }
 
 func NewInventoryServer(svcCtx *svc.ServiceContext) *InventoryServer {
@@ -57,4 +57,10 @@ func (s *InventoryServer) ReturnPreInventory(ctx context.Context, in *inventory.
 func (s *InventoryServer) ReturnInventory(ctx context.Context, in *inventory.InventoryReq) (*inventory.InventoryResp, error) {
 	l := logic.NewReturnInventoryLogic(ctx, s.svcCtx)
 	return l.ReturnInventory(in)
+}
+
+// 为商品创建库存
+func (s *InventoryServer) CreateInventory(ctx context.Context, in *inventory.CreateInventoryReq) (*inventory.InventoryResp, error) {
+	l := logic.NewCreateInventoryLogic(ctx, s.svcCtx)
+	return l.CreateInventory(in)
 }

@@ -6,6 +6,7 @@ package logic
 import (
 	"context"
 
+	"NatsumeAI/app/api/user/internal/logic/helper"
 	"NatsumeAI/app/api/user/internal/svc"
 	"NatsumeAI/app/api/user/internal/types"
 	"NatsumeAI/app/common/consts/errno"
@@ -54,7 +55,7 @@ func (l *LoginUserLogic) LoginUser(req *types.LoginUserRequest) (resp *types.Log
 		AccessToken:  res.AccessToken,
 		RefreshToken: res.RefreshToken,
 		ExpiresIn:    res.ExpiresIn,
-		User:         toUserProfile(res.User),
+		User:         helper.ToUserProfile(res.User),
 	}
 	return
 }

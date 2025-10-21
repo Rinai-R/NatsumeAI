@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+package product;
+
+option go_package = "./product";
+
+message Product {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    string picture = 4;
+    int64 price = 5;
+    int64 stock = 6;
+    int64 sold = 7;
+    repeated string categories = 8;
+    string created_at = 9;
+    string updated_at = 10;
+    int64 merchant_id = 11;
+}
+
+message ProductSummary {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    string picture = 4;
+    int64 price = 5;
+    repeated string categories = 6;
+    int64 merchant_id = 7;
+}
+
+message GetProductReq {
+    int64 product_id = 1;
+    int64 user_id = 2;
+}
+
+message GetProductResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+
+    Product product = 3;
+}
+
+message CreateProductReq {
+    string name = 1;
+    string description = 2;
+    string picture = 3;
+    int64 price = 4;
+    int64 stock = 5;
+    repeated string categories = 6;
+    int64 merchant_id = 7;
+}
+
+message CreateProductResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+    Product product = 3;
+}
+
+message UpdateProductReq {
+    int64 product_id = 1;
+    string name = 2;
+    string description = 3;
+    string picture = 4;
+    int64 price = 5;
+    int64 merchant_id = 6;
+}
+
+message UpdateProductResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+    Product product = 3;
+}
+
+message AddCategoriesReq {
+    int64 product_id = 1;
+    int64 merchant_id = 2;
+    repeated string categories = 3;
+}
+
+message AddCategoriesResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+}
+
+message DeleteProductReq {
+    int64 product_id = 1;
+    int64 merchant_id = 2;
+}
+
+message DeleteProductResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+}
+
+message FeedProductsReq {
+    int64 user_id = 1;
+    string cursor = 2;
+    int32 limit = 3;
+}
+
+message FeedProductsResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+    repeated ProductSummary products = 3;
+    string next_cursor = 4;
+}
+
+message SearchProductsReq {
+    string keyword = 1;
+    repeated string categories = 2;
+    int64 min_price = 3;
+    int64 max_price = 4;
+    int32 limit = 5;
+    int32 offset = 6;
+    string sort_by = 7;
+    string sort_order = 8;
+}
+
+message SearchProductsResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+    repeated ProductSummary products = 3;
+    int64 total_count = 4;
+}
+
+service ProductService {
+    // 创建商品
+    rpc CreateProduct (CreateProductReq) returns (CreateProductResp);
+    // 获取商品详情
+    rpc GetProduct (GetProductReq) returns (GetProductResp);
+    // 更新商品信息，商家调用
+    rpc UpdateProduct (UpdateProductReq) returns (UpdateProductResp);
+    // 增加标签
+    rpc AddCategories (AddCategoriesReq) returns (AddCategoriesResp);
+    // 删除商品，商家调用
+    rpc DeleteProduct (DeleteProductReq) returns (DeleteProductResp);
+    // 首页推荐商品
+    rpc FeedProducts (FeedProductsReq) returns (FeedProductsResp);
+    // 搜索商品
+    rpc SearchProducts (SearchProductsReq) returns (SearchProductsResp);
+}

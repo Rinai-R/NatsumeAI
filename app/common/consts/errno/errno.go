@@ -19,4 +19,10 @@ const (
 	InvalidCredentials
 	AddressNotFound
 	AddressForbidden
+	ProductNotFound
+	MerchantMismatch
+)
+
+const (
+	InsertInventoryError = 60000 + iota
 )

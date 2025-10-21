@@ -9,6 +9,7 @@ import (
 	"NatsumeAI/app/api/user/internal/svc"
 	"NatsumeAI/app/api/user/internal/types"
 	"NatsumeAI/app/common/consts/errno"
+	"NatsumeAI/app/common/util"
 	"NatsumeAI/app/services/user/userservice"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -30,7 +31,7 @@ func NewCreateUserAddressLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *CreateUserAddressLogic) CreateUserAddress(req *types.CreateAddressRequest) (resp *types.Address, err error) {
-	userId, err := userIDFromCtx(l.ctx)
+	userId, err := util.UserIdFromCtx(l.ctx)
 	if err != nil {
 		return nil, err
 	}

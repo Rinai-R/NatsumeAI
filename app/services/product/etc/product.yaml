@@ -1,0 +1,25 @@
+Name: product.rpc
+ListenOn: 0.0.0.0:12003
+
+Consul:
+  Host: consul:8500 # consul endpoint
+  Key: 
+    product.rpc
+  Meta:
+    Protocol: grpc
+  Tag:
+    - "product-rpc" 
+
+AuthRpc:
+  Target: consul://consul:8500/auth.rpc?wait=14s
+  NonBlock: true 
+
+MysqlConf:
+  datasource: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"
+CacheConf:
+  - Host: redis:6379
+    Pass: ""
+    Type: node
+RedisConf:
+  Host: redis:6379
+  Tls: false

@@ -335,7 +335,9 @@ func (x *GetInventoryResp) GetItems() []*GetInventoryItem {
 
 type UpdateInventoryReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Items         []*Items               `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	MerchantId    int64                  `protobuf:"varint,3,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -370,11 +372,137 @@ func (*UpdateInventoryReq) Descriptor() ([]byte, []int) {
 	return file_inventory_proto_rawDescGZIP(), []int{6}
 }
 
+func (x *UpdateInventoryReq) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
 func (x *UpdateInventoryReq) GetItems() []*Items {
 	if x != nil {
 		return x.Items
 	}
 	return nil
+}
+
+func (x *UpdateInventoryReq) GetMerchantId() int64 {
+	if x != nil {
+		return x.MerchantId
+	}
+	return 0
+}
+
+type CreateInventoryReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProductId     int64                  `protobuf:"varint,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	Inventory     int64                  `protobuf:"varint,2,opt,name=inventory,proto3" json:"inventory,omitempty"`
+	MerchantId    int64                  `protobuf:"varint,3,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateInventoryReq) Reset() {
+	*x = CreateInventoryReq{}
+	mi := &file_inventory_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateInventoryReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateInventoryReq) ProtoMessage() {}
+
+func (x *CreateInventoryReq) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateInventoryReq.ProtoReflect.Descriptor instead.
+func (*CreateInventoryReq) Descriptor() ([]byte, []int) {
+	return file_inventory_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CreateInventoryReq) GetProductId() int64 {
+	if x != nil {
+		return x.ProductId
+	}
+	return 0
+}
+
+func (x *CreateInventoryReq) GetInventory() int64 {
+	if x != nil {
+		return x.Inventory
+	}
+	return 0
+}
+
+func (x *CreateInventoryReq) GetMerchantId() int64 {
+	if x != nil {
+		return x.MerchantId
+	}
+	return 0
+}
+
+type DeleteInventoryReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProductId     int64                  `protobuf:"varint,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
+	MerchantId    int64                  `protobuf:"varint,2,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteInventoryReq) Reset() {
+	*x = DeleteInventoryReq{}
+	mi := &file_inventory_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteInventoryReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteInventoryReq) ProtoMessage() {}
+
+func (x *DeleteInventoryReq) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteInventoryReq.ProtoReflect.Descriptor instead.
+func (*DeleteInventoryReq) Descriptor() ([]byte, []int) {
+	return file_inventory_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DeleteInventoryReq) GetProductId() int64 {
+	if x != nil {
+		return x.ProductId
+	}
+	return 0
+}
+
+func (x *DeleteInventoryReq) GetMerchantId() int64 {
+	if x != nil {
+		return x.MerchantId
+	}
+	return 0
 }
 
 var File_inventory_proto protoreflect.FileDescriptor
@@ -407,16 +535,32 @@ const file_inventory_proto_rawDesc = "" +
 	"statusCode\x12\x1d\n" +
 	"\n" +
 	"status_msg\x18\x02 \x01(\tR\tstatusMsg\x121\n" +
-	"\x05items\x18\x03 \x03(\v2\x1b.inventory.GetInventoryItemR\x05items\"<\n" +
-	"\x12UpdateInventoryReq\x12&\n" +
-	"\x05items\x18\x02 \x03(\v2\x10.inventory.ItemsR\x05items2\xc2\x03\n" +
-	"\tInventory\x12G\n" +
+	"\x05items\x18\x03 \x03(\v2\x1b.inventory.GetInventoryItemR\x05items\"v\n" +
+	"\x12UpdateInventoryReq\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12&\n" +
+	"\x05items\x18\x02 \x03(\v2\x10.inventory.ItemsR\x05items\x12\x1f\n" +
+	"\vmerchant_id\x18\x03 \x01(\x03R\n" +
+	"merchantId\"r\n" +
+	"\x12CreateInventoryReq\x12\x1d\n" +
+	"\n" +
+	"product_id\x18\x01 \x01(\x03R\tproductId\x12\x1c\n" +
+	"\tinventory\x18\x02 \x01(\x03R\tinventory\x12\x1f\n" +
+	"\vmerchant_id\x18\x03 \x01(\x03R\n" +
+	"merchantId\"T\n" +
+	"\x12DeleteInventoryReq\x12\x1d\n" +
+	"\n" +
+	"product_id\x18\x01 \x01(\x03R\tproductId\x12\x1f\n" +
+	"\vmerchant_id\x18\x02 \x01(\x03R\n" +
+	"merchantId2\xe1\x04\n" +
+	"\x10InventoryService\x12G\n" +
 	"\fGetInventory\x12\x1a.inventory.GetInventoryReq\x1a\x1b.inventory.GetInventoryResp\x12J\n" +
 	"\x0fUpdateInventory\x12\x1d.inventory.UpdateInventoryReq\x1a\x18.inventory.InventoryResp\x12I\n" +
 	"\x14DecreasePreInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12F\n" +
 	"\x11DecreaseInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12G\n" +
 	"\x12ReturnPreInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12D\n" +
-	"\x0fReturnInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryRespB\rZ\v./inventoryb\x06proto3"
+	"\x0fReturnInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12J\n" +
+	"\x0fCreateInventory\x12\x1d.inventory.CreateInventoryReq\x1a\x18.inventory.InventoryResp\x12J\n" +
+	"\x0fDeleteInventory\x12\x1d.inventory.DeleteInventoryReq\x1a\x18.inventory.InventoryRespB\rZ\v./inventoryb\x06proto3"
 
 var (
 	file_inventory_proto_rawDescOnce sync.Once
@@ -430,7 +574,7 @@ func file_inventory_proto_rawDescGZIP() []byte {
 	return file_inventory_proto_rawDescData
 }
 
-var file_inventory_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_inventory_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_inventory_proto_goTypes = []any{
 	(*Items)(nil),              // 0: inventory.Items
 	(*InventoryReq)(nil),       // 1: inventory.InventoryReq
@@ -439,28 +583,34 @@ var file_inventory_proto_goTypes = []any{
 	(*GetInventoryItem)(nil),   // 4: inventory.GetInventoryItem
 	(*GetInventoryResp)(nil),   // 5: inventory.GetInventoryResp
 	(*UpdateInventoryReq)(nil), // 6: inventory.UpdateInventoryReq
+	(*CreateInventoryReq)(nil), // 7: inventory.CreateInventoryReq
+	(*DeleteInventoryReq)(nil), // 8: inventory.DeleteInventoryReq
 }
 var file_inventory_proto_depIdxs = []int32{
-	0, // 0: inventory.InventoryReq.items:type_name -> inventory.Items
-	4, // 1: inventory.GetInventoryResp.items:type_name -> inventory.GetInventoryItem
-	0, // 2: inventory.UpdateInventoryReq.items:type_name -> inventory.Items
-	3, // 3: inventory.Inventory.GetInventory:input_type -> inventory.GetInventoryReq
-	6, // 4: inventory.Inventory.UpdateInventory:input_type -> inventory.UpdateInventoryReq
-	1, // 5: inventory.Inventory.DecreasePreInventory:input_type -> inventory.InventoryReq
-	1, // 6: inventory.Inventory.DecreaseInventory:input_type -> inventory.InventoryReq
-	1, // 7: inventory.Inventory.ReturnPreInventory:input_type -> inventory.InventoryReq
-	1, // 8: inventory.Inventory.ReturnInventory:input_type -> inventory.InventoryReq
-	5, // 9: inventory.Inventory.GetInventory:output_type -> inventory.GetInventoryResp
-	2, // 10: inventory.Inventory.UpdateInventory:output_type -> inventory.InventoryResp
-	2, // 11: inventory.Inventory.DecreasePreInventory:output_type -> inventory.InventoryResp
-	2, // 12: inventory.Inventory.DecreaseInventory:output_type -> inventory.InventoryResp
-	2, // 13: inventory.Inventory.ReturnPreInventory:output_type -> inventory.InventoryResp
-	2, // 14: inventory.Inventory.ReturnInventory:output_type -> inventory.InventoryResp
-	9, // [9:15] is the sub-list for method output_type
-	3, // [3:9] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0,  // 0: inventory.InventoryReq.items:type_name -> inventory.Items
+	4,  // 1: inventory.GetInventoryResp.items:type_name -> inventory.GetInventoryItem
+	0,  // 2: inventory.UpdateInventoryReq.items:type_name -> inventory.Items
+	3,  // 3: inventory.InventoryService.GetInventory:input_type -> inventory.GetInventoryReq
+	6,  // 4: inventory.InventoryService.UpdateInventory:input_type -> inventory.UpdateInventoryReq
+	1,  // 5: inventory.InventoryService.DecreasePreInventory:input_type -> inventory.InventoryReq
+	1,  // 6: inventory.InventoryService.DecreaseInventory:input_type -> inventory.InventoryReq
+	1,  // 7: inventory.InventoryService.ReturnPreInventory:input_type -> inventory.InventoryReq
+	1,  // 8: inventory.InventoryService.ReturnInventory:input_type -> inventory.InventoryReq
+	7,  // 9: inventory.InventoryService.CreateInventory:input_type -> inventory.CreateInventoryReq
+	8,  // 10: inventory.InventoryService.DeleteInventory:input_type -> inventory.DeleteInventoryReq
+	5,  // 11: inventory.InventoryService.GetInventory:output_type -> inventory.GetInventoryResp
+	2,  // 12: inventory.InventoryService.UpdateInventory:output_type -> inventory.InventoryResp
+	2,  // 13: inventory.InventoryService.DecreasePreInventory:output_type -> inventory.InventoryResp
+	2,  // 14: inventory.InventoryService.DecreaseInventory:output_type -> inventory.InventoryResp
+	2,  // 15: inventory.InventoryService.ReturnPreInventory:output_type -> inventory.InventoryResp
+	2,  // 16: inventory.InventoryService.ReturnInventory:output_type -> inventory.InventoryResp
+	2,  // 17: inventory.InventoryService.CreateInventory:output_type -> inventory.InventoryResp
+	2,  // 18: inventory.InventoryService.DeleteInventory:output_type -> inventory.InventoryResp
+	11, // [11:19] is the sub-list for method output_type
+	3,  // [3:11] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_inventory_proto_init() }
@@ -474,7 +624,7 @@ func file_inventory_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_proto_rawDesc), len(file_inventory_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

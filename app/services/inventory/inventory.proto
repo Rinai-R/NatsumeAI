@@ -36,10 +36,24 @@ message GetInventoryResp{
 
 
 message UpdateInventoryReq {
+    int64 user_id = 1;
     repeated Items items = 2;
+    int64 merchant_id = 3;
 }
 
-service Inventory {
+message CreateInventoryReq {
+    int64 product_id = 1;
+    int64 inventory = 2;
+    int64 merchant_id = 3;
+}
+
+message DeleteInventoryReq {
+    int64 product_id = 1;
+    int64 merchant_id = 2;
+}
+
+
+service InventoryService {
     // 获取库存
     rpc GetInventory (GetInventoryReq) returns (GetInventoryResp);
     // 更新库存，商家调用
@@ -52,4 +66,8 @@ service Inventory {
     rpc ReturnPreInventory (InventoryReq) returns (InventoryResp);
     // 归还库存
     rpc ReturnInventory (InventoryReq) returns (InventoryResp);
+    // 为商品创建库存
+    rpc CreateInventory (CreateInventoryReq) returns (InventoryResp);
+    // 删除商品的时候同时调用这个
+    rpc DeleteInventory (DeleteInventoryReq) returns (InventoryResp);
 }

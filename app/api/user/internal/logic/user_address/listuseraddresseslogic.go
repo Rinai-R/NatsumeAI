@@ -9,6 +9,7 @@ import (
 	"NatsumeAI/app/api/user/internal/svc"
 	"NatsumeAI/app/api/user/internal/types"
 	"NatsumeAI/app/common/consts/errno"
+	"NatsumeAI/app/common/util"
 	"NatsumeAI/app/services/user/userservice"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -30,13 +31,13 @@ func NewListUserAddressesLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *ListUserAddressesLogic) ListUserAddresses(req *types.ListAddressesRequest) (resp *types.ListAddressesResponse, err error) {
-	userID, err := userIDFromCtx(l.ctx)
+	userId, err := util.UserIdFromCtx(l.ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	in := &userservice.ListAddressesRequest{
-		UserId: userID,
+		UserId: userId,
 	}
 
 	res, err := l.svcCtx.UserRpc.ListAddresses(l.ctx, in)

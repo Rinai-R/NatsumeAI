@@ -4,7 +4,6 @@
 package middleware
 
 import (
-	"context"
 	"net/http"
 
 	"NatsumeAI/app/common/consts/biz"
@@ -73,16 +72,14 @@ func (m *AuthMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			// 刷新成功的话就 setcookie 然后 next
 			if token := ref_res.Token; token != nil {
 				util.SetTokenCookies(w, token.AccessToken, token.ExpiresIn, token.RefreshToken)
-				ctx := context.WithValue(r.Context(), biz.USER_KEY, res.UserId)
-				*r = *r.WithContext(ctx)
+				util.InjectUserId2Ctx(r, res.UserId)
 				next(w, r)
 				return
 			}
 			httpx.Error(w, errors.New(int(errno.RefreshTokenExpired), "token refresh failed"))
 
 		case errno.StatusOK:
-			ctx := context.WithValue(r.Context(), biz.USER_KEY, res.UserId)
-			*r = *r.WithContext(ctx)
+			util.InjectUserId2Ctx(r, res.UserId)
 			next(w, r)
 		default:
 			httpx.Error(w, errors.New(int(res.StatusCode), res.StatusMsg))

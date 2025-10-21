@@ -14,6 +14,7 @@ import (
 )
 
 type (
+	CreateInventoryReq = inventory.CreateInventoryReq
 	GetInventoryItem   = inventory.GetInventoryItem
 	GetInventoryReq    = inventory.GetInventoryReq
 	GetInventoryResp   = inventory.GetInventoryResp
@@ -35,6 +36,8 @@ type (
 		ReturnPreInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
 		// 归还库存
 		ReturnInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
+		// 为商品创建库存
+		CreateInventory(ctx context.Context, in *CreateInventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
 	}
 
 	defaultInventory struct {
@@ -50,36 +53,42 @@ func NewInventory(cli zrpc.Client) Inventory {
 
 // 获取库存
 func (m *defaultInventory) GetInventory(ctx context.Context, in *GetInventoryReq, opts ...grpc.CallOption) (*GetInventoryResp, error) {
-	client := inventory.NewInventoryClient(m.cli.Conn())
+	client := inventory.NewInventoryServiceClient(m.cli.Conn())
 	return client.GetInventory(ctx, in, opts...)
 }
 
 // 更新库存，商家调用
 func (m *defaultInventory) UpdateInventory(ctx context.Context, in *UpdateInventoryReq, opts ...grpc.CallOption) (*InventoryResp, error) {
-	client := inventory.NewInventoryClient(m.cli.Conn())
+	client := inventory.NewInventoryServiceClient(m.cli.Conn())
 	return client.UpdateInventory(ctx, in, opts...)
 }
 
 // 预扣
 func (m *defaultInventory) DecreasePreInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error) {
-	client := inventory.NewInventoryClient(m.cli.Conn())
+	client := inventory.NewInventoryServiceClient(m.cli.Conn())
 	return client.DecreasePreInventory(ctx, in, opts...)
 }
 
 // 实际扣减
 func (m *defaultInventory) DecreaseInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error) {
-	client := inventory.NewInventoryClient(m.cli.Conn())
+	client := inventory.NewInventoryServiceClient(m.cli.Conn())
 	return client.DecreaseInventory(ctx, in, opts...)
 }
 
 // 归还预扣
 func (m *defaultInventory) ReturnPreInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error) {
-	client := inventory.NewInventoryClient(m.cli.Conn())
+	client := inventory.NewInventoryServiceClient(m.cli.Conn())
 	return client.ReturnPreInventory(ctx, in, opts...)
 }
 
 // 归还库存
 func (m *defaultInventory) ReturnInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error) {
-	client := inventory.NewInventoryClient(m.cli.Conn())
+	client := inventory.NewInventoryServiceClient(m.cli.Conn())
 	return client.ReturnInventory(ctx, in, opts...)
+}
+
+// 为商品创建库存
+func (m *defaultInventory) CreateInventory(ctx context.Context, in *CreateInventoryReq, opts ...grpc.CallOption) (*InventoryResp, error) {
+	client := inventory.NewInventoryServiceClient(m.cli.Conn())
+	return client.CreateInventory(ctx, in, opts...)
 }

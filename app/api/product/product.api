@@ -1,0 +1,135 @@
+syntax = "v1"
+
+type (
+	Product {
+		ProductId   int64    `json:"productId"`
+		MerchantId  int64    `json:"merchantId"`
+		Name        string   `json:"name"`
+		Description string   `json:"description"`
+		Picture     string   `json:"picture"`
+		Price       int64    `json:"price"`
+		Stock       int64    `json:"stock"`
+		Sold        int64    `json:"sold"`
+		Categories  []string `json:"categories"`
+		CreatedAt   string   `json:"createdAt"`
+		UpdatedAt   string   `json:"updatedAt"`
+	}
+	ProductSummary {
+		ProductId   int64    `json:"productId"`
+		MerchantId  int64    `json:"merchantId"`
+		Name        string   `json:"name"`
+		Description string   `json:"description"`
+		Picture     string   `json:"picture"`
+		Price       int64    `json:"price"`
+		Categories  []string `json:"categories"`
+	}
+	GetProductRequest {
+		ProductId int64 `path:"productId"`
+		UserId    int64 `form:"userId,optional"`
+	}
+	GetProductResponse {
+		StatusCode int32   `json:"statusCode"`
+		StatusMsg  string  `json:"statusMsg"`
+		Product    Product `json:"product"`
+	}
+	CreateProductRequest {
+		Name        string   `json:"name"`
+		Description string   `json:"description"`
+		Picture     string   `json:"picture"`
+		Price       int64    `json:"price"`
+		Stock       int64    `json:"stock"`
+		Categories  []string `json:"categories"`
+	}
+	CreateProductResponse {
+		StatusCode int32   `json:"statusCode"`
+		StatusMsg  string  `json:"statusMsg"`
+		Product    Product `json:"product"`
+	}
+	UpdateProductRequest {
+		ProductId   int64  `path:"productId"`
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Picture     string `json:"picture"`
+		Price       int64  `json:"price"`
+	}
+	UpdateProductResponse {
+		StatusCode int32   `json:"statusCode"`
+		StatusMsg  string  `json:"statusMsg"`
+		Product    Product `json:"product"`
+	}
+	DeleteProductRequest {
+		ProductId int64 `path:"productId"`
+	}
+	DeleteProductResponse {
+		StatusCode int32  `json:"statusCode"`
+		StatusMsg  string `json:"statusMsg"`
+	}
+	AddCategoriesRequest {
+		ProductId  int64    `path:"productId"`
+		Categories []string `json:"categories"`
+	}
+	AddCategoriesResponse {
+		StatusCode int32  `json:"statusCode"`
+		StatusMsg  string `json:"statusMsg"`
+	}
+	FeedProductsRequest {
+		Cursor string `form:"cursor,optional"`
+		Limit  int32  `form:"limit,optional"`
+	}
+	FeedProductsResponse {
+		StatusCode int32            `json:"statusCode"`
+		StatusMsg  string           `json:"statusMsg"`
+		Products   []ProductSummary `json:"products"`
+		NextCursor string           `json:"nextCursor,omitempty"`
+	}
+	SearchProductsRequest {
+		Keyword    string   `form:"keyword,optional"`
+		Categories []string `form:"categories,optional"`
+		MinPrice   int64    `form:"minPrice,optional"`
+		MaxPrice   int64    `form:"maxPrice,optional"`
+		Limit      int32    `form:"limit,optional"`
+		Offset     int32    `form:"offset,optional"`
+		SortBy     string   `form:"sortBy,optional"`
+		SortOrder  string   `form:"sortOrder,optional"`
+	}
+	SearchProductsResponse {
+		StatusCode int32            `json:"statusCode"`
+		StatusMsg  string           `json:"statusMsg"`
+		Products   []ProductSummary `json:"products"`
+		TotalCount int64            `json:"totalCount"`
+	}
+)
+
+@server (
+	middleware: AuthMiddleware
+	group:      product
+)
+service product-api {
+	@handler GetProduct
+	get /api/v1/products/:productId (GetProductRequest) returns (GetProductResponse)
+
+	@handler FeedProducts
+	get /api/v1/products/feed (FeedProductsRequest) returns (FeedProductsResponse)
+
+	@handler SearchProducts
+	get /api/v1/products/search (SearchProductsRequest) returns (SearchProductsResponse)
+}
+
+@server (
+	middleware: AuthMiddleware
+	group:      product_manage
+)
+service product-api {
+	@handler CreateProduct
+	post /api/v1/products (CreateProductRequest) returns (CreateProductResponse)
+
+	@handler UpdateProduct
+	put /api/v1/products/:productId (UpdateProductRequest) returns (UpdateProductResponse)
+
+	@handler DeleteProduct
+	delete /api/v1/products/:productId (DeleteProductRequest) returns (DeleteProductResponse)
+
+	@handler AddProductCategories
+	post /api/v1/products/:productId/categories (AddCategoriesRequest) returns (AddCategoriesResponse)
+}
+

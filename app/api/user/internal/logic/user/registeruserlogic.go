@@ -6,6 +6,7 @@ package logic
 import (
 	"context"
 
+	"NatsumeAI/app/api/user/internal/logic/helper"
 	"NatsumeAI/app/api/user/internal/svc"
 	"NatsumeAI/app/api/user/internal/types"
 	"NatsumeAI/app/common/consts/errno"
@@ -55,7 +56,7 @@ func (l *RegisterUserLogic) RegisterUser(req *types.RegisterUserRequest) (resp *
 	}
 
 	resp = &types.RegisterUserResponse{
-		User: toUserProfile(res.User),
+		User: helper.ToUserProfile(res.User),
 	}
 
 	return

@@ -1,0 +1,47 @@
+syntax = "v1"
+
+type (
+	InventoryItem {
+		ProductId int64 `json:"productId"`
+		Inventory int64 `json:"inventory"`
+		SoldCount int64 `json:"soldCount"`
+	}
+	InventoryMutationItem {
+		ProductId int64 `json:"productId"`
+		Quantity  int64 `json:"quantity"`
+	}
+	GetInventoryRequest {
+		ProductId int64 `form:"productIds,optional"`
+	}
+	GetInventoryResponse {
+		StatusCode int32         `json:"statusCode"`
+		StatusMsg  string        `json:"statusMsg"`
+		Items      InventoryItem `json:"items"`
+	}
+	UpdateInventoryRequest {
+		Items InventoryMutationItem `json:"items"`
+	}
+	DeleteInventoryRequest {
+		ProductId int64 `path:"productId"`
+	}
+	InventoryActionResponse {
+		StatusCode int32  `json:"statusCode"`
+		StatusMsg  string `json:"statusMsg"`
+	}
+)
+
+@server (
+	middleware: AuthMiddleware
+	group:      inventory_manage
+)
+service inventory-api {
+	@handler GetInventory
+	get /api/v1/inventory (GetInventoryRequest) returns (GetInventoryResponse)
+
+	@handler UpdateInventory
+	put /api/v1/inventory (UpdateInventoryRequest) returns (InventoryActionResponse)
+
+	@handler DeleteInventory
+	delete /api/v1/inventory/:productId (DeleteInventoryRequest) returns (InventoryActionResponse)
+}
+

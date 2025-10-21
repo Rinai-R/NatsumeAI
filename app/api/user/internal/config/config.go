@@ -6,7 +6,6 @@ package config
 import (
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
-	"github.com/zeromicro/zero-contrib/zrpc/registry/consul"
 )
 
 type Config struct {
@@ -14,7 +13,5 @@ type Config struct {
 
 	AuthRpc zrpc.RpcClientConf
 	UserRpc zrpc.RpcClientConf
-
-	Consul consul.Conf
 
 }

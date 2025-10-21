@@ -9,6 +9,7 @@ import (
 	"NatsumeAI/app/api/user/internal/svc"
 	"NatsumeAI/app/api/user/internal/types"
 	"NatsumeAI/app/common/consts/errno"
+	"NatsumeAI/app/common/util"
 	"NatsumeAI/app/services/user/userservice"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -30,13 +31,13 @@ func NewDeleteUserAddressLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 func (l *DeleteUserAddressLogic) DeleteUserAddress(req *types.DeleteAddressRequest) error {
-	userID, err := userIDFromCtx(l.ctx)
+	userId, err := util.UserIdFromCtx(l.ctx)
 	if err != nil {
 		return err
 	}
 
 	in := &userservice.DeleteAddressRequest{
-		UserId:    userID,
+		UserId:    userId,
 		AddressId: req.AddressId,
 	}
 

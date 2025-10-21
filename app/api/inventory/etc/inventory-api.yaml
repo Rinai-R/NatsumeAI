@@ -1,0 +1,11 @@
+Name: inventory-api
+Host: 0.0.0.0
+Port: 10002
+
+
+AuthRpc:
+  Target: consul://consul:8500/auth.rpc?wait=14s
+  NonBlock: true 
+InventoryRpc:
+  Target: consul://consul:8500/inventory.rpc?wait=14s
+  NonBlock: true 

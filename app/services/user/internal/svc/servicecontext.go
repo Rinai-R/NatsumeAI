@@ -38,7 +38,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 
 func bloomPreheat(bf *bloom.Filter, UsersModel usermodel.UsersModel) error {
-
 	names, err := UsersModel.FindAllUsername(context.TODO())
 	if err != nil {
 		return err
@@ -51,5 +50,4 @@ func bloomPreheat(bf *bloom.Filter, UsersModel usermodel.UsersModel) error {
 		}
 	}
 	return nil
-
 }

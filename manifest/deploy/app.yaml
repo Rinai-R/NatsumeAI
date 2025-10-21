@@ -14,6 +14,34 @@ services:
       - traefik.http.services.user-api.loadbalancer.server.port=10001
     networks:
       - application
+    
+  inventory-api:
+    build:
+      context: ../..
+      dockerfile: app/api/inventory/dockerfile
+    image: inventory-api
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=application
+      - traefik.http.routers.user-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/inventory`)
+      - traefik.http.routers.user-api.entrypoints=web
+      - traefik.http.services.user-api.loadbalancer.server.port=10002
+    networks:
+      - application
+    
+  product-api:
+    build:
+      context: ../..
+      dockerfile: app/api/product/dockerfile
+    image: product-api
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=application
+      - traefik.http.routers.user-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/product`)
+      - traefik.http.routers.user-api.entrypoints=web
+      - traefik.http.services.user-api.loadbalancer.server.port=10003
+    networks:
+      - application
 
   user-rpc:
     build:
@@ -33,12 +61,21 @@ services:
     networks:
       - application
   
-  inventory:
+  inventory-rpc:
     build:
       context: ../..
       dockerfile: app/services/inventory/dockerfile
     image: inventory-rpc
     container_name: inventory-rpc
+    networks:
+      - application
+  
+  product-rpc:
+    build:
+      context: ../..
+      dockerfile: app/service/product/dockerfile
+    image: product-rpc
+    container_name: product-rpc
     networks:
       - application
 
