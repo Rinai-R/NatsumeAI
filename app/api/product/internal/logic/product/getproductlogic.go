@@ -38,13 +38,8 @@ func (l *GetProductLogic) GetProduct(req *types.GetProductRequest) (resp *types.
 
 	userID, err := util.UserIdFromCtx(l.ctx)
 	if err != nil {
-		if req.UserId > 0 {
-			userID = req.UserId
-		} else {
-			userID = 0
-		}
+		return nil, err
 	}
-
 	in := &productsrv.GetProductReq{
 		ProductId: req.ProductId,
 		UserId:    userID,
@@ -67,6 +62,8 @@ func (l *GetProductLogic) GetProduct(req *types.GetProductRequest) (resp *types.
 
 	product := helper.ToProduct(res.Product)
 	resp = &types.GetProductResponse{
+		StatusCode: res.StatusCode,
+		StatusMsg: res.StatusMsg,
 		Product: product,
 	}
 

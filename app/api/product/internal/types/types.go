@@ -19,7 +19,7 @@ type CreateProductRequest struct {
 	Picture     string   `json:"picture"`
 	Price       int64    `json:"price"`
 	Stock       int64    `json:"stock"`
-	Categories  []string `json:"categories"`
+	Categories  []string `json:"categories,omitempty"`
 }
 
 type CreateProductResponse struct {
@@ -51,7 +51,6 @@ type FeedProductsResponse struct {
 
 type GetProductRequest struct {
 	ProductId int64 `path:"productId"`
-	UserId    int64 `form:"userId,optional"`
 }
 
 type GetProductResponse struct {

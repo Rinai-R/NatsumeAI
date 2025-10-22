@@ -55,14 +55,14 @@ func (l *UpdateInventoryLogic) UpdateInventory(in *inventory.UpdateInventoryReq)
 			quantity := item.Quantity
 			if quantity < 0 {
 				if err := l.svcCtx.InventoryModel.DecrWithSessionByMerchant(ctx, s, item.ProductId, merchantID, -quantity); err != nil {
-					l.Logger.Debug("rpc: 减少库存失败：", err, "冻结对象：", item)
+					l.Logger.Debug("rpc: 减少库存失败：", err, "对象：", item)
 					return err
 				}
 				continue
 			}
 
 			if err := l.svcCtx.InventoryModel.IncrWithSessionByMerchant(ctx, s, item.ProductId, merchantID, quantity); err != nil {
-				l.Logger.Debug("rpc: 新增库存失败：", err, "冻结对象：", item)
+				l.Logger.Debug("rpc: 新增库存失败：", err, "对象：", item)
 				return err
 			}
 		}

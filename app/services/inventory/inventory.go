@@ -28,7 +28,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		inventory.RegisterInventoryServiceServer(grpcServer, server.NewInventoryServer(ctx))
+		inventory.RegisterInventoryServiceServer(grpcServer, server.NewInventoryServiceServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

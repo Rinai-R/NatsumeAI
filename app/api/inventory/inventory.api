@@ -11,7 +11,7 @@ type (
 		Quantity  int64 `json:"quantity"`
 	}
 	GetInventoryRequest {
-		ProductId int64 `form:"productIds,optional"`
+		ProductId int64 `form:"productId,optional"`
 	}
 	GetInventoryResponse {
 		StatusCode int32         `json:"statusCode"`
@@ -20,9 +20,6 @@ type (
 	}
 	UpdateInventoryRequest {
 		Items InventoryMutationItem `json:"items"`
-	}
-	DeleteInventoryRequest {
-		ProductId int64 `path:"productId"`
 	}
 	InventoryActionResponse {
 		StatusCode int32  `json:"statusCode"`
@@ -40,8 +37,5 @@ service inventory-api {
 
 	@handler UpdateInventory
 	put /api/v1/inventory (UpdateInventoryRequest) returns (InventoryActionResponse)
-
-	@handler DeleteInventory
-	delete /api/v1/inventory/:productId (DeleteInventoryRequest) returns (InventoryActionResponse)
 }
 

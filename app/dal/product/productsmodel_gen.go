@@ -41,15 +41,14 @@ type (
 	}
 
 	Products struct {
-		Id          int64          `db:"id"`          // 商品主键
-		MerchantId  int64          `db:"merchant_id"` // 商家id
-		Name        string         `db:"name"`        // 商品名称
-		Description string         `db:"description"` // 商品描述
-		Picture     string         `db:"picture"`     // 商品主图地址
-		Price       int64          `db:"price"`       // 商品售价，单位分
-		Categories  sql.NullString `db:"categories"`  // 商品所属类目列表，JSON 数组
-		CreatedAt   time.Time      `db:"created_at"`  // 创建时间
-		UpdatedAt   time.Time      `db:"updated_at"`  // 更新时间
+		Id          int64     `db:"id"`          // 商品主键
+		MerchantId  int64     `db:"merchant_id"` // 商家id
+		Name        string    `db:"name"`        // 商品名称
+		Description string    `db:"description"` // 商品描述
+		Picture     string    `db:"picture"`     // 商品主图地址
+		Price       int64     `db:"price"`       // 商品售价，单位分
+		CreatedAt   time.Time `db:"created_at"`  // 创建时间
+		UpdatedAt   time.Time `db:"updated_at"`  // 更新时间
 	}
 )
 
@@ -89,8 +88,8 @@ func (m *defaultProductsModel) FindOne(ctx context.Context, id int64) (*Products
 func (m *defaultProductsModel) Insert(ctx context.Context, data *Products) (sql.Result, error) {
 	productsIdKey := fmt.Sprintf("%s%v", cacheProductsIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, productsRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.MerchantId, data.Name, data.Description, data.Picture, data.Price, data.Categories)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, productsRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.MerchantId, data.Name, data.Description, data.Picture, data.Price)
 	}, productsIdKey)
 	return ret, err
 }
@@ -99,7 +98,7 @@ func (m *defaultProductsModel) Update(ctx context.Context, data *Products) error
 	productsIdKey := fmt.Sprintf("%s%v", cacheProductsIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, productsRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.MerchantId, data.Name, data.Description, data.Picture, data.Price, data.Categories, data.Id)
+		return conn.ExecCtx(ctx, query, data.MerchantId, data.Name, data.Description, data.Picture, data.Price, data.Id)
 	}, productsIdKey)
 	return err
 }

@@ -35,7 +35,7 @@ func (l *CreateInventoryLogic) CreateInventory(in *inventory.CreateInventoryReq)
 		return resp, nil
 	}
 
-	_, err := l.svcCtx.InventoryModel.Insert(l.ctx, &inventoryModel.Inventory{
+	_, err := l.svcCtx.InventoryModel.InsertWithNoCache(l.ctx, &inventoryModel.Inventory{
 		ProductId:  in.ProductId,
 		MerchantId: in.MerchantId,
 		Stock:      in.Inventory,
@@ -44,5 +44,7 @@ func (l *CreateInventoryLogic) CreateInventory(in *inventory.CreateInventoryReq)
 		resp.StatusCode = errno.InsertInventoryError
 		resp.StatusMsg = fmt.Sprint("rpc： inventory 插入数据失败", err.Error())
 	}
+	resp.StatusCode = errno.StatusOK
+	resp.StatusMsg = "ok"
 	return resp, nil
 }

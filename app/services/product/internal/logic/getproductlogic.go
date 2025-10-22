@@ -42,7 +42,7 @@ func (l *GetProductLogic) GetProduct(in *product.GetProductReq) (*product.GetPro
 
 	if exist, _ := l.svcCtx.Bloom.
 		ExistsCtx(l.ctx, []byte(strconv.Itoa(int(in.ProductId)))); !exist {
-			
+
 		resp.StatusCode = errno.ProductNotFound
 		resp.StatusMsg = "product not found"
 		return resp, nil
@@ -63,6 +63,14 @@ func (l *GetProductLogic) GetProduct(in *product.GetProductReq) (*product.GetPro
 	if err != nil {
 		l.Logger.Errorf("get product convert proto failed: %v", err)
 		return resp, err
+	}
+	if categoryRecords, err := l.svcCtx.ProductCategoriesModel.ListByProductId(l.ctx, in.GetProductId()); err != nil {
+		if err != productmodel.ErrNotFound {
+			l.Logger.Errorf("get product list categories failed: %v", err)
+			return resp, err
+		}
+	} else {
+		protoProduct.Categories = categoriesFromRecords(categoryRecords)
 	}
 
 	if resp, err := l.svcCtx.InventoryRpc.GetInventory(l.ctx, &inventory.GetInventoryReq{

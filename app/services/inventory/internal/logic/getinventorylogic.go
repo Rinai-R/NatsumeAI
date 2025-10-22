@@ -31,7 +31,8 @@ func (l *GetInventoryLogic) GetInventory(in *inventory.GetInventoryReq) (*invent
 	items := make([]*inventory.GetInventoryItem, 0, len(in.ProductIds))
 
 	for _, id := range in.ProductIds {
-		product, err := l.svcCtx.InventoryModel.FindOne(l.ctx, id)
+		product, err := l.svcCtx.InventoryModel.FindOneWithNoCache(l.ctx, id)
+		l.Logger.Error(product, err)
 		if err != nil {
 			items = append(items, &inventory.GetInventoryItem{
 				ProductId: id,

@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/zeromicro/go-zero/core/bloom"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -24,6 +25,7 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	logx.MustSetup(c.LogConf)
 	bf := bloom.New(redis.MustNewRedis(c.RedisConf), biz.PRODUCT_CHECK_BLOOM, biz.PRODUCT_CHECK_BLOOM_BIT)
 	ProductsModel := product.NewProductsModel(sqlx.MustNewConn(c.MysqlConf), c.CacheConf)
 	err := bloomPreheat(bf, ProductsModel)
@@ -41,7 +43,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 func bloomPreheat(bf *bloom.Filter, ProductsModel product.ProductsModel) error {
 	ids, err := ProductsModel.FindAllProductId(context.TODO())
-	if err != nil {
+	if err != nil && err != product.ErrNotFound {
 		return err
 	}
 

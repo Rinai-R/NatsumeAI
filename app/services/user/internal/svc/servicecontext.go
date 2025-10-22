@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/zeromicro/go-zero/core/bloom"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -24,6 +25,7 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	logx.MustSetup(c.LogConf)
 	bf := bloom.New(redis.MustNewRedis(c.RedisConf),  biz.USER_LOGIN_BLOOM, biz.USER_LOGIN_BLOOM_BIT)
 	UserModel := usermodel.NewUsersModel(sqlx.MustNewConn(c.MysqlConf), c.CacheConf)
 	bloomPreheat(bf, UserModel)

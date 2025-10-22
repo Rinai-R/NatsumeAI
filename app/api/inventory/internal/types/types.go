@@ -3,12 +3,8 @@
 
 package types
 
-type DeleteInventoryRequest struct {
-	ProductId int64 `path:"productId"`
-}
-
 type GetInventoryRequest struct {
-	ProductId int64 `form:"productIds,optional"`
+	ProductId int64 `form:"productId,optional"`
 }
 
 type GetInventoryResponse struct {

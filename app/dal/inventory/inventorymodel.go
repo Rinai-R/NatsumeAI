@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
@@ -32,6 +33,8 @@ type (
 		IncrWithSession(ctx context.Context, session sqlx.Session, id, count int64) error
 		DecrWithSessionByMerchant(ctx context.Context, session sqlx.Session, id, merchantId, count int64) error
 		IncrWithSessionByMerchant(ctx context.Context, session sqlx.Session, id, merchantId, count int64) error
+		FindOneWithNoCache(ctx context.Context, productId int64) (*Inventory, error)
+		InsertWithNoCache(ctx context.Context, data *Inventory) (sql.Result, error)
 	}
 
 	customInventoryModel struct {
@@ -269,4 +272,25 @@ func ensureRows(res sql.Result) error {
 		return ErrRowsAffectedIsZero
 	}
 	return nil
+}
+
+func (m *customInventoryModel) FindOneWithNoCache(ctx context.Context, productId int64) (*Inventory, error) {
+	query := fmt.Sprintf("select %s from %s where `product_id` = ? limit 1", inventoryRows, m.table)
+	var resp Inventory
+	err := m.QueryRowNoCacheCtx(ctx, &resp, query, productId)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
+
+func (m *customInventoryModel) InsertWithNoCache(ctx context.Context, data *Inventory) (sql.Result, error) {
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, inventoryRowsExpectAutoSet)
+	ret, err := m.ExecNoCacheCtx(ctx, query, data.ProductId, data.MerchantId, data.Stock, data.Sold, data.ForzenStock)
+	return ret, err
 }

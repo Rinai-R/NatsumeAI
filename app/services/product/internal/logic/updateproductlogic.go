@@ -89,6 +89,14 @@ func (l *UpdateProductLogic) UpdateProduct(in *product.UpdateProductReq) (*produ
 		l.Logger.Errorf("update product convert proto failed: %v", err)
 		return resp, err
 	}
+	if categoryRecords, err := l.svcCtx.ProductCategoriesModel.ListByProductId(l.ctx, in.GetProductId()); err != nil {
+		if err != productmodel.ErrNotFound {
+			l.Logger.Errorf("update product list categories failed: %v", err)
+			return resp, err
+		}
+	} else {
+		protoProduct.Categories = categoriesFromRecords(categoryRecords)
+	}
 
 	resp.StatusCode = errno.StatusOK
 	resp.StatusMsg = "ok"

@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS `products` (
     `description` TEXT NOT NULL COMMENT '商品描述',
     `picture`     VARCHAR(255) NOT NULL COMMENT '商品主图地址',
     `price`       BIGINT NOT NULL COMMENT '商品售价，单位分',
-    `categories`  JSON COMMENT '商品所属类目列表，JSON 数组',
     `created_at`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),

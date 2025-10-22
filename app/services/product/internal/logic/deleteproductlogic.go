@@ -78,6 +78,11 @@ func (l *DeleteProductLogic) DeleteProduct(in *product.DeleteProductReq) (*produ
 		return resp, nil
 	}
 
+	if err := l.svcCtx.ProductCategoriesModel.DeleteByProductId(l.ctx, in.GetProductId()); err != nil && err != productmodel.ErrNotFound {
+		l.Logger.Errorf("delete product remove categories failed: %v", err)
+		return resp, err
+	}
+
 	if err := l.svcCtx.ProductModel.Delete(l.ctx, in.GetProductId()); err != nil {
 		l.Logger.Errorf("delete product failed: %v", err)
 		return resp, err

@@ -35,7 +35,7 @@ func (l *DeleteInventoryLogic) DeleteInventory(in *inventory.DeleteInventoryReq)
 		return resp, nil
 	}
 
-	record, err := l.svcCtx.InventoryModel.FindOne(l.ctx, in.GetProductId())
+	record, err := l.svcCtx.InventoryModel.FindOneWithNoCache(l.ctx, in.GetProductId())
 	if err != nil {
 		if err == inventoryModel.ErrNotFound {
 			// 保证幂等

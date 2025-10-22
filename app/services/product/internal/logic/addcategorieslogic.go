@@ -62,25 +62,41 @@ func (l *AddCategoriesLogic) AddCategories(in *product.AddCategoriesReq) (*produ
 		return resp, nil
 	}
 
-	existing, err := categoriesFromNullString(record.Categories)
-	if err != nil {
-		l.Logger.Errorf("add categories decode existing failed: %v", err)
+	existingRecords, err := l.svcCtx.ProductCategoriesModel.ListByProductId(l.ctx, in.GetProductId())
+	if err != nil && err != productmodel.ErrNotFound {
+		l.Logger.Errorf("add categories list categories failed: %v", err)
 		return resp, err
 	}
 
-	merged := mergeCategories(existing, newCategories)
-
-	categoriesValue, err := categoriesToNullString(merged)
-	if err != nil {
-		l.Logger.Errorf("add categories marshal failed: %v", err)
-		return resp, err
+	existing := categoriesFromRecords(existingRecords)
+	existingSet := make(map[string]struct{}, len(existing))
+	for _, c := range existing {
+		existingSet[c] = struct{}{}
 	}
 
-	record.Categories = categoriesValue
+	toInsert := make([]string, 0, len(newCategories))
+	for _, c := range newCategories {
+		if _, ok := existingSet[c]; ok {
+			continue
+		}
+		toInsert = append(toInsert, c)
+	}
 
-	if err := l.svcCtx.ProductModel.Update(l.ctx, record); err != nil {
-		l.Logger.Errorf("add categories update failed: %v", err)
-		return resp, err
+	if len(toInsert) == 0 {
+		resp.StatusCode = errno.StatusOK
+		resp.StatusMsg = "ok"
+		return resp, nil
+	}
+
+	for _, c := range toInsert {
+		_, err := l.svcCtx.ProductCategoriesModel.Insert(l.ctx, &productmodel.ProductCategories{
+			ProductId: in.GetProductId(),
+			Category:  c,
+		})
+		if err != nil {
+			l.Logger.Errorf("add categories insert failed: %v", err)
+			return resp, err
+		}
 	}
 
 	resp.StatusCode = errno.StatusOK

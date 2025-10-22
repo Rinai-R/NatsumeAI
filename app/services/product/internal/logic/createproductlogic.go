@@ -53,21 +53,12 @@ func (l *CreateProductLogic) CreateProduct(in *product.CreateProductReq) (*produ
 		return resp, nil
 	}
 
-	categoriesValue, err := categoriesToNullString(in.GetCategories())
-	if err != nil {
-		l.Logger.Errorf("create product marshal categories failed: %v", err)
-		resp.StatusCode = errno.InvalidParam
-		resp.StatusMsg = "invalid product categories"
-		return resp, nil
-	}
-
 	record := &productmodel.Products{
 		MerchantId:  merchantID,
 		Name:        name,
 		Description: description,
 		Picture:     picture,
 		Price:       price,
-		Categories:  categoriesValue,
 	}
 
 	result, err := l.svcCtx.ProductModel.Insert(l.ctx, record)
@@ -83,8 +74,24 @@ func (l *CreateProductLogic) CreateProduct(in *product.CreateProductReq) (*produ
 	}
 
 	cleanup := func() {
+		if delCatErr := l.svcCtx.ProductCategoriesModel.DeleteByProductId(l.ctx, productID); delCatErr != nil && delCatErr != productmodel.ErrNotFound {
+			l.Logger.Errorf("create product rollback categories delete failed: %v", delCatErr)
+		}
 		if delErr := l.svcCtx.ProductModel.Delete(l.ctx, productID); delErr != nil {
 			l.Logger.Errorf("create product rollback delete failed: %v", delErr)
+		}
+	}
+
+	categories := sanitizeCategories(in.GetCategories())
+	for _, category := range categories {
+		_, err := l.svcCtx.ProductCategoriesModel.Insert(l.ctx, &productmodel.ProductCategories{
+			ProductId: productID,
+			Category:  category,
+		})
+		if err != nil {
+			l.Logger.Errorf("create product insert category failed: %v", err)
+			cleanup()
+			return resp, err
 		}
 	}
 
@@ -99,15 +106,11 @@ func (l *CreateProductLogic) CreateProduct(in *product.CreateProductReq) (*produ
 		return resp, err
 	}
 
-	if inventoryResp != nil && inventoryResp.StatusCode != errno.StatusOK {
+	if inventoryResp.StatusCode != errno.StatusOK {
 		l.Logger.Errorf("create product initialize inventory returned code: %d msg: %s", inventoryResp.StatusCode, inventoryResp.StatusMsg)
 		cleanup()
 		resp.StatusCode = inventoryResp.StatusCode
-		if inventoryResp.StatusMsg != "" {
-			resp.StatusMsg = inventoryResp.StatusMsg
-		} else {
-			resp.StatusMsg = "initialize inventory failed"
-		}
+		resp.StatusMsg = inventoryResp.StatusMsg
 		return resp, nil
 	}
 
@@ -126,6 +129,16 @@ func (l *CreateProductLogic) CreateProduct(in *product.CreateProductReq) (*produ
 	if err != nil {
 		l.Logger.Errorf("create product convert proto failed: %v", err)
 		return resp, err
+	}
+	protoProduct.Categories = categories
+
+	if categoryRecords, err := l.svcCtx.ProductCategoriesModel.ListByProductId(l.ctx, productID); err != nil {
+		if err != productmodel.ErrNotFound {
+			l.Logger.Errorf("create product list categories failed: %v", err)
+			return resp, err
+		}
+	} else {
+		protoProduct.Categories = categoriesFromRecords(categoryRecords)
 	}
 
 	resp.StatusCode = errno.StatusOK

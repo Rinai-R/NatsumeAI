@@ -9,3 +9,12 @@ AuthRpc:
 InventoryRpc:
   Target: consul://consul:8500/inventory.rpc?wait=14s
   NonBlock: true 
+
+Consul:
+  Host: consul:8500
+  Key: 
+    auth.rpc
+    inventory.rpc
+
+LogConf:
+  Level: "error"

@@ -6,6 +6,8 @@ services:
       dockerfile: app/api/user/dockerfile
     image: user-api
     container_name: user-api
+    ports:
+      - "10001:10001"
     labels:
       - traefik.enable=true
       - traefik.docker.network=application
@@ -20,12 +22,15 @@ services:
       context: ../..
       dockerfile: app/api/inventory/dockerfile
     image: inventory-api
+    container_name: inventory-api
+    ports:
+      - "10002:10002"
     labels:
       - traefik.enable=true
       - traefik.docker.network=application
-      - traefik.http.routers.user-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/inventory`)
-      - traefik.http.routers.user-api.entrypoints=web
-      - traefik.http.services.user-api.loadbalancer.server.port=10002
+      - traefik.http.routers.inventory-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/inventory`)
+      - traefik.http.routers.inventory-api.entrypoints=web
+      - traefik.http.services.inventory-api.loadbalancer.server.port=10002
     networks:
       - application
     
@@ -34,12 +39,15 @@ services:
       context: ../..
       dockerfile: app/api/product/dockerfile
     image: product-api
+    container_name: product-api
+    ports:
+      - "10003:10003"
     labels:
       - traefik.enable=true
       - traefik.docker.network=application
-      - traefik.http.routers.user-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/product`)
-      - traefik.http.routers.user-api.entrypoints=web
-      - traefik.http.services.user-api.loadbalancer.server.port=10003
+      - traefik.http.routers.product-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/products`)
+      - traefik.http.routers.product-api.entrypoints=web
+      - traefik.http.services.product-api.loadbalancer.server.port=10003
     networks:
       - application
 
@@ -73,7 +81,7 @@ services:
   product-rpc:
     build:
       context: ../..
-      dockerfile: app/service/product/dockerfile
+      dockerfile: app/services/product/dockerfile
     image: product-rpc
     container_name: product-rpc
     networks:

@@ -4,6 +4,7 @@
 package config
 
 import (
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
 	"github.com/zeromicro/zero-contrib/zrpc/registry/consul"
@@ -16,4 +17,6 @@ type Config struct {
 
 	AuthRpc zrpc.RpcClientConf
 	InventoryRpc zrpc.RpcClientConf
+
+	LogConf logx.LogConf
 }

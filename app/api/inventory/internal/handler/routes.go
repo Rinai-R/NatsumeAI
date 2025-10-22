@@ -27,11 +27,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/api/v1/inventory",
 					Handler: inventory_manage.UpdateInventoryHandler(serverCtx),
 				},
-				{
-					Method:  http.MethodDelete,
-					Path:    "/api/v1/inventory/:productId",
-					Handler: inventory_manage.DeleteInventoryHandler(serverCtx),
-				},
 			}...,
 		),
 	)

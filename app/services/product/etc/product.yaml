@@ -10,8 +10,8 @@ Consul:
   Tag:
     - "product-rpc" 
 
-AuthRpc:
-  Target: consul://consul:8500/auth.rpc?wait=14s
+InventoryRpc:
+  Target: consul://consul:8500/inventory.rpc?wait=14s
   NonBlock: true 
 
 MysqlConf:
@@ -23,3 +23,6 @@ CacheConf:
 RedisConf:
   Host: redis:6379
   Tls: false
+
+LogConf:
+  Level: "error"

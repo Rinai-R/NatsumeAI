@@ -9,3 +9,12 @@ UserRpc:
 AuthRpc:
   Target: consul://consul:8500/auth.rpc?wait=14s
   NonBlock: true 
+
+Consul:
+  Host: consul:8500
+  Key: 
+    user.rpc
+    auth.rpc
+
+LogConf:
+  Level: "error"
