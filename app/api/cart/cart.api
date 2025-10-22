@@ -1,0 +1,51 @@
+syntax = "v1"
+
+type (
+	CartItem {
+		Id        int64 `json:"id"`
+		UserId    int64 `json:"userId"`
+		ProductId int64 `json:"productId"`
+		Quantity  int64 `json:"quantity"`
+	}
+	GetCartItemsRequest  {}
+	GetCartItemsResponse {
+		StatusCode int32      `json:"statusCode"`
+		StatusMsg  string     `json:"statusMsg"`
+		Total      int64      `json:"total"`
+		Items      []CartItem `json:"items"`
+	}
+	AddCartItemRequest {
+		ProductId int64 `json:"productId"`
+		Quantity  int64 `json:"quantity"`
+	}
+	UpdateCartItemRequest {
+		ProductId int64 `path:"productId"`
+		Quantity  int64 `json:"quantity"`
+	}
+	DeleteCartItemRequest {
+		ProductId int64 `path:"productId"`
+	}
+	CartActionResponse {
+		StatusCode int32  `json:"statusCode"`
+		StatusMsg  string `json:"statusMsg"`
+	}
+)
+
+@server (
+	middleware: AuthMiddleware
+	group:      cart
+)
+service cart-api {
+	@handler GetCartItems
+	get /api/v1/cart (GetCartItemsRequest) returns (GetCartItemsResponse)
+
+	@handler AddCartItem
+	post /api/v1/cart (AddCartItemRequest) returns (CartActionResponse)
+
+	@handler UpdateCartItem
+	put /api/v1/cart/:productId (UpdateCartItemRequest) returns (CartActionResponse)
+
+	@handler DeleteCartItem
+	delete /api/v1/cart/:productId (DeleteCartItemRequest) returns (CartActionResponse)
+}
+

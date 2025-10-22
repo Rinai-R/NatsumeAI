@@ -33,6 +33,6 @@ func NewUsersModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) U
 func (m *customUsersModel) FindAllUsername(ctx context.Context) ([]string, error) {
 	query := fmt.Sprintf("SELECT username FROM %s", m.table)
 	var name []string
-	err := m.CachedConn.QueryRowNoCache(&name, query)
+	err := m.CachedConn.QueryRowNoCacheCtx(ctx, &name, query)
 	return name, err
 }

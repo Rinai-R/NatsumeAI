@@ -17,9 +17,11 @@ TARGETS=(
   "user-rpc:app/services/user:app/services/user"
   "inventory-rpc:app/services/inventory:app/services/inventory"
   "product-rpc:app/services/product:app/services/product"
+  "cart-rpc:app/services/cart:app/services/cart"
   "user-api:app/api/user:app/api/user"
   "inventory-api:app/api/inventory:app/api/inventory"
   "product-api:app/api/product:app/api/product"
+  "cart-api:app/api/cart:app/api/cart"
 )
 
 usage() {

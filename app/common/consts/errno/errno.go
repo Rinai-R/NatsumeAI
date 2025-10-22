@@ -21,6 +21,8 @@ const (
 	AddressForbidden
 	ProductNotFound
 	MerchantMismatch
+	CartItemNotFound
+	ItemExistInCart
 )
 
 const (

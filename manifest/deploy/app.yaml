@@ -51,6 +51,23 @@ services:
     networks:
       - application
 
+  cart-api:
+    build:
+      context: ../..
+      dockerfile: app/api/cart/dockerfile
+    image: cart-api
+    container_name: cart-api
+    ports:
+      - "10004:10004"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=application
+      - traefik.http.routers.cart-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/cart`)
+      - traefik.http.routers.cart-api.entrypoints=web
+      - traefik.http.services.cart-api.loadbalancer.server.port=10004
+    networks:
+      - application
+
   user-rpc:
     build:
       context: ../..
@@ -87,6 +104,15 @@ services:
     networks:
       - application
 
+  cart-rpc:
+    build:
+      context: ../..
+      dockerfile: app/services/cart/dockerfile
+    image: cart-rpc
+    container_name: cart-rpc
+    networks:
+      - application
+  
 networks:
   application:
     external: true

@@ -2,3 +2,4 @@ manifest/deploy/data
 app/api/*/*-api
 app/services/*/*-rpc
 .cache/
+.gocache/

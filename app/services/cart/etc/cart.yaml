@@ -1,15 +1,18 @@
-Name: inventory.rpc
-ListenOn: 0.0.0.0:12002
+Name: cart.rpc
+ListenOn: 0.0.0.0:12004
 
 Consul:
   Host: consul:8500 # consul endpoint
   Key: 
-    inventory.rpc
+    cart.rpc
   Meta:
     Protocol: grpc
   Tag:
-    - "inventory-rpc" 
+    - "cart-rpc" 
 
+AuthRpc:
+  Target: consul://consul:8500/auth.rpc?wait=14s
+  NonBlock: true 
 
 MysqlConf:
   datasource: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"

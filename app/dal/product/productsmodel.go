@@ -34,6 +34,6 @@ func NewProductsModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option
 func (m *customProductsModel) FindAllProductId(ctx context.Context) ([]int64, error) {
 	query := fmt.Sprintf("SELECT id FROM %s", m.table)
 	var ids []int64
-	err := m.CachedConn.QueryRowNoCache(&ids, query)
+	err := m.CachedConn.QueryRowNoCacheCtx(ctx, &ids, query)
 	return ids, err
 }

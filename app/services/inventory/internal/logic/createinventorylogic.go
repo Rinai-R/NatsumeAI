@@ -43,6 +43,7 @@ func (l *CreateInventoryLogic) CreateInventory(in *inventory.CreateInventoryReq)
 	if err != nil {
 		resp.StatusCode = errno.InsertInventoryError
 		resp.StatusMsg = fmt.Sprint("rpc： inventory 插入数据失败", err.Error())
+		return resp, nil
 	}
 	resp.StatusCode = errno.StatusOK
 	resp.StatusMsg = "ok"

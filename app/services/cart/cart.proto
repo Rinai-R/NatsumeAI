@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package cart;
+
+option go_package = "./cart";
+
+message GetCartItemListReq {
+    int64 user_id = 1;
+}
+
+message GetCartItemListResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+    int64 total = 3;
+    repeated CartInfoResp data = 4;
+}
+
+message CartInfoResp {
+    int64 id = 1;
+    int64 user_id = 2;
+    int64 product_id = 3;
+    int64 quantity = 4;
+}
+
+message DelCartItemReq {
+    int64 user_id = 1;
+    int64 product_id = 2;
+}
+
+message CreateCartItemReq {
+    int64 user_id = 1;
+    int64 product_id = 2;
+    int64 count = 3;
+}
+
+message UpdateCartItemReq {
+    int64 user_id = 1;
+    int64 product_id = 2;
+    int64 count = 3;
+}
+
+message CartItemResp {
+    int32 status_code = 1;
+    string status_msg = 2;
+}
+
+service CartService {
+    // 用户购物车信息
+    rpc GetCartItemList(GetCartItemListReq) returns(GetCartItemListResp);
+    // 添加到购物车
+    rpc AddCartItem(CreateCartItemReq) returns(CartItemResp);
+    // 改变商品数量
+    rpc UpdateCartItem(UpdateCartItemReq) returns(CartItemResp);
+    // 删了
+    rpc DeleteCartItem(DelCartItemReq) returns(CartItemResp);
+}
