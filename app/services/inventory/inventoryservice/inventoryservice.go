@@ -22,6 +22,7 @@ type (
 	InventoryReq       = inventory.InventoryReq
 	InventoryResp      = inventory.InventoryResp
 	Items              = inventory.Items
+	ReturnTokenReq     = inventory.ReturnTokenReq
 	TryGetTokenReq     = inventory.TryGetTokenReq
 	UpdateInventoryReq = inventory.UpdateInventoryReq
 
@@ -32,6 +33,8 @@ type (
 		UpdateInventory(ctx context.Context, in *UpdateInventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
 		// 结账的时候，根据库存快速发放令牌
 		TryGetToken(ctx context.Context, in *TryGetTokenReq, opts ...grpc.CallOption) (*InventoryResp, error)
+		// 归还令牌
+		ReturnToken(ctx context.Context, in *ReturnTokenReq, opts ...grpc.CallOption) (*InventoryResp, error)
 		// 预扣
 		DecreasePreInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
 		// 实际扣减
@@ -73,6 +76,12 @@ func (m *defaultInventoryService) UpdateInventory(ctx context.Context, in *Updat
 func (m *defaultInventoryService) TryGetToken(ctx context.Context, in *TryGetTokenReq, opts ...grpc.CallOption) (*InventoryResp, error) {
 	client := inventory.NewInventoryServiceClient(m.cli.Conn())
 	return client.TryGetToken(ctx, in, opts...)
+}
+
+// 归还令牌
+func (m *defaultInventoryService) ReturnToken(ctx context.Context, in *ReturnTokenReq, opts ...grpc.CallOption) (*InventoryResp, error) {
+	client := inventory.NewInventoryServiceClient(m.cli.Conn())
+	return client.ReturnToken(ctx, in, opts...)
 }
 
 // 预扣

@@ -41,6 +41,12 @@ func (s *InventoryServiceServer) TryGetToken(ctx context.Context, in *inventory.
 	return l.TryGetToken(in)
 }
 
+// 归还令牌
+func (s *InventoryServiceServer) ReturnToken(ctx context.Context, in *inventory.ReturnTokenReq) (*inventory.InventoryResp, error) {
+	l := logic.NewReturnTokenLogic(ctx, s.svcCtx)
+	return l.ReturnToken(in)
+}
+
 // 预扣
 func (s *InventoryServiceServer) DecreasePreInventory(ctx context.Context, in *inventory.InventoryReq) (*inventory.InventoryResp, error) {
 	l := logic.NewDecreasePreInventoryLogic(ctx, s.svcCtx)

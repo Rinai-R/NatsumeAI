@@ -58,6 +58,11 @@ message TryGetTokenReq {
     repeated Items items = 2;
 }
 
+message ReturnTokenReq {
+    int64 preorder_id = 1;
+    repeated Items items = 2;
+}
+
 
 service InventoryService {
     // 获取库存
@@ -66,6 +71,8 @@ service InventoryService {
     rpc UpdateInventory (UpdateInventoryReq) returns (InventoryResp);
     // 结账的时候，根据库存快速发放令牌
     rpc TryGetToken (TryGetTokenReq) returns (InventoryResp);   
+    // 归还令牌
+    rpc ReturnToken (ReturnTokenReq) returns (InventoryResp);
     // 预扣
     rpc DecreasePreInventory (InventoryReq) returns (InventoryResp);
     // 实际扣减

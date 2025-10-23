@@ -565,6 +565,58 @@ func (x *TryGetTokenReq) GetItems() []*Items {
 	return nil
 }
 
+type ReturnTokenReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PreorderId    int64                  `protobuf:"varint,1,opt,name=preorder_id,json=preorderId,proto3" json:"preorder_id,omitempty"`
+	Items         []*Items               `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReturnTokenReq) Reset() {
+	*x = ReturnTokenReq{}
+	mi := &file_inventory_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReturnTokenReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReturnTokenReq) ProtoMessage() {}
+
+func (x *ReturnTokenReq) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReturnTokenReq.ProtoReflect.Descriptor instead.
+func (*ReturnTokenReq) Descriptor() ([]byte, []int) {
+	return file_inventory_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ReturnTokenReq) GetPreorderId() int64 {
+	if x != nil {
+		return x.PreorderId
+	}
+	return 0
+}
+
+func (x *ReturnTokenReq) GetItems() []*Items {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 var File_inventory_proto protoreflect.FileDescriptor
 
 const file_inventory_proto_rawDesc = "" +
@@ -616,11 +668,16 @@ const file_inventory_proto_rawDesc = "" +
 	"\x0eTryGetTokenReq\x12\x1f\n" +
 	"\vpreorder_id\x18\x01 \x01(\x03R\n" +
 	"preorderId\x12&\n" +
-	"\x05items\x18\x02 \x03(\v2\x10.inventory.ItemsR\x05items2\xa5\x05\n" +
+	"\x05items\x18\x02 \x03(\v2\x10.inventory.ItemsR\x05items\"Y\n" +
+	"\x0eReturnTokenReq\x12\x1f\n" +
+	"\vpreorder_id\x18\x01 \x01(\x03R\n" +
+	"preorderId\x12&\n" +
+	"\x05items\x18\x02 \x03(\v2\x10.inventory.ItemsR\x05items2\xe9\x05\n" +
 	"\x10InventoryService\x12G\n" +
 	"\fGetInventory\x12\x1a.inventory.GetInventoryReq\x1a\x1b.inventory.GetInventoryResp\x12J\n" +
 	"\x0fUpdateInventory\x12\x1d.inventory.UpdateInventoryReq\x1a\x18.inventory.InventoryResp\x12B\n" +
-	"\vTryGetToken\x12\x19.inventory.TryGetTokenReq\x1a\x18.inventory.InventoryResp\x12I\n" +
+	"\vTryGetToken\x12\x19.inventory.TryGetTokenReq\x1a\x18.inventory.InventoryResp\x12B\n" +
+	"\vReturnToken\x12\x19.inventory.ReturnTokenReq\x1a\x18.inventory.InventoryResp\x12I\n" +
 	"\x14DecreasePreInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12F\n" +
 	"\x11DecreaseInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12G\n" +
 	"\x12ReturnPreInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12D\n" +
@@ -640,7 +697,7 @@ func file_inventory_proto_rawDescGZIP() []byte {
 	return file_inventory_proto_rawDescData
 }
 
-var file_inventory_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_inventory_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_inventory_proto_goTypes = []any{
 	(*Items)(nil),              // 0: inventory.Items
 	(*InventoryReq)(nil),       // 1: inventory.InventoryReq
@@ -652,35 +709,39 @@ var file_inventory_proto_goTypes = []any{
 	(*CreateInventoryReq)(nil), // 7: inventory.CreateInventoryReq
 	(*DeleteInventoryReq)(nil), // 8: inventory.DeleteInventoryReq
 	(*TryGetTokenReq)(nil),     // 9: inventory.TryGetTokenReq
+	(*ReturnTokenReq)(nil),     // 10: inventory.ReturnTokenReq
 }
 var file_inventory_proto_depIdxs = []int32{
 	0,  // 0: inventory.InventoryReq.items:type_name -> inventory.Items
 	4,  // 1: inventory.GetInventoryResp.items:type_name -> inventory.GetInventoryItem
 	0,  // 2: inventory.UpdateInventoryReq.items:type_name -> inventory.Items
 	0,  // 3: inventory.TryGetTokenReq.items:type_name -> inventory.Items
-	3,  // 4: inventory.InventoryService.GetInventory:input_type -> inventory.GetInventoryReq
-	6,  // 5: inventory.InventoryService.UpdateInventory:input_type -> inventory.UpdateInventoryReq
-	9,  // 6: inventory.InventoryService.TryGetToken:input_type -> inventory.TryGetTokenReq
-	1,  // 7: inventory.InventoryService.DecreasePreInventory:input_type -> inventory.InventoryReq
-	1,  // 8: inventory.InventoryService.DecreaseInventory:input_type -> inventory.InventoryReq
-	1,  // 9: inventory.InventoryService.ReturnPreInventory:input_type -> inventory.InventoryReq
-	1,  // 10: inventory.InventoryService.ReturnInventory:input_type -> inventory.InventoryReq
-	7,  // 11: inventory.InventoryService.CreateInventory:input_type -> inventory.CreateInventoryReq
-	8,  // 12: inventory.InventoryService.DeleteInventory:input_type -> inventory.DeleteInventoryReq
-	5,  // 13: inventory.InventoryService.GetInventory:output_type -> inventory.GetInventoryResp
-	2,  // 14: inventory.InventoryService.UpdateInventory:output_type -> inventory.InventoryResp
-	2,  // 15: inventory.InventoryService.TryGetToken:output_type -> inventory.InventoryResp
-	2,  // 16: inventory.InventoryService.DecreasePreInventory:output_type -> inventory.InventoryResp
-	2,  // 17: inventory.InventoryService.DecreaseInventory:output_type -> inventory.InventoryResp
-	2,  // 18: inventory.InventoryService.ReturnPreInventory:output_type -> inventory.InventoryResp
-	2,  // 19: inventory.InventoryService.ReturnInventory:output_type -> inventory.InventoryResp
-	2,  // 20: inventory.InventoryService.CreateInventory:output_type -> inventory.InventoryResp
-	2,  // 21: inventory.InventoryService.DeleteInventory:output_type -> inventory.InventoryResp
-	13, // [13:22] is the sub-list for method output_type
-	4,  // [4:13] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	0,  // 4: inventory.ReturnTokenReq.items:type_name -> inventory.Items
+	3,  // 5: inventory.InventoryService.GetInventory:input_type -> inventory.GetInventoryReq
+	6,  // 6: inventory.InventoryService.UpdateInventory:input_type -> inventory.UpdateInventoryReq
+	9,  // 7: inventory.InventoryService.TryGetToken:input_type -> inventory.TryGetTokenReq
+	10, // 8: inventory.InventoryService.ReturnToken:input_type -> inventory.ReturnTokenReq
+	1,  // 9: inventory.InventoryService.DecreasePreInventory:input_type -> inventory.InventoryReq
+	1,  // 10: inventory.InventoryService.DecreaseInventory:input_type -> inventory.InventoryReq
+	1,  // 11: inventory.InventoryService.ReturnPreInventory:input_type -> inventory.InventoryReq
+	1,  // 12: inventory.InventoryService.ReturnInventory:input_type -> inventory.InventoryReq
+	7,  // 13: inventory.InventoryService.CreateInventory:input_type -> inventory.CreateInventoryReq
+	8,  // 14: inventory.InventoryService.DeleteInventory:input_type -> inventory.DeleteInventoryReq
+	5,  // 15: inventory.InventoryService.GetInventory:output_type -> inventory.GetInventoryResp
+	2,  // 16: inventory.InventoryService.UpdateInventory:output_type -> inventory.InventoryResp
+	2,  // 17: inventory.InventoryService.TryGetToken:output_type -> inventory.InventoryResp
+	2,  // 18: inventory.InventoryService.ReturnToken:output_type -> inventory.InventoryResp
+	2,  // 19: inventory.InventoryService.DecreasePreInventory:output_type -> inventory.InventoryResp
+	2,  // 20: inventory.InventoryService.DecreaseInventory:output_type -> inventory.InventoryResp
+	2,  // 21: inventory.InventoryService.ReturnPreInventory:output_type -> inventory.InventoryResp
+	2,  // 22: inventory.InventoryService.ReturnInventory:output_type -> inventory.InventoryResp
+	2,  // 23: inventory.InventoryService.CreateInventory:output_type -> inventory.InventoryResp
+	2,  // 24: inventory.InventoryService.DeleteInventory:output_type -> inventory.InventoryResp
+	15, // [15:25] is the sub-list for method output_type
+	5,  // [5:15] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_inventory_proto_init() }
@@ -694,7 +755,7 @@ func file_inventory_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_proto_rawDesc), len(file_inventory_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

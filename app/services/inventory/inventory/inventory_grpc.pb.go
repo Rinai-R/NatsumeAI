@@ -22,6 +22,7 @@ const (
 	InventoryService_GetInventory_FullMethodName         = "/inventory.InventoryService/GetInventory"
 	InventoryService_UpdateInventory_FullMethodName      = "/inventory.InventoryService/UpdateInventory"
 	InventoryService_TryGetToken_FullMethodName          = "/inventory.InventoryService/TryGetToken"
+	InventoryService_ReturnToken_FullMethodName          = "/inventory.InventoryService/ReturnToken"
 	InventoryService_DecreasePreInventory_FullMethodName = "/inventory.InventoryService/DecreasePreInventory"
 	InventoryService_DecreaseInventory_FullMethodName    = "/inventory.InventoryService/DecreaseInventory"
 	InventoryService_ReturnPreInventory_FullMethodName   = "/inventory.InventoryService/ReturnPreInventory"
@@ -40,6 +41,8 @@ type InventoryServiceClient interface {
 	UpdateInventory(ctx context.Context, in *UpdateInventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
 	// 结账的时候，根据库存快速发放令牌
 	TryGetToken(ctx context.Context, in *TryGetTokenReq, opts ...grpc.CallOption) (*InventoryResp, error)
+	// 归还令牌
+	ReturnToken(ctx context.Context, in *ReturnTokenReq, opts ...grpc.CallOption) (*InventoryResp, error)
 	// 预扣
 	DecreasePreInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
 	// 实际扣减
@@ -86,6 +89,16 @@ func (c *inventoryServiceClient) TryGetToken(ctx context.Context, in *TryGetToke
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(InventoryResp)
 	err := c.cc.Invoke(ctx, InventoryService_TryGetToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *inventoryServiceClient) ReturnToken(ctx context.Context, in *ReturnTokenReq, opts ...grpc.CallOption) (*InventoryResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InventoryResp)
+	err := c.cc.Invoke(ctx, InventoryService_ReturnToken_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -162,6 +175,8 @@ type InventoryServiceServer interface {
 	UpdateInventory(context.Context, *UpdateInventoryReq) (*InventoryResp, error)
 	// 结账的时候，根据库存快速发放令牌
 	TryGetToken(context.Context, *TryGetTokenReq) (*InventoryResp, error)
+	// 归还令牌
+	ReturnToken(context.Context, *ReturnTokenReq) (*InventoryResp, error)
 	// 预扣
 	DecreasePreInventory(context.Context, *InventoryReq) (*InventoryResp, error)
 	// 实际扣减
@@ -192,6 +207,9 @@ func (UnimplementedInventoryServiceServer) UpdateInventory(context.Context, *Upd
 }
 func (UnimplementedInventoryServiceServer) TryGetToken(context.Context, *TryGetTokenReq) (*InventoryResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TryGetToken not implemented")
+}
+func (UnimplementedInventoryServiceServer) ReturnToken(context.Context, *ReturnTokenReq) (*InventoryResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReturnToken not implemented")
 }
 func (UnimplementedInventoryServiceServer) DecreasePreInventory(context.Context, *InventoryReq) (*InventoryResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DecreasePreInventory not implemented")
@@ -282,6 +300,24 @@ func _InventoryService_TryGetToken_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InventoryServiceServer).TryGetToken(ctx, req.(*TryGetTokenReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InventoryService_ReturnToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReturnTokenReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InventoryServiceServer).ReturnToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InventoryService_ReturnToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InventoryServiceServer).ReturnToken(ctx, req.(*ReturnTokenReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -412,6 +448,10 @@ var InventoryService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TryGetToken",
 			Handler:    _InventoryService_TryGetToken_Handler,
+		},
+		{
+			MethodName: "ReturnToken",
+			Handler:    _InventoryService_ReturnToken_Handler,
 		},
 		{
 			MethodName: "DecreasePreInventory",
