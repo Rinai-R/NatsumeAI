@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"NatsumeAI/app/common/consts/errno"
+	inventorymodel "NatsumeAI/app/dal/inventory"
 	"NatsumeAI/app/services/inventory/internal/svc"
 	"NatsumeAI/app/services/inventory/inventory"
 
@@ -35,6 +36,11 @@ func (l *DecreaseInventoryLogic) DecreaseInventory(in *inventory.InventoryReq) (
 				ConfirmWithSession(ctx, s, item.ProductId, item.Quantity)
 			if err != nil {
 				l.Logger.Debug("rpc: 扣减库存失败：", err, "冻结对象：", item)
+				return err
+			}
+			err = l.svcCtx.InventoryAuditModel.UpdateStatusWithSession(ctx, s, in.OrderId, item.ProductId, inventorymodel.AUDIT_CONFIRMED)
+			if err != nil {
+				l.Logger.Debug("rpc: 扣减库存记录审计日志：", err, "冻结对象：", item)
 				return err
 			}
 		}

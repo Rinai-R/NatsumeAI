@@ -69,6 +69,25 @@ services:
       retries: 5
     networks:
       - application
+  # 延时任务专用 redis
+  asynq:
+    image: redis:7.2.5
+    container_name: asynq
+    restart: always
+    ports:
+      - "6380:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./data/asynq:/data
+    environment:
+      TZ: Asia/Shanghai
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - application
 
   traefik:
     image: traefik:v3.5

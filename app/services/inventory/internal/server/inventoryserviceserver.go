@@ -35,6 +35,12 @@ func (s *InventoryServiceServer) UpdateInventory(ctx context.Context, in *invent
 	return l.UpdateInventory(in)
 }
 
+// 结账的时候，根据库存快速发放令牌
+func (s *InventoryServiceServer) TryGetToken(ctx context.Context, in *inventory.TryGetTokenReq) (*inventory.InventoryResp, error) {
+	l := logic.NewTryGetTokenLogic(ctx, s.svcCtx)
+	return l.TryGetToken(in)
+}
+
 // 预扣
 func (s *InventoryServiceServer) DecreasePreInventory(ctx context.Context, in *inventory.InventoryReq) (*inventory.InventoryResp, error) {
 	l := logic.NewDecreasePreInventoryLogic(ctx, s.svcCtx)

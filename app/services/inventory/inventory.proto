@@ -10,6 +10,7 @@ message Items {
 }
 
 message InventoryReq {
+    int64 order_id = 1;
     repeated Items items = 2;
 }
 
@@ -52,12 +53,19 @@ message DeleteInventoryReq {
     int64 merchant_id = 2;
 }
 
+message TryGetTokenReq {
+    int64 preorder_id = 1;
+    repeated Items items = 2;
+}
+
 
 service InventoryService {
     // 获取库存
     rpc GetInventory (GetInventoryReq) returns (GetInventoryResp);
     // 更新库存，商家调用
     rpc UpdateInventory (UpdateInventoryReq) returns (InventoryResp);
+    // 结账的时候，根据库存快速发放令牌
+    rpc TryGetToken (TryGetTokenReq) returns (InventoryResp);   
     // 预扣
     rpc DecreasePreInventory (InventoryReq) returns (InventoryResp);
     // 实际扣减

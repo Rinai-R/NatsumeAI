@@ -10,3 +10,9 @@ var ErrNotFound = sqlx.ErrNotFound
 var ErrRowsAffectedIsZero = errors.New("affected rows is zero")
 var ErrInvalidParam = errors.New("invalid param for sql")
 var ErrInsertError = errors.New("Insert inventory error")
+
+const (
+	AUDIT_PENDING = "PENDING"
+	AUDIT_CONFIRMED = "CONFIRMED"
+	AUDIT_CANCLLED = "CANCELLED"
+)

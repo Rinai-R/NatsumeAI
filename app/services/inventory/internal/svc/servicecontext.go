@@ -10,18 +10,13 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
-const (
-	preInventoryTokenKey          = "inventory:pre:deduct"
-	preInventoryTokenLimiterRate  = 1000
-	preInventoryTokenLimiterBurst = 1000
-)
-
 type ServiceContext struct {
 	Config config.Config
 
-	InventoryModel inventory.InventoryModel
+	InventoryModel      inventory.InventoryModel
+	InventoryAuditModel inventory.InventoryAuditModel
 
-	Redis *redis.Redis
+	InventoryTokenModel inventory.InventoryTokenModel
 
 	InventoryPreDeductLimiter *limit.TokenLimiter
 }
@@ -29,22 +24,15 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	logx.MustSetup(c.LogConf)
 	inventoryModel := inventory.NewInventoryModel(sqlx.MustNewConn(c.MysqlConf), c.CacheConf)
+	inventoryAuditModel := inventory.NewInventoryAuditModel(sqlx.MustNewConn(c.MysqlConf), c.CacheConf)
 	redisClient, err := redis.NewRedis(c.RedisConf)
 	if err != nil {
 		panic("fail to init redis")
 	}
-
-	preDeductLimiter := limit.NewTokenLimiter(
-		preInventoryTokenLimiterRate,
-		preInventoryTokenLimiterBurst,
-		redisClient,
-		preInventoryTokenKey,
-	)
-
 	return &ServiceContext{
-		Config:                    c,
-		InventoryModel:            inventoryModel,
-		Redis:                     redisClient,
-		InventoryPreDeductLimiter: preDeductLimiter,
+		Config:              c,
+		InventoryModel:      inventoryModel,
+		InventoryAuditModel: inventoryAuditModel,
+		InventoryTokenModel: inventory.NewInventoryTokenModel(redisClient, inventoryModel),
 	}
 }

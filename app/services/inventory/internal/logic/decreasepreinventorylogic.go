@@ -2,8 +2,11 @@ package logic
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"NatsumeAI/app/common/consts/errno"
+	inventorymodel "NatsumeAI/app/dal/inventory"
 	"NatsumeAI/app/services/inventory/internal/svc"
 	"NatsumeAI/app/services/inventory/inventory"
 
@@ -28,12 +31,52 @@ func NewDecreasePreInventoryLogic(ctx context.Context, svcCtx *svc.ServiceContex
 // 预扣
 func (l *DecreasePreInventoryLogic) DecreasePreInventory(in *inventory.InventoryReq) (*inventory.InventoryResp, error) {
 	resp := &inventory.InventoryResp{}
-	err := l.svcCtx.InventoryModel.ExecWithTransaction(l.ctx, func(ctx context.Context, s sqlx.Session) error {
+
+	if in == nil || in.OrderId <= 0 || len(in.Items) == 0 {
+		resp.StatusCode = errno.InvalidParam
+		resp.StatusMsg = "invalid order or items"
+		return resp, nil
+	}
+
+	ticket, err := l.svcCtx.InventoryTokenModel.CheckToken(l.ctx, in.OrderId, false)
+	if err != nil {
+		var tokenErr *inventorymodel.TokenError
+		switch {
+		case errors.As(err, &tokenErr):
+			resp.StatusCode = errno.InvalidParam
+			resp.StatusMsg = tokenErr.Error()
+			l.Logger.Infof("pre inventory token check rejected: order=%d code=%s details=%v", in.OrderId, tokenErr.Code(), tokenErr.Details())
+		default:
+			resp.StatusCode = errno.InternalError
+			resp.StatusMsg = err.Error()
+			l.Logger.Errorf("pre inventory token check failed: order=%d err=%v", in.OrderId, err)
+		}
+		return resp, nil
+	}
+
+	if err := matchTicketAndRequest(ticket, in.Items); err != nil {
+		resp.StatusCode = errno.InvalidParam
+		resp.StatusMsg = err.Error()
+		l.Logger.Infof("pre inventory token mismatch: order=%d err=%v", in.OrderId, err)
+		return resp, nil
+	}
+
+	err = l.svcCtx.InventoryModel.ExecWithTransaction(l.ctx, func(ctx context.Context, s sqlx.Session) error {
 		for _, item := range in.Items {
 			err := l.svcCtx.InventoryModel.
 				FreezeWithSession(ctx, s, item.ProductId, item.Quantity)
 			if err != nil {
 				l.Logger.Debug("rpc: 冻结库存失败：", err, "冻结对象：", item)
+				return err
+			}
+			_, err = l.svcCtx.InventoryAuditModel.InsertWithSession(l.ctx, s, &inventorymodel.InventoryAudit{
+				OrderId:   in.OrderId,
+				ProductId: item.ProductId,
+				Quantity:  item.Quantity,
+				Status:    inventorymodel.AUDIT_PENDING,
+			})
+			if err != nil {
+				l.Logger.Debug("rpc: 冻结库存插入审计日志失败：", err, "冻结对象：", item)
 				return err
 			}
 		}
@@ -47,4 +90,44 @@ func (l *DecreasePreInventoryLogic) DecreasePreInventory(in *inventory.Inventory
 	resp.StatusCode = errno.StatusOK
 	resp.StatusMsg = "ok"
 	return resp, nil
+}
+
+func matchTicketAndRequest(ticket *inventorymodel.TokenTicket, items []*inventory.Items) error {
+	if ticket == nil {
+		return fmt.Errorf("token ticket missing")
+	}
+	if len(ticket.Items) == 0 {
+		return fmt.Errorf("token ticket empty items")
+	}
+
+	request := make(map[int64]int64, len(items))
+	for _, item := range items {
+		if item.ProductId <= 0 || item.Quantity <= 0 {
+			return fmt.Errorf("invalid request item %d", item.ProductId)
+		}
+		request[item.ProductId] += item.Quantity
+	}
+
+	token := make(map[int64]int64, len(ticket.Items))
+	for _, t := range ticket.Items {
+		token[t.SKU] += t.Quantity
+	}
+
+	for sku, qty := range request {
+		tokenQty, ok := token[sku]
+		if !ok {
+			return fmt.Errorf("token missing sku %d", sku)
+		}
+		if tokenQty < qty {
+			return fmt.Errorf("not enough token for sku %d need %d have %d", sku, qty, tokenQty)
+		}
+		token[sku] = tokenQty - qty
+	}
+
+	for sku, remain := range token {
+		if remain != 0 {
+			return fmt.Errorf("token qty mismatch for sku %d remain %d", sku, remain)
+		}
+	}
+	return nil
 }
