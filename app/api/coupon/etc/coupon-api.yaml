@@ -1,0 +1,21 @@
+Name: coupon-api
+Host: 0.0.0.0
+Port: 10006
+
+
+AuthRpc:
+  Target: consul://consul:8500/auth.rpc?wait=14s
+  NonBlock: true 
+CouponRpc:
+  Target: consul://consul:8500/coupon.rpc?wait=14s
+  NonBlock: true 
+
+Consul:
+  Host: consul:8500
+  Key: 
+    auth.rpc
+    coupon.rpc
+
+LogConf:
+  Level: "error"
+

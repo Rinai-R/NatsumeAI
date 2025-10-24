@@ -42,6 +42,7 @@ type (
 
 	CouponInstances struct {
 		Id             int64        `db:"id"`              // 券实例ID
+		CouponId       int64        `db:"coupon_id"`       // 对应的优惠券id
 		UserId         int64        `db:"user_id"`         // 持券用户ID
 		Status         string       `db:"status"`          // 实例状态
 		LockedPreorder int64        `db:"locked_preorder"` // 锁定的预订单ID
@@ -89,8 +90,8 @@ func (m *defaultCouponInstancesModel) FindOne(ctx context.Context, id int64) (*C
 func (m *defaultCouponInstancesModel) Insert(ctx context.Context, data *CouponInstances) (sql.Result, error) {
 	couponInstancesIdKey := fmt.Sprintf("%s%v", cacheCouponInstancesIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?)", m.table, couponInstancesRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.UserId, data.Status, data.LockedPreorder, data.LockedAt, data.UsedOrderId, data.UsedAt)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, couponInstancesRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.CouponId, data.UserId, data.Status, data.LockedPreorder, data.LockedAt, data.UsedOrderId, data.UsedAt)
 	}, couponInstancesIdKey)
 	return ret, err
 }
@@ -99,7 +100,7 @@ func (m *defaultCouponInstancesModel) Update(ctx context.Context, data *CouponIn
 	couponInstancesIdKey := fmt.Sprintf("%s%v", cacheCouponInstancesIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, couponInstancesRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.UserId, data.Status, data.LockedPreorder, data.LockedAt, data.UsedOrderId, data.UsedAt, data.Id)
+		return conn.ExecCtx(ctx, query, data.CouponId, data.UserId, data.Status, data.LockedPreorder, data.LockedAt, data.UsedOrderId, data.UsedAt, data.Id)
 	}, couponInstancesIdKey)
 	return err
 }

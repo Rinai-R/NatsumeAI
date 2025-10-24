@@ -1,0 +1,85 @@
+syntax = "v1"
+
+type (
+	// 基础枚举以数字表达，前端自行映射文案
+	// 优惠券
+	CouponItem {
+		CouponId        int64  `json:"couponId"` // 实例ID（用户持有的券）
+		CouponType      int32  `json:"couponType"` // 1:现金券 2:折扣券
+		Status          int32  `json:"status"` // 1:未使用 2:已锁定 3:已使用 4:已过期
+		DiscountAmount  int64  `json:"discountAmount"`
+		DiscountPercent int32  `json:"discountPercent"`
+		MinSpendAmount  int64  `json:"minSpendAmount"`
+		UserId          int64  `json:"userId"`
+		LockedPreorder  int64  `json:"lockedPreorder"`
+		StartAt         int64  `json:"startAt"`
+		EndAt           int64  `json:"endAt"`
+		Source          string `json:"source"`
+		Remarks         string `json:"remarks"`
+	}
+	// 通用动作响应
+	CouponActionResponse {
+		StatusCode int32  `json:"statusCode"`
+		StatusMsg  string `json:"statusMsg"`
+	}
+	// 领取优惠券（针对活动/模板）
+	ClaimCouponRequest {
+		CampaignId int64 `json:"campaignId"`
+	}
+	// 列出当前用户的优惠券
+	ListUserCouponsRequest {
+		Status   int32 `form:"status,optional"` // 0:全部 1:未用 2:锁定 3:已用 4:过期
+		Page     int32 `form:"page,optional"`
+		PageSize int32 `form:"pageSize,optional"`
+	}
+	ListUserCouponsResponse {
+		StatusCode int32        `json:"statusCode"`
+		StatusMsg  string       `json:"statusMsg"`
+		Coupons    []CouponItem `json:"coupons"`
+		Total      int64        `json:"total"`
+	}
+	// 校验/锁定/释放/核销均为内部RPC，不对外暴露
+	// 发布优惠券活动（管理端）
+	PublishCouponRequest {
+		CouponType      int32  `json:"couponType"` // 1:现金券 2:折扣券
+		DiscountAmount  int64  `json:"discountAmount"`
+		DiscountPercent int32  `json:"discountPercent"`
+		MinSpendAmount  int64  `json:"minSpendAmount"`
+		TotalIssue      int64  `json:"totalIssue"`
+		PerUserLimit    int64  `json:"perUserLimit"`
+		StartAt         int64  `json:"startAt"` // 秒级时间戳
+		EndAt           int64  `json:"endAt"`
+		Source          string `json:"source"`
+		Remarks         string `json:"remarks"`
+	}
+	PublishCouponResponse {
+		StatusCode int32  `json:"statusCode"`
+		StatusMsg  string `json:"statusMsg"`
+		CampaignId int64  `json:"campaignId"`
+	}
+)
+
+@server (
+	middleware: AuthMiddleware
+	group:      coupon
+)
+service coupon-api {
+	// 领取优惠券（活动ID）
+	@handler ClaimCoupon
+	post /api/v1/coupons/claim (ClaimCouponRequest) returns (CouponActionResponse)
+
+	// 我的优惠券列表
+	@handler ListUserCoupons
+	get /api/v1/coupons (ListUserCouponsRequest) returns (ListUserCouponsResponse)
+}
+
+@server (
+	middleware: AuthMiddleware
+	group:      coupon_manage
+)
+service coupon-api {
+	// 发布/批量发券（管理端）
+	@handler PublishCoupon
+	post /api/v1/coupons/publish (PublishCouponRequest) returns (PublishCouponResponse)
+}
+

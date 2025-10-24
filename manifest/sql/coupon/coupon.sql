@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `coupons` (
 
 CREATE TABLE IF NOT EXISTS `coupon_instances` (
     `id`              BIGINT NOT NULL AUTO_INCREMENT COMMENT '券实例ID',
+    `coupon_id`       BIGINT NOT NULL COMMENT '对应的优惠券id',
     `user_id`         BIGINT NOT NULL COMMENT '持券用户ID',
     `status`          ENUM('UNUSED','LOCKED','USED', 'EXPIRED') NOT NULL DEFAULT 'UNUSED' COMMENT '实例状态',
     `locked_preorder` BIGINT NOT NULL DEFAULT 0 COMMENT '锁定的预订单ID',

@@ -67,6 +67,23 @@ services:
       - traefik.http.services.cart-api.loadbalancer.server.port=10004
     networks:
       - application
+  
+  coupon-api:
+    build:
+      context: ../..
+      dockerfile: app/api/coupon/dockerfile
+    image: coupon-api
+    container_name: coupon-api
+    ports:
+      - "10006:10006"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=application
+      - traefik.http.routers.coupon-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/coupons`)
+      - traefik.http.routers.coupon-api.entrypoints=web
+      - traefik.http.services.coupon-api.loadbalancer.server.port=10006
+    networks:
+      - application
 
   user-rpc:
     build:
@@ -110,6 +127,15 @@ services:
       dockerfile: app/services/cart/dockerfile
     image: cart-rpc
     container_name: cart-rpc
+    networks:
+      - application
+
+  coupon-rpc:
+    build:
+      context: ../..
+      dockerfile: app/services/coupon/dockerfile
+    image: coupon-rpc
+    container_name: coupon-rpc
     networks:
       - application
   
