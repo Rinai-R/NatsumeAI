@@ -1,0 +1,142 @@
+syntax = "proto3";
+
+package coupon;
+
+option go_package = "./coupon";
+
+enum CouponStatus {
+    COUPON_STATUS_UNKNOWN   = 0;
+    COUPON_STATUS_UNUSED    = 1;
+    COUPON_STATUS_LOCKED    = 2;
+    COUPON_STATUS_USED      = 3;
+    COUPON_STATUS_EXPIRED   = 4;
+}
+
+enum CouponType {
+    COUPON_TYPE_UNKNOWN   = 0;
+    COUPON_TYPE_CASH      = 1;  // 直接抵扣金额
+    COUPON_TYPE_PERCENT   = 2;  // 折扣券
+}
+
+message CouponInfo {
+    int64        coupon_id        = 1;
+    CouponType   coupon_type      = 2;
+    CouponStatus status           = 3;
+    int64        discount_amount  = 4;  // 抵扣金额(分)，折扣券时为折扣上限
+    int32        discount_percent = 5;  // 折扣百分比，折扣券使用
+    int64        min_spend_amount = 6;  // 使用门槛(分)
+    int64        user_id          = 7;
+    int64        locked_preorder  = 8;
+    int64        start_at         = 9;
+    int64        end_at           = 10;
+    string       source           = 11; // 来源
+    string       remarks          = 12; // 备注
+}
+
+message ClaimCouponReq {
+    int64 user_id = 1;
+    int64 coupon_id = 2;
+}
+
+message ClaimCouponResp {
+    int64  status_code = 1;
+    string status_msg  = 2;
+}
+
+message ListUserCouponsReq {
+    int64        user_id     = 1;
+    CouponStatus status      = 2;
+    int32        page        = 3;
+    int32        page_size   = 4;
+}
+
+message ListUserCouponsResp {
+    int32                 status_code = 1;
+    string                status_msg  = 2;
+    repeated CouponInfo   coupons     = 3;
+    int64                 total       = 4;
+}
+
+message ValidateCouponReq {
+    int64      user_id       = 1;
+    int64      coupon_id     = 2;
+    int64      order_amount  = 3;
+}
+
+message ValidateCouponResp {
+    int32        status_code      = 1;
+    string       status_msg       = 2;
+    bool         valid            = 3;
+    int64        discount_amount  = 4;
+    CouponType   coupon_type      = 5;
+}
+
+message LockCouponReq {
+    int64 user_id       = 1;
+    int64 coupon_id     = 2;
+    int64 order_id   = 3;
+}
+
+message LockCouponResp {
+    int32  status_code = 1;
+    string status_msg  = 2;
+}
+
+message ReleaseCouponReq {
+    int64 user_id      = 1;
+    int64 coupon_id    = 2;
+    int64 order_id     = 3;
+}
+
+message ReleaseCouponResp {
+    int32  status_code = 1;
+    string status_msg  = 2;
+}
+
+message RedeemCouponReq {
+    int64 user_id      = 1;
+    int64 coupon_id    = 2;
+    int64 order_id     = 3;
+    int64 order_amount = 4;
+}
+
+message RedeemCouponResp {
+    int32  status_code = 1;
+    string status_msg  = 2;
+}
+
+message PublishCouponReq {
+    CouponType coupon_type      = 1;
+    int64      discount_amount  = 2;
+    int32      discount_percent = 3;
+    int64      min_spend_amount = 4;
+    int64      total_issue      = 5;
+    int64      per_user_limit   = 6;
+    int64      start_at         = 7;
+    int64      end_at           = 8;
+    string     source           = 9;
+    string     remarks          = 10;
+}
+
+message PublishCouponResp {
+    int32  status_code = 1;
+    string status_msg  = 2;
+    int64  campaign_id = 3;
+}
+
+service CouponService {
+    // 领取优惠券
+    rpc ClaimCoupon (ClaimCouponReq) returns (ClaimCouponResp); 
+    // 查询用户优惠券列表
+    rpc ListUserCoupons (ListUserCouponsReq) returns (ListUserCouponsResp);
+    // 校验优惠券可用性
+    rpc ValidateCoupon (ValidateCouponReq) returns (ValidateCouponResp);
+    // 锁定优惠券
+    rpc LockCoupon (LockCouponReq) returns (LockCouponResp);
+    // 释放优惠券
+    rpc ReleaseCoupon (ReleaseCouponReq) returns (ReleaseCouponResp);
+    // 核销优惠券
+    rpc RedeemCoupon (RedeemCouponReq) returns (RedeemCouponResp);
+    // 发布/批量发券
+    rpc PublishCoupon (PublishCouponReq) returns (PublishCouponResp);
+}

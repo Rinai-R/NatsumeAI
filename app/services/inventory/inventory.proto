@@ -11,7 +11,8 @@ message Items {
 
 message InventoryReq {
     int64 order_id = 1;
-    repeated Items items = 2;
+    int64 preorder_id = 2;
+    repeated Items items = 3;
 }
 
 message InventoryResp {

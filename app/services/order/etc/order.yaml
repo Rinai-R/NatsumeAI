@@ -1,0 +1,34 @@
+Name: order.rpc
+ListenOn: 0.0.0.0:12005
+
+Consul:
+  Host: consul:8500 # consul endpoint
+  Key: 
+    order.rpc
+  Meta:
+    Protocol: grpc
+  Tag:
+    - "order-rpc" 
+
+InventoryRpc:
+  Target: consul://consul:8500/inventory.rpc?wait=14s
+  NonBlock: true 
+
+MysqlConf:
+  datasource: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"
+CacheConf:
+  - Host: redis:6379
+    Pass: ""
+    Type: node
+RedisConf:
+  Host: redis:6379
+  Tls: false
+
+AsynqServerConf:
+  Addr: asynq:6380
+
+AsynqConf:
+  Concurrency: 10
+
+LogConf:
+  Level: "error"

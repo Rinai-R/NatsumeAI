@@ -23,6 +23,12 @@ const (
 	MerchantMismatch
 	CartItemNotFound
 	ItemExistInCart
+	CouponNotFound
+	CouponSoldOut
+	CouponAlreadyClaimed
+	CouponExpired
+	CouponStatusInvalid
+	CouponOwnershipInvalid
 )
 
 const (

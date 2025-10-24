@@ -76,7 +76,8 @@ func (x *Items) GetQuantity() int64 {
 type InventoryReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
-	Items         []*Items               `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	PreorderId    int64                  `protobuf:"varint,2,opt,name=preorder_id,json=preorderId,proto3" json:"preorder_id,omitempty"`
+	Items         []*Items               `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -114,6 +115,13 @@ func (*InventoryReq) Descriptor() ([]byte, []int) {
 func (x *InventoryReq) GetOrderId() int64 {
 	if x != nil {
 		return x.OrderId
+	}
+	return 0
+}
+
+func (x *InventoryReq) GetPreorderId() int64 {
+	if x != nil {
+		return x.PreorderId
 	}
 	return 0
 }
@@ -625,10 +633,12 @@ const file_inventory_proto_rawDesc = "" +
 	"\x05Items\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\x03R\tproductId\x12\x1a\n" +
-	"\bquantity\x18\x02 \x01(\x03R\bquantity\"Q\n" +
+	"\bquantity\x18\x02 \x01(\x03R\bquantity\"r\n" +
 	"\fInventoryReq\x12\x19\n" +
-	"\border_id\x18\x01 \x01(\x03R\aorderId\x12&\n" +
-	"\x05items\x18\x02 \x03(\v2\x10.inventory.ItemsR\x05items\"O\n" +
+	"\border_id\x18\x01 \x01(\x03R\aorderId\x12\x1f\n" +
+	"\vpreorder_id\x18\x02 \x01(\x03R\n" +
+	"preorderId\x12&\n" +
+	"\x05items\x18\x03 \x03(\v2\x10.inventory.ItemsR\x05items\"O\n" +
 	"\rInventoryResp\x12\x1f\n" +
 	"\vstatus_code\x18\x01 \x01(\x05R\n" +
 	"statusCode\x12\x1d\n" +
