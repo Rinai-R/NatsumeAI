@@ -23,13 +23,13 @@ func NewOrderServiceServer(svcCtx *svc.ServiceContext) *OrderServiceServer {
 	}
 }
 
-// Checkout（创建订单草稿，发令牌）
+// Checkout（结账，预订单）
 func (s *OrderServiceServer) Checkout(ctx context.Context, in *order.CheckoutReq) (*order.CheckoutResp, error) {
 	l := logic.NewCheckoutLogic(ctx, s.svcCtx)
 	return l.Checkout(in)
 }
 
-// 提交订单（冻结库存，生成正式订单）
+// 提交订单（生成正式订单）
 func (s *OrderServiceServer) PlaceOrder(ctx context.Context, in *order.PlaceOrderReq) (*order.PlaceOrderResp, error) {
 	l := logic.NewPlaceOrderLogic(ctx, s.svcCtx)
 	return l.PlaceOrder(in)

@@ -31,9 +31,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderServiceClient interface {
-	// Checkout（创建订单草稿，发令牌）
+	// Checkout（结账，预订单）
 	Checkout(ctx context.Context, in *CheckoutReq, opts ...grpc.CallOption) (*CheckoutResp, error)
-	// 提交订单（冻结库存，生成正式订单）
+	// 提交订单（生成正式订单）
 	PlaceOrder(ctx context.Context, in *PlaceOrderReq, opts ...grpc.CallOption) (*PlaceOrderResp, error)
 	// 支付确认（支付成功）
 	ConfirmPayment(ctx context.Context, in *ConfirmPaymentReq, opts ...grpc.CallOption) (*ConfirmPaymentResp, error)
@@ -117,9 +117,9 @@ func (c *orderServiceClient) ListOrders(ctx context.Context, in *ListOrdersReq, 
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility.
 type OrderServiceServer interface {
-	// Checkout（创建订单草稿，发令牌）
+	// Checkout（结账，预订单）
 	Checkout(context.Context, *CheckoutReq) (*CheckoutResp, error)
-	// 提交订单（冻结库存，生成正式订单）
+	// 提交订单（生成正式订单）
 	PlaceOrder(context.Context, *PlaceOrderReq) (*PlaceOrderResp, error)
 	// 支付确认（支付成功）
 	ConfirmPayment(context.Context, *ConfirmPaymentReq) (*ConfirmPaymentResp, error)

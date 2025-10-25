@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	defaultTicketTTL         = 300 * time.Second
+    // 设置为 0 表示不设置 TTL，由上层超时任务负责清理与回退
+    defaultTicketTTL         = 0 * time.Second
 	tokenEpochKeyPattern     = "inv:%d:epoch"
 	tokenThresholdKeyPattern = "inv:%d:threshold:%d"
 	tokenIssuedKeyPattern    = "inv:%d:issued:%d"
@@ -37,19 +38,19 @@ type (
 		Epoch    int64 `json:"epoch"`
 	}
 
-	// TokenTicket captures the Redis admission ticket for a preorder.
-	TokenTicket struct {
-		PreorderID string      `json:"preorder_id"`
-		IssuedAt   int64       `json:"issued_at"`
-		Items      []TokenItem `json:"items"`
-	}
+    // TokenTicket captures the Redis admission ticket for a preorder (single item).
+    TokenTicket struct {
+        PreorderID string    `json:"preorder_id"`
+        IssuedAt   int64     `json:"issued_at"`
+        Item       TokenItem `json:"item"`
+    }
 
-	InventoryTokenModel interface {
-		SyncTokenSnapshots(ctx context.Context, skus []int64) error
-		TryGetToken(ctx context.Context, preorderID int64, items []TokenItem) error
-		CheckToken(ctx context.Context, preorderID int64, consume bool) (*TokenTicket, error)
-		ReturnToken(ctx context.Context, preorderID int64, items []TokenItem) (restored int64, skipped int64, err error)
-	}
+    InventoryTokenModel interface {
+        SyncTokenSnapshot(ctx context.Context, sku int64) error
+        TryGetToken(ctx context.Context, preorderID int64, item TokenItem) error
+        CheckToken(ctx context.Context, preorderID int64, consume bool) (*TokenTicket, error)
+        ReturnToken(ctx context.Context, preorderID int64, item TokenItem) error
+    }
 
 	defaultInventoryTokenModel struct {
 		redis     *redis.Redis
@@ -106,57 +107,42 @@ func NewInventoryTokenModel(r *redis.Redis, inventory InventoryModel) InventoryT
 	}
 }
 
-func (m *defaultInventoryTokenModel) SyncTokenSnapshots(ctx context.Context, skus []int64) error {
-	if len(skus) == 0 {
-		return nil
-	}
-
-	seen := make(map[int64]struct{}, len(skus))
-	for _, sku := range skus {
-		if sku <= 0 {
-			return newTokenError("INVALID_SKU", fmt.Sprintf("%d", sku))
-		}
-		if _, ok := seen[sku]; ok {
-			continue
-		}
-		seen[sku] = struct{}{}
-		if err := m.ensureSnapshotForSKU(ctx, sku); err != nil {
-			return err
-		}
-	}
-
-	return nil
+func (m *defaultInventoryTokenModel) SyncTokenSnapshot(ctx context.Context, sku int64) error {
+    if sku <= 0 {
+        return newTokenError("INVALID_SKU", fmt.Sprintf("%d", sku))
+    }
+    return m.ensureSnapshotForSKU(ctx, sku)
 }
 
-func (m *defaultInventoryTokenModel) TryGetToken(ctx context.Context, preorderID int64, items []TokenItem) error {
-	if preorderID <= 0 {
-		return newTokenError("INVALID_PREORDER", fmt.Sprintf("%d", preorderID))
-	}
+func (m *defaultInventoryTokenModel) TryGetToken(ctx context.Context, preorderID int64, item TokenItem) error {
+    if preorderID <= 0 {
+        return newTokenError("INVALID_PREORDER", fmt.Sprintf("%d", preorderID))
+    }
 
-	if err := m.ensureSnapshots(ctx, items); err != nil {
-		return err
-	}
+    if err := m.ensureSnapshotForSKU(ctx, item.SKU); err != nil {
+        return err
+    }
 
-	resolved, err := m.resolveEpochs(ctx, items)
-	if err != nil {
-		return err
-	}
+    resolved, err := m.resolveEpochs(ctx, []TokenItem{item})
+    if err != nil {
+        return err
+    }
 
 	normalized, err := normalizeItems(resolved)
 	if err != nil {
 		return err
 	}
 
-	if len(normalized) == 0 {
-		return newTokenError("INVALID_ITEM_COUNT")
-	}
+    if len(normalized) != 1 {
+        return newTokenError("INVALID_ITEM_COUNT")
+    }
 
 	preorderStr := strconv.FormatInt(preorderID, 10)
-	ticket := TokenTicket{
-		PreorderID: preorderStr,
-		IssuedAt:   time.Now().Unix(),
-		Items:      normalized,
-	}
+    ticket := TokenTicket{
+        PreorderID: preorderStr,
+        IssuedAt:   time.Now().Unix(),
+        Item:       normalized[0],
+    }
 
 	payload, err := json.Marshal(ticket)
 	if err != nil {
@@ -172,12 +158,11 @@ func (m *defaultInventoryTokenModel) TryGetToken(ctx context.Context, preorderID
 		)
 	}
 
-	args := []any{
-		len(normalized),
-		preorderStr,
-		int(defaultTicketTTL / time.Second),
-		string(payload),
-	}
+    args := []any{
+        preorderStr,
+        int(defaultTicketTTL / time.Second),
+        string(payload),
+    }
 
 	result, err := m.evalScript(ctx, &m.trySha, tryTokenScript, keys, args...)
 	if err != nil {
@@ -232,26 +217,22 @@ func (m *defaultInventoryTokenModel) CheckToken(ctx context.Context, preorderID 
 	return ticket, nil
 }
 
-func (m *defaultInventoryTokenModel) ReturnToken(ctx context.Context, preorderID int64, items []TokenItem) (int64, int64, error) {
-	if len(items) == 0 {
-		return 0, 0, newTokenError("INVALID_ITEM_COUNT")
-	}
+func (m *defaultInventoryTokenModel) ReturnToken(ctx context.Context, preorderID int64, item TokenItem) error {
+    normalized, err := normalizeItems([]TokenItem{item})
+    if err != nil {
+        return err
+    }
 
-	normalized, err := normalizeItems(items)
-	if err != nil {
-		return 0, 0, err
-	}
+    ticket := TokenTicket{
+        PreorderID: strconv.FormatInt(preorderID, 10),
+        IssuedAt:   time.Now().Unix(),
+        Item:       normalized[0],
+    }
 
-	ticket := TokenTicket{
-		PreorderID: strconv.FormatInt(preorderID, 10),
-		IssuedAt:   time.Now().Unix(),
-		Items:      normalized,
-	}
-
-	payload, err := json.Marshal(ticket)
-	if err != nil {
-		return 0, 0, fmt.Errorf("marshal ticket: %w", err)
-	}
+    payload, err := json.Marshal(ticket)
+    if err != nil {
+        return fmt.Errorf("marshal ticket: %w", err)
+    }
 
 	keys := make([]string, 0, len(normalized)*3)
 	for _, item := range normalized {
@@ -262,38 +243,29 @@ func (m *defaultInventoryTokenModel) ReturnToken(ctx context.Context, preorderID
 		)
 	}
 
-	args := []any{
-		len(normalized),
-		string(payload),
-		ticket.PreorderID,
-	}
+    if len(normalized) != 1 {
+        return newTokenError("INVALID_ITEM_COUNT")
+    }
 
-	result, err := m.evalScript(ctx, &m.returnSha, returnTokenScript, keys, args...)
-	if err != nil {
-		return 0, 0, err
-	}
+    args := []any{
+        string(payload),
+        ticket.PreorderID,
+    }
+
+    result, err := m.evalScript(ctx, &m.returnSha, returnTokenScript, keys, args...)
+    if err != nil {
+        return err
+    }
 
 	status, details, parseErr := decodeLuaResult(result)
-	if parseErr != nil {
-		return 0, 0, parseErr
-	}
+        if parseErr != nil {
+            return parseErr
+        }
 
-	if status != "OK" {
-		return 0, 0, newTokenError(status, details...)
-	}
-
-	var restored, skipped int64
-	if len(details) > 0 {
-		if v, convErr := strconv.ParseInt(details[0], 10, 64); convErr == nil {
-			restored = v
-		}
-	}
-	if len(details) > 1 {
-		if v, convErr := strconv.ParseInt(details[1], 10, 64); convErr == nil {
-			skipped = v
-		}
-	}
-	return restored, skipped, nil
+    if status != "OK" {
+        return newTokenError(status, details...)
+    }
+    return nil
 }
 
 func (m *defaultInventoryTokenModel) evalScript(ctx context.Context, shaRef *string, script string, keys []string, args ...any) (any, error) {

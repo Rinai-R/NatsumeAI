@@ -1,12 +1,12 @@
 package logic
 
 import (
-	"context"
+    "context"
 
-	"NatsumeAI/app/services/order/internal/svc"
-	"NatsumeAI/app/services/order/order"
+    "NatsumeAI/app/services/order/internal/svc"
+    "NatsumeAI/app/services/order/order"
 
-	"github.com/zeromicro/go-zero/core/logx"
+    "github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetOrderLogic struct {
@@ -25,7 +25,55 @@ func NewGetOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetOrder
 
 // 查询单个订单
 func (l *GetOrderLogic) GetOrder(in *order.GetOrderReq) (*order.GetOrderResp, error) {
-	// todo: add your logic here and delete this line
+    resp := &order.GetOrderResp{}
+    if in == nil || in.OrderId <= 0 || in.UserId <= 0 {
+        resp.StatusCode = 400
+        resp.StatusMsg = "invalid params"
+        return resp, nil
+    }
 
-	return &order.GetOrderResp{}, nil
+    ord, err := l.svcCtx.Orders.FindOne(l.ctx, in.OrderId)
+    if err != nil {
+        return nil, err
+    }
+    if ord.UserId != in.UserId {
+        resp.StatusCode = 403
+        resp.StatusMsg = "forbidden"
+        return resp, nil
+    }
+
+    info := &order.OrderInfo{
+        OrderId:        ord.OrderId,
+        PreorderId:     ord.PreorderId,
+        UserId:         ord.UserId,
+        Status:         order.OrderStatus_ORDER_STATUS_PENDING,
+        TotalAmount:    ord.TotalAmount,
+        PayAmount:      ord.PaidAmount,
+        CreatedAt:      ord.CreatedAt.Unix(),
+        PaidAt:         0,
+        CancelledAt:    0,
+        PaymentMethod:  ord.PaymentMethod,
+        AddressSnapshot: "",
+    }
+    if ord.PaymentAt.Valid { info.PaidAt = ord.PaymentAt.Time.Unix() }
+    // load items (optional)
+    items, _ := l.listOrderItems(ord.OrderId)
+    info.Items = items
+
+    resp.StatusCode = 0
+    resp.StatusMsg = "ok"
+    resp.Order = info
+    return resp, nil
+}
+
+func (l *GetOrderLogic) listOrderItems(orderID int64) ([]*order.OrderItem, error) {
+    rows, err := l.svcCtx.OrdItm.ListByOrder(l.ctx, orderID)
+    if err != nil { return nil, err }
+    res := make([]*order.OrderItem, 0, len(rows))
+    for _, r := range rows {
+        itm := &order.OrderItem{ProductId: int64(r.ProductId), Quantity: int64(r.Quantity), PriceCents: int64(r.PriceCents)}
+        // snapshot parsing is omitted
+        res = append(res, itm)
+    }
+    return res, nil
 }

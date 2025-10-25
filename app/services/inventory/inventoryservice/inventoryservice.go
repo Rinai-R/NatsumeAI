@@ -14,17 +14,18 @@ import (
 )
 
 type (
-	CreateInventoryReq = inventory.CreateInventoryReq
-	DeleteInventoryReq = inventory.DeleteInventoryReq
-	GetInventoryItem   = inventory.GetInventoryItem
-	GetInventoryReq    = inventory.GetInventoryReq
-	GetInventoryResp   = inventory.GetInventoryResp
-	InventoryReq       = inventory.InventoryReq
-	InventoryResp      = inventory.InventoryResp
-	Items              = inventory.Items
-	ReturnTokenReq     = inventory.ReturnTokenReq
-	TryGetTokenReq     = inventory.TryGetTokenReq
-	UpdateInventoryReq = inventory.UpdateInventoryReq
+	CreateInventoryReq   = inventory.CreateInventoryReq
+	DecreaseInventoryReq = inventory.DecreaseInventoryReq
+	DeleteInventoryReq   = inventory.DeleteInventoryReq
+	GetInventoryItem     = inventory.GetInventoryItem
+	GetInventoryReq      = inventory.GetInventoryReq
+	GetInventoryResp     = inventory.GetInventoryResp
+	InventoryReq         = inventory.InventoryReq
+	InventoryResp        = inventory.InventoryResp
+	Item                 = inventory.Item
+	ReturnTokenReq       = inventory.ReturnTokenReq
+	TryGetTokenReq       = inventory.TryGetTokenReq
+	UpdateInventoryReq   = inventory.UpdateInventoryReq
 
 	InventoryService interface {
 		// 获取库存
@@ -38,7 +39,7 @@ type (
 		// 预扣
 		DecreasePreInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
 		// 实际扣减
-		DecreaseInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
+		DecreaseInventory(ctx context.Context, in *DecreaseInventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
 		// 归还预扣
 		ReturnPreInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error)
 		// 归还库存
@@ -91,7 +92,7 @@ func (m *defaultInventoryService) DecreasePreInventory(ctx context.Context, in *
 }
 
 // 实际扣减
-func (m *defaultInventoryService) DecreaseInventory(ctx context.Context, in *InventoryReq, opts ...grpc.CallOption) (*InventoryResp, error) {
+func (m *defaultInventoryService) DecreaseInventory(ctx context.Context, in *DecreaseInventoryReq, opts ...grpc.CallOption) (*InventoryResp, error) {
 	client := inventory.NewInventoryServiceClient(m.cli.Conn())
 	return client.DecreaseInventory(ctx, in, opts...)
 }

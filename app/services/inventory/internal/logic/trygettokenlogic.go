@@ -26,30 +26,32 @@ func NewTryGetTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *TryGe
 	}
 }
 
-// 结账的时候，根据库存快速发放令牌
+// 结账的时候，根据库存快速发放令牌（单商品）
 func (l *TryGetTokenLogic) TryGetToken(in *inventory.TryGetTokenReq) (*inventory.InventoryResp, error) {
-	resp := &inventory.InventoryResp{}
+    resp := &inventory.InventoryResp{}
 
-	if in == nil || in.PreorderId <= 0 || len(in.Items) == 0 {
-		resp.StatusCode = errno.InvalidParam
-		resp.StatusMsg = "invalid preorder or items"
-		return resp, nil
-	}
+    if in == nil || in.PreorderId <= 0 || in.Item == nil {
+        resp.StatusCode = errno.InvalidParam
+        resp.StatusMsg = "invalid preorder or item"
+        return resp, nil
+    }
 
-	skus := make([]int64, 0, len(in.Items))
-	tokenItems := make([]inventorymodel.TokenItem, 0, len(in.Items))
-	for _, item := range in.Items {
-		skus = append(skus, item.ProductId)
-		tokenItems = append(tokenItems, inventorymodel.TokenItem{
-			SKU:      item.ProductId,
-			Quantity: item.Quantity,
-		})
-	}
+    if in.Item.ProductId <= 0 || in.Item.Quantity <= 0 {
+        resp.StatusCode = errno.InvalidParam
+        resp.StatusMsg = "invalid item"
+        return resp, nil
+    }
 
-	if err := l.svcCtx.InventoryTokenModel.SyncTokenSnapshots(l.ctx, skus); err != nil {
-		var tokenErr *inventorymodel.TokenError
-		switch {
-		case errors.As(err, &tokenErr):
+    sku := in.Item.ProductId
+    tokenItem := inventorymodel.TokenItem{
+        SKU:      in.Item.ProductId,
+        Quantity: in.Item.Quantity,
+    }
+
+    if err := l.svcCtx.InventoryTokenModel.SyncTokenSnapshot(l.ctx, sku); err != nil {
+        var tokenErr *inventorymodel.TokenError
+        switch {
+        case errors.As(err, &tokenErr):
 			code := errno.InvalidParam
 			if tokenErr.Code() == "SKU_NOT_FOUND" {
 				code = errno.ProductNotFound
@@ -65,9 +67,9 @@ func (l *TryGetTokenLogic) TryGetToken(in *inventory.TryGetTokenReq) (*inventory
 		return resp, nil
 	}
 
-	if err := l.svcCtx.InventoryTokenModel.TryGetToken(l.ctx, in.PreorderId, tokenItems); err != nil {
-		var tokenErr *inventorymodel.TokenError
-		switch {
+    if err := l.svcCtx.InventoryTokenModel.TryGetToken(l.ctx, in.PreorderId, tokenItem); err != nil {
+        var tokenErr *inventorymodel.TokenError
+        switch {
 		case errors.As(err, &tokenErr):
 			code := errno.InvalidParam
 			if tokenErr.Code() == "SKU_NOT_FOUND" {
@@ -84,8 +86,8 @@ func (l *TryGetTokenLogic) TryGetToken(in *inventory.TryGetTokenReq) (*inventory
 		return resp, nil
 	}
 
-	resp.StatusCode = errno.StatusOK
-	resp.StatusMsg = "ok"
-	l.Logger.Infof("inventory token granted: preorder=%d items=%d", in.PreorderId, len(in.Items))
-	return resp, nil
+    resp.StatusCode = errno.StatusOK
+    resp.StatusMsg = "ok"
+    l.Logger.Infof("inventory token granted: preorder=%d sku=%d qty=%d", in.PreorderId, in.Item.ProductId, in.Item.Quantity)
+    return resp, nil
 }

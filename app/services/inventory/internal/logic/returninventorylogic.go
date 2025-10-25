@@ -27,57 +27,63 @@ func NewReturnInventoryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *R
 	}
 }
 
-// 归还库存
+// 归还库存（单商品）
 func (l *ReturnInventoryLogic) ReturnInventory(in *inventory.InventoryReq) (*inventory.InventoryResp, error) {
-	resp := &inventory.InventoryResp{}
+    resp := &inventory.InventoryResp{}
 
-	var tokenItems []inventorymodel.TokenItem
-	if in != nil && in.OrderId > 0 {
-		if ticket, err := l.svcCtx.InventoryTokenModel.CheckToken(l.ctx, in.PreorderId, true); err != nil {
-			var tokenErr *inventorymodel.TokenError
-			if errors.As(err, &tokenErr) {
-				if tokenErr.Code() == "TICKET_NOT_FOUND" {
-					l.Logger.Infof("return inventory token ticket missing: pre_order=%d", in.PreorderId)
-				} else {
-					l.Logger.Infof("return inventory token check warning: pre_order=%d code=%s details=%v", in.PreorderId, tokenErr.Code(), tokenErr.Details())
-				}
-			} else {
-				l.Logger.Errorf("return inventory token check failed: pre_order=%d err=%v", in.PreorderId, err)
-			}
-		} else if ticket != nil {
-			tokenItems = append(tokenItems, ticket.Items...)
-		}
-	}
+    var tokenItem *inventorymodel.TokenItem
+    if in != nil && in.OrderId > 0 {
+        if ticket, err := l.svcCtx.InventoryTokenModel.CheckToken(l.ctx, in.PreorderId, true); err != nil {
+            var tokenErr *inventorymodel.TokenError
+            if errors.As(err, &tokenErr) {
+                if tokenErr.Code() == "TICKET_NOT_FOUND" {
+                    l.Logger.Infof("return inventory token ticket missing: pre_order=%d", in.PreorderId)
+                } else {
+                    l.Logger.Infof("return inventory token check warning: pre_order=%d code=%s details=%v", in.PreorderId, tokenErr.Code(), tokenErr.Details())
+                }
+            } else {
+                l.Logger.Errorf("return inventory token check failed: pre_order=%d err=%v", in.PreorderId, err)
+            }
+        } else if ticket != nil {
+            t := ticket.Item
+            tokenItem = &t
+        }
+    }
 
-	err := l.svcCtx.InventoryModel.ExecWithTransaction(l.ctx, func(ctx context.Context, s sqlx.Session) error {
-		for _, item := range in.Items {
-			err := l.svcCtx.InventoryModel.
-				CancleSoldWithSession(ctx, s, item.ProductId, item.Quantity)
-			if err != nil {
-				l.Logger.Debug("rpc: 取消库存扣减失败：", err, "冻结对象：", item)
-				return err
-			}
-			err = l.svcCtx.InventoryAuditModel.UpdateStatusWithSession(ctx, s, in.OrderId, item.ProductId, inventorymodel.AUDIT_CANCLLED)
-			if err != nil {
-				l.Logger.Debug("rpc: 取消库存扣减审计日志失败：", err, "冻结对象：", item)
-				return err
-			}
-		}
-		return nil
-	})
+    if in == nil || in.Item == nil || in.Item.ProductId <= 0 || in.Item.Quantity <= 0 {
+        resp.StatusCode = errno.InvalidParam
+        resp.StatusMsg = "invalid order or item"
+        return resp, nil
+    }
+
+    err := l.svcCtx.InventoryModel.ExecWithTransaction(l.ctx, func(ctx context.Context, s sqlx.Session) error {
+        item := in.Item
+        err := l.svcCtx.InventoryModel.
+            CancleSoldWithSession(ctx, s, item.ProductId, item.Quantity)
+        if err != nil {
+            l.Logger.Debug("rpc: 取消库存扣减失败：", err, "冻结对象：", item)
+            return err
+        }
+        err = l.svcCtx.InventoryAuditModel.UpdateStatusWithSession(ctx, s, in.OrderId, item.ProductId, inventorymodel.AUDIT_CANCLLED)
+        if err != nil {
+            l.Logger.Debug("rpc: 取消库存扣减审计日志失败：", err, "冻结对象：", item)
+            return err
+        }
+        return nil
+    })
 	if err != nil {
 		resp.StatusCode = errno.InternalError
 		resp.StatusMsg = err.Error()
 		return resp, nil
 	}
 
-	if len(tokenItems) > 0 {
-		if restored, skipped, tokenErr := l.svcCtx.InventoryTokenModel.ReturnToken(l.ctx, in.OrderId, tokenItems); tokenErr != nil {
-			l.Logger.Errorf("return inventory token release failed: order=%d err=%v", in.OrderId, tokenErr)
-		} else {
-			l.Logger.Infof("return inventory token released: order=%d restored=%d skipped=%d", in.OrderId, restored, skipped)
-		}
-	}
+    if tokenItem != nil {
+        if tokenErr := l.svcCtx.InventoryTokenModel.ReturnToken(l.ctx, in.OrderId, *tokenItem); tokenErr != nil {
+            l.Logger.Errorf("return inventory token release failed: order=%d err=%v item=%+v", in.OrderId, tokenErr, *tokenItem)
+        } else {
+            l.Logger.Infof("return inventory token released: order=%d", in.OrderId)
+        }
+    }
 
 	resp.StatusCode = errno.StatusOK
 	resp.StatusMsg = "ok"

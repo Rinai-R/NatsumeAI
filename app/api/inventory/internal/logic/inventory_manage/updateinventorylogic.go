@@ -35,7 +35,7 @@ func (l *UpdateInventoryLogic) UpdateInventory(req *types.UpdateInventoryRequest
 		return nil, errors.New(int(errno.InvalidParam), "missing request payload")
 	}
 
-	userID, err := util.UserIdFromCtx(l.ctx)
+	userId, err := util.UserIdFromCtx(l.ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -46,13 +46,10 @@ func (l *UpdateInventoryLogic) UpdateInventory(req *types.UpdateInventoryRequest
 	}
 
 	in := &inventorysvc.UpdateInventoryReq{
-		UserId:     userID,
-		MerchantId: userID,
-		Items: []*inventorysvc.Items{
-			{
-				ProductId: item.ProductId,
-				Quantity:  item.Quantity,
-			},
+		MerchantId: userId,
+		Item: &inventorysvc.Item{
+			ProductId: item.ProductId,
+			Quantity:  item.Quantity,
 		},
 	}
 

@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
@@ -19,7 +18,7 @@ type (
 		inventoryAuditModel
 		InsertWithSession(ctx context.Context, session sqlx.Session, data *InventoryAudit) (sql.Result, error)
 		UpdateStatusWithSession(ctx context.Context, session sqlx.Session, orderId, productId int64, status string) error
-		FindWithOrderId(ctx context.Context, orderId int64) ([]InventoryAudit, error)
+		FindWithOrderId(ctx context.Context, orderId int64) (InventoryAudit, error)
 	}
 
 	customInventoryAuditModel struct {
@@ -85,16 +84,9 @@ func (m *customInventoryAuditModel) UpdateStatusWithSession(ctx context.Context,
 	return m.DelCacheCtx(ctx, keys...)
 }
 
-func (m *customInventoryAuditModel) FindWithOrderId(ctx context.Context, orderId int64) ([]InventoryAudit, error) {
-	var audits []InventoryAudit
+func (m *customInventoryAuditModel) FindWithOrderId(ctx context.Context, orderId int64) (InventoryAudit, error) {
+	var audit InventoryAudit
 	query := fmt.Sprintf("select %s from %s where `order_id` = ?", inventoryAuditRows, m.table)
-	err := m.QueryRowsNoCacheCtx(ctx, &audits, query, orderId)
-	switch err {
-	case nil:
-		return audits, nil
-	case sqlc.ErrNotFound:
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
+	err := m.QueryRowsNoCacheCtx(ctx, &audit, query, orderId)
+	return audit, err
 }

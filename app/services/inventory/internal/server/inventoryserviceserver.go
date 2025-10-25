@@ -54,7 +54,7 @@ func (s *InventoryServiceServer) DecreasePreInventory(ctx context.Context, in *i
 }
 
 // 实际扣减
-func (s *InventoryServiceServer) DecreaseInventory(ctx context.Context, in *inventory.InventoryReq) (*inventory.InventoryResp, error) {
+func (s *InventoryServiceServer) DecreaseInventory(ctx context.Context, in *inventory.DecreaseInventoryReq) (*inventory.InventoryResp, error) {
 	l := logic.NewDecreaseInventoryLogic(ctx, s.svcCtx)
 	return l.DecreaseInventory(in)
 }

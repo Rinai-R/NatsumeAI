@@ -25,7 +25,38 @@ func NewListOrdersLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ListOr
 
 // 分页查询订单
 func (l *ListOrdersLogic) ListOrders(in *order.ListOrdersReq) (*order.ListOrdersResp, error) {
-	// todo: add your logic here and delete this line
+    resp := &order.ListOrdersResp{}
+    if in == nil || in.UserId <= 0 || in.Page <= 0 || in.PageSize <= 0 {
+        resp.StatusCode = 400
+        resp.StatusMsg = "invalid params"
+        return resp, nil
+    }
 
-	return &order.ListOrdersResp{}, nil
+    offset := (in.Page - 1) * in.PageSize
+    rows, err := l.svcCtx.Orders.ListByUser(l.ctx, in.UserId, offset, in.PageSize)
+    if err != nil {
+        return nil, err
+    }
+    total, _ := l.svcCtx.Orders.CountByUser(l.ctx, in.UserId)
+
+    orders := make([]*order.OrderInfo, 0, len(rows))
+    for _, r := range rows {
+        info := &order.OrderInfo{
+            OrderId: r.OrderId,
+            PreorderId: r.PreorderId,
+            UserId: r.UserId,
+            Status: order.OrderStatus_ORDER_STATUS_PENDING,
+            TotalAmount: r.TotalAmount,
+            PayAmount: r.PaidAmount,
+            CreatedAt: r.CreatedAt.Unix(),
+            PaymentMethod: r.PaymentMethod,
+        }
+        orders = append(orders, info)
+    }
+
+    resp.StatusCode = 0
+    resp.StatusMsg = "ok"
+    resp.Orders = orders
+    resp.Total = total
+    return resp, nil
 }

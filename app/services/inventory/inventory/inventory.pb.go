@@ -21,7 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Items struct {
+type Item struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ProductId     int64                  `protobuf:"varint,1,opt,name=product_id,json=productId,proto3" json:"product_id,omitempty"`
 	Quantity      int64                  `protobuf:"varint,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
@@ -29,20 +29,20 @@ type Items struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Items) Reset() {
-	*x = Items{}
+func (x *Item) Reset() {
+	*x = Item{}
 	mi := &file_inventory_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Items) String() string {
+func (x *Item) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Items) ProtoMessage() {}
+func (*Item) ProtoMessage() {}
 
-func (x *Items) ProtoReflect() protoreflect.Message {
+func (x *Item) ProtoReflect() protoreflect.Message {
 	mi := &file_inventory_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -54,19 +54,19 @@ func (x *Items) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Items.ProtoReflect.Descriptor instead.
-func (*Items) Descriptor() ([]byte, []int) {
+// Deprecated: Use Item.ProtoReflect.Descriptor instead.
+func (*Item) Descriptor() ([]byte, []int) {
 	return file_inventory_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Items) GetProductId() int64 {
+func (x *Item) GetProductId() int64 {
 	if x != nil {
 		return x.ProductId
 	}
 	return 0
 }
 
-func (x *Items) GetQuantity() int64 {
+func (x *Item) GetQuantity() int64 {
 	if x != nil {
 		return x.Quantity
 	}
@@ -77,7 +77,7 @@ type InventoryReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
 	PreorderId    int64                  `protobuf:"varint,2,opt,name=preorder_id,json=preorderId,proto3" json:"preorder_id,omitempty"`
-	Items         []*Items               `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"`
+	Item          *Item                  `protobuf:"bytes,3,opt,name=item,proto3" json:"item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -126,9 +126,9 @@ func (x *InventoryReq) GetPreorderId() int64 {
 	return 0
 }
 
-func (x *InventoryReq) GetItems() []*Items {
+func (x *InventoryReq) GetItem() *Item {
 	if x != nil {
-		return x.Items
+		return x.Item
 	}
 	return nil
 }
@@ -351,9 +351,8 @@ func (x *GetInventoryResp) GetItems() []*GetInventoryItem {
 
 type UpdateInventoryReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Items         []*Items               `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
-	MerchantId    int64                  `protobuf:"varint,3,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
+	Item          *Item                  `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	MerchantId    int64                  `protobuf:"varint,2,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -388,16 +387,9 @@ func (*UpdateInventoryReq) Descriptor() ([]byte, []int) {
 	return file_inventory_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *UpdateInventoryReq) GetUserId() int64 {
+func (x *UpdateInventoryReq) GetItem() *Item {
 	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *UpdateInventoryReq) GetItems() []*Items {
-	if x != nil {
-		return x.Items
+		return x.Item
 	}
 	return nil
 }
@@ -524,7 +516,7 @@ func (x *DeleteInventoryReq) GetMerchantId() int64 {
 type TryGetTokenReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PreorderId    int64                  `protobuf:"varint,1,opt,name=preorder_id,json=preorderId,proto3" json:"preorder_id,omitempty"`
-	Items         []*Items               `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	Item          *Item                  `protobuf:"bytes,2,opt,name=item,proto3" json:"item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -566,9 +558,9 @@ func (x *TryGetTokenReq) GetPreorderId() int64 {
 	return 0
 }
 
-func (x *TryGetTokenReq) GetItems() []*Items {
+func (x *TryGetTokenReq) GetItem() *Item {
 	if x != nil {
-		return x.Items
+		return x.Item
 	}
 	return nil
 }
@@ -576,7 +568,7 @@ func (x *TryGetTokenReq) GetItems() []*Items {
 type ReturnTokenReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PreorderId    int64                  `protobuf:"varint,1,opt,name=preorder_id,json=preorderId,proto3" json:"preorder_id,omitempty"`
-	Items         []*Items               `protobuf:"bytes,2,rep,name=items,proto3" json:"items,omitempty"`
+	Item          []*Item                `protobuf:"bytes,2,rep,name=item,proto3" json:"item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -618,27 +610,71 @@ func (x *ReturnTokenReq) GetPreorderId() int64 {
 	return 0
 }
 
-func (x *ReturnTokenReq) GetItems() []*Items {
+func (x *ReturnTokenReq) GetItem() []*Item {
 	if x != nil {
-		return x.Items
+		return x.Item
 	}
 	return nil
+}
+
+type DecreaseInventoryReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DecreaseInventoryReq) Reset() {
+	*x = DecreaseInventoryReq{}
+	mi := &file_inventory_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecreaseInventoryReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecreaseInventoryReq) ProtoMessage() {}
+
+func (x *DecreaseInventoryReq) ProtoReflect() protoreflect.Message {
+	mi := &file_inventory_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecreaseInventoryReq.ProtoReflect.Descriptor instead.
+func (*DecreaseInventoryReq) Descriptor() ([]byte, []int) {
+	return file_inventory_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *DecreaseInventoryReq) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
 }
 
 var File_inventory_proto protoreflect.FileDescriptor
 
 const file_inventory_proto_rawDesc = "" +
 	"\n" +
-	"\x0finventory.proto\x12\tinventory\"B\n" +
-	"\x05Items\x12\x1d\n" +
+	"\x0finventory.proto\x12\tinventory\"A\n" +
+	"\x04Item\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\x03R\tproductId\x12\x1a\n" +
-	"\bquantity\x18\x02 \x01(\x03R\bquantity\"r\n" +
+	"\bquantity\x18\x02 \x01(\x03R\bquantity\"o\n" +
 	"\fInventoryReq\x12\x19\n" +
 	"\border_id\x18\x01 \x01(\x03R\aorderId\x12\x1f\n" +
 	"\vpreorder_id\x18\x02 \x01(\x03R\n" +
-	"preorderId\x12&\n" +
-	"\x05items\x18\x03 \x03(\v2\x10.inventory.ItemsR\x05items\"O\n" +
+	"preorderId\x12#\n" +
+	"\x04item\x18\x03 \x01(\v2\x0f.inventory.ItemR\x04item\"O\n" +
 	"\rInventoryResp\x12\x1f\n" +
 	"\vstatus_code\x18\x01 \x01(\x05R\n" +
 	"statusCode\x12\x1d\n" +
@@ -658,11 +694,10 @@ const file_inventory_proto_rawDesc = "" +
 	"statusCode\x12\x1d\n" +
 	"\n" +
 	"status_msg\x18\x02 \x01(\tR\tstatusMsg\x121\n" +
-	"\x05items\x18\x03 \x03(\v2\x1b.inventory.GetInventoryItemR\x05items\"v\n" +
-	"\x12UpdateInventoryReq\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12&\n" +
-	"\x05items\x18\x02 \x03(\v2\x10.inventory.ItemsR\x05items\x12\x1f\n" +
-	"\vmerchant_id\x18\x03 \x01(\x03R\n" +
+	"\x05items\x18\x03 \x03(\v2\x1b.inventory.GetInventoryItemR\x05items\"Z\n" +
+	"\x12UpdateInventoryReq\x12#\n" +
+	"\x04item\x18\x01 \x01(\v2\x0f.inventory.ItemR\x04item\x12\x1f\n" +
+	"\vmerchant_id\x18\x02 \x01(\x03R\n" +
 	"merchantId\"r\n" +
 	"\x12CreateInventoryReq\x12\x1d\n" +
 	"\n" +
@@ -674,22 +709,24 @@ const file_inventory_proto_rawDesc = "" +
 	"\n" +
 	"product_id\x18\x01 \x01(\x03R\tproductId\x12\x1f\n" +
 	"\vmerchant_id\x18\x02 \x01(\x03R\n" +
-	"merchantId\"Y\n" +
+	"merchantId\"V\n" +
 	"\x0eTryGetTokenReq\x12\x1f\n" +
 	"\vpreorder_id\x18\x01 \x01(\x03R\n" +
-	"preorderId\x12&\n" +
-	"\x05items\x18\x02 \x03(\v2\x10.inventory.ItemsR\x05items\"Y\n" +
+	"preorderId\x12#\n" +
+	"\x04item\x18\x02 \x01(\v2\x0f.inventory.ItemR\x04item\"V\n" +
 	"\x0eReturnTokenReq\x12\x1f\n" +
 	"\vpreorder_id\x18\x01 \x01(\x03R\n" +
-	"preorderId\x12&\n" +
-	"\x05items\x18\x02 \x03(\v2\x10.inventory.ItemsR\x05items2\xe9\x05\n" +
+	"preorderId\x12#\n" +
+	"\x04item\x18\x02 \x03(\v2\x0f.inventory.ItemR\x04item\"1\n" +
+	"\x14DecreaseInventoryReq\x12\x19\n" +
+	"\border_id\x18\x01 \x01(\x03R\aorderId2\xf1\x05\n" +
 	"\x10InventoryService\x12G\n" +
 	"\fGetInventory\x12\x1a.inventory.GetInventoryReq\x1a\x1b.inventory.GetInventoryResp\x12J\n" +
 	"\x0fUpdateInventory\x12\x1d.inventory.UpdateInventoryReq\x1a\x18.inventory.InventoryResp\x12B\n" +
 	"\vTryGetToken\x12\x19.inventory.TryGetTokenReq\x1a\x18.inventory.InventoryResp\x12B\n" +
 	"\vReturnToken\x12\x19.inventory.ReturnTokenReq\x1a\x18.inventory.InventoryResp\x12I\n" +
-	"\x14DecreasePreInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12F\n" +
-	"\x11DecreaseInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12G\n" +
+	"\x14DecreasePreInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12N\n" +
+	"\x11DecreaseInventory\x12\x1f.inventory.DecreaseInventoryReq\x1a\x18.inventory.InventoryResp\x12G\n" +
 	"\x12ReturnPreInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12D\n" +
 	"\x0fReturnInventory\x12\x17.inventory.InventoryReq\x1a\x18.inventory.InventoryResp\x12J\n" +
 	"\x0fCreateInventory\x12\x1d.inventory.CreateInventoryReq\x1a\x18.inventory.InventoryResp\x12J\n" +
@@ -707,32 +744,33 @@ func file_inventory_proto_rawDescGZIP() []byte {
 	return file_inventory_proto_rawDescData
 }
 
-var file_inventory_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_inventory_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_inventory_proto_goTypes = []any{
-	(*Items)(nil),              // 0: inventory.Items
-	(*InventoryReq)(nil),       // 1: inventory.InventoryReq
-	(*InventoryResp)(nil),      // 2: inventory.InventoryResp
-	(*GetInventoryReq)(nil),    // 3: inventory.GetInventoryReq
-	(*GetInventoryItem)(nil),   // 4: inventory.GetInventoryItem
-	(*GetInventoryResp)(nil),   // 5: inventory.GetInventoryResp
-	(*UpdateInventoryReq)(nil), // 6: inventory.UpdateInventoryReq
-	(*CreateInventoryReq)(nil), // 7: inventory.CreateInventoryReq
-	(*DeleteInventoryReq)(nil), // 8: inventory.DeleteInventoryReq
-	(*TryGetTokenReq)(nil),     // 9: inventory.TryGetTokenReq
-	(*ReturnTokenReq)(nil),     // 10: inventory.ReturnTokenReq
+	(*Item)(nil),                 // 0: inventory.Item
+	(*InventoryReq)(nil),         // 1: inventory.InventoryReq
+	(*InventoryResp)(nil),        // 2: inventory.InventoryResp
+	(*GetInventoryReq)(nil),      // 3: inventory.GetInventoryReq
+	(*GetInventoryItem)(nil),     // 4: inventory.GetInventoryItem
+	(*GetInventoryResp)(nil),     // 5: inventory.GetInventoryResp
+	(*UpdateInventoryReq)(nil),   // 6: inventory.UpdateInventoryReq
+	(*CreateInventoryReq)(nil),   // 7: inventory.CreateInventoryReq
+	(*DeleteInventoryReq)(nil),   // 8: inventory.DeleteInventoryReq
+	(*TryGetTokenReq)(nil),       // 9: inventory.TryGetTokenReq
+	(*ReturnTokenReq)(nil),       // 10: inventory.ReturnTokenReq
+	(*DecreaseInventoryReq)(nil), // 11: inventory.DecreaseInventoryReq
 }
 var file_inventory_proto_depIdxs = []int32{
-	0,  // 0: inventory.InventoryReq.items:type_name -> inventory.Items
+	0,  // 0: inventory.InventoryReq.item:type_name -> inventory.Item
 	4,  // 1: inventory.GetInventoryResp.items:type_name -> inventory.GetInventoryItem
-	0,  // 2: inventory.UpdateInventoryReq.items:type_name -> inventory.Items
-	0,  // 3: inventory.TryGetTokenReq.items:type_name -> inventory.Items
-	0,  // 4: inventory.ReturnTokenReq.items:type_name -> inventory.Items
+	0,  // 2: inventory.UpdateInventoryReq.item:type_name -> inventory.Item
+	0,  // 3: inventory.TryGetTokenReq.item:type_name -> inventory.Item
+	0,  // 4: inventory.ReturnTokenReq.item:type_name -> inventory.Item
 	3,  // 5: inventory.InventoryService.GetInventory:input_type -> inventory.GetInventoryReq
 	6,  // 6: inventory.InventoryService.UpdateInventory:input_type -> inventory.UpdateInventoryReq
 	9,  // 7: inventory.InventoryService.TryGetToken:input_type -> inventory.TryGetTokenReq
 	10, // 8: inventory.InventoryService.ReturnToken:input_type -> inventory.ReturnTokenReq
 	1,  // 9: inventory.InventoryService.DecreasePreInventory:input_type -> inventory.InventoryReq
-	1,  // 10: inventory.InventoryService.DecreaseInventory:input_type -> inventory.InventoryReq
+	11, // 10: inventory.InventoryService.DecreaseInventory:input_type -> inventory.DecreaseInventoryReq
 	1,  // 11: inventory.InventoryService.ReturnPreInventory:input_type -> inventory.InventoryReq
 	1,  // 12: inventory.InventoryService.ReturnInventory:input_type -> inventory.InventoryReq
 	7,  // 13: inventory.InventoryService.CreateInventory:input_type -> inventory.CreateInventoryReq
@@ -765,7 +803,7 @@ func file_inventory_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_inventory_proto_rawDesc), len(file_inventory_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

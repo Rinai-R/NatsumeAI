@@ -11,9 +11,11 @@ import (
 )
 
 type Config struct {
-	zrpc.RpcServerConf
+    zrpc.RpcServerConf
 
-	InventoryRpc zrpc.RpcClientConf
+    InventoryRpc zrpc.RpcClientConf
+    CouponRpc    zrpc.RpcClientConf
+    ProductRpc   zrpc.RpcClientConf
 
 	Consul consul.Conf
 
@@ -24,5 +26,15 @@ type Config struct {
 	AsynqConf asynq.RedisClientOpt
 	AsynqServerConf asynq.Config
 
-	LogConf logx.LogConf
+    LogConf logx.LogConf
+
+    KafkaConf KafkaConf
+}
+
+
+type KafkaConf struct {
+    Broker []string
+    Group  string
+    PreOrderTopic string
+    OrderTopic string
 }

@@ -4,7 +4,7 @@ package inventory;
 
 option go_package = "./inventory";
 
-message Items {
+message Item {
     int64 product_id = 1;
     int64 quantity = 2;
 }
@@ -12,7 +12,7 @@ message Items {
 message InventoryReq {
     int64 order_id = 1;
     int64 preorder_id = 2;
-    repeated Items items = 3;
+    Item item = 3;
 }
 
 message InventoryResp {
@@ -38,9 +38,8 @@ message GetInventoryResp{
 
 
 message UpdateInventoryReq {
-    int64 user_id = 1;
-    repeated Items items = 2;
-    int64 merchant_id = 3;
+    Item item = 1;
+    int64 merchant_id = 2;
 }
 
 message CreateInventoryReq {
@@ -56,12 +55,16 @@ message DeleteInventoryReq {
 
 message TryGetTokenReq {
     int64 preorder_id = 1;
-    repeated Items items = 2;
+    Item item = 2;
 }
 
 message ReturnTokenReq {
     int64 preorder_id = 1;
-    repeated Items items = 2;
+    repeated Item item = 2;
+}
+
+message DecreaseInventoryReq {
+    int64 order_id = 1;
 }
 
 
@@ -77,7 +80,7 @@ service InventoryService {
     // 预扣
     rpc DecreasePreInventory (InventoryReq) returns (InventoryResp);
     // 实际扣减
-    rpc DecreaseInventory (InventoryReq) returns (InventoryResp);
+    rpc DecreaseInventory (DecreaseInventoryReq) returns (InventoryResp);
     // 归还预扣
     rpc ReturnPreInventory (InventoryReq) returns (InventoryResp);
     // 归还库存

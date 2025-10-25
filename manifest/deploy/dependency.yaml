@@ -89,6 +89,42 @@ services:
     networks:
       - application
 
+  kafka:
+    image: apache/kafka:4.1.0
+    container_name: kafka
+    restart: unless-stopped
+    # Run as root to avoid host volume permission issues when formatting KRaft metadata
+    user: "0:0"
+    ports:
+      - "9092:9092"
+    environment:
+      # Apache Kafka official image (KRaft, single node)
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_LOG_DIRS=/var/lib/kafka/data
+      # Provide a static cluster id (22-char base64) to auto-format storage on first boot
+      - KAFKA_CLUSTER_ID=5L6g3nShT-eMCtK--X86sw
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data/kafka:/var/lib/kafka/data:rw
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+      - application
+
   traefik:
     image: traefik:v3.5
     container_name: traefik

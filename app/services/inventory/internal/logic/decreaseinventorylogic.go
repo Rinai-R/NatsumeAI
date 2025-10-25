@@ -26,32 +26,40 @@ func NewDecreaseInventoryLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
-// 实际扣减
-func (l *DecreaseInventoryLogic) DecreaseInventory(in *inventory.InventoryReq) (*inventory.InventoryResp, error) {
-	// todo: add your logic here and delete this line
-	resp := &inventory.InventoryResp{}
-	err := l.svcCtx.InventoryModel.ExecWithTransaction(l.ctx, func(ctx context.Context, s sqlx.Session) error {
-		for _, item := range in.Items {
-			err := l.svcCtx.InventoryModel.
-				ConfirmWithSession(ctx, s, item.ProductId, item.Quantity)
-			if err != nil {
-				l.Logger.Debug("rpc: 扣减库存失败：", err, "冻结对象：", item)
-				return err
-			}
-			err = l.svcCtx.InventoryAuditModel.UpdateStatusWithSession(ctx, s, in.OrderId, item.ProductId, inventorymodel.AUDIT_CONFIRMED)
-			if err != nil {
-				l.Logger.Debug("rpc: 扣减库存记录审计日志：", err, "冻结对象：", item)
-				return err
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		resp.StatusCode = errno.InternalError
-		resp.StatusMsg = err.Error()
-		return resp, nil
-	}
-	resp.StatusCode = errno.StatusOK
-	resp.StatusMsg = "ok"
-	return resp, nil
+// 实际扣减（单商品）
+func (l *DecreaseInventoryLogic) DecreaseInventory(in *inventory.DecreaseInventoryReq) (*inventory.InventoryResp, error) {
+    resp := &inventory.InventoryResp{}
+
+    if in == nil {
+        resp.StatusCode = errno.InvalidParam
+        resp.StatusMsg = "invalid order or item"
+        return resp, nil
+    }
+
+    err := l.svcCtx.InventoryModel.ExecWithTransaction(l.ctx, func(ctx context.Context, s sqlx.Session) error {
+        audit, err := l.svcCtx.InventoryAuditModel.FindWithOrderId(ctx, in.OrderId)
+        if err != nil {
+            return err
+        }
+        err = l.svcCtx.InventoryModel.
+            ConfirmWithSession(ctx, s, audit.ProductId, audit.Quantity)
+        if err != nil {
+            l.Logger.Debug("rpc: 扣减库存失败：", err, "冻结对象：", audit)
+            return err
+        }
+        err = l.svcCtx.InventoryAuditModel.UpdateStatusWithSession(ctx, s, in.OrderId, audit.ProductId, inventorymodel.AUDIT_CONFIRMED)
+        if err != nil {
+            l.Logger.Debug("rpc: 扣减库存记录审计日志：", err, "冻结对象：", audit)
+            return err
+        }
+        return nil
+    })
+    if err != nil {
+        resp.StatusCode = errno.InternalError
+        resp.StatusMsg = err.Error()
+        return resp, nil
+    }
+    resp.StatusCode = errno.StatusOK
+    resp.StatusMsg = "ok"
+    return resp, nil
 }
