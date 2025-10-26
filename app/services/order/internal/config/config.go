@@ -29,6 +29,9 @@ type Config struct {
     LogConf logx.LogConf
 
     KafkaConf KafkaConf
+
+    // Preorder expiration in minutes (used to compute ExpireAt and delay tasks)
+    PreorderTTLMinutes int
 }
 
 // Minimal redis client config for Asynq

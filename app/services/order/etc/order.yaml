@@ -40,6 +40,8 @@ KafkaConf:
   PreOrderTopic: "order-preorder"
   OrderTopic: "order-order"
 
+PreorderTTLMinutes: 1
+
 
 AsynqServerConf:
   Concurrency: 10

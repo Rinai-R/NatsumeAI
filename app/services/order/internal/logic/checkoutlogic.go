@@ -40,8 +40,8 @@ func (l *CheckoutLogic) Checkout(in *order.CheckoutReq) (*order.CheckoutResp, er
         return resp, nil
     }
 
-    // 生成预订单 id 和过期时间
-    expireAt := time.Now().Add(30 * time.Minute)
+    // 生成预订单 id 和过期时间（统一使用全局 TTL）
+    expireAt := time.Now().Add(l.svcCtx.PreorderTTL)
     preorderID := snowflake.Next()
 
     // 第一步：尝试获取令牌（快速失败/成功），需检查返回码

@@ -34,6 +34,9 @@ type ServiceContext struct {
     AsynqClient *asynq.Client
 
     KafkaWriter *kafka.Writer
+
+    // Global preorder TTL for computing ExpireAt and scheduling delays
+    PreorderTTL time.Duration
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -64,6 +67,12 @@ func NewServiceContext(c config.Config) *ServiceContext {
         }
     }
 
+    // Compute preorder TTL (default 30m if missing)
+    ttl := time.Duration(c.PreorderTTLMinutes) * time.Minute
+    if ttl <= 0 {
+        ttl = 30 * time.Minute
+    }
+
     sc := &ServiceContext{
         Config:     c,
         DB:         db,
@@ -77,6 +86,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
         Product:    prodCli,
         AsynqClient: asynqClient,
         KafkaWriter: kw,
+        PreorderTTL: ttl,
     }
 
     return sc

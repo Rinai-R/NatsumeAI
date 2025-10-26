@@ -245,6 +245,7 @@ func (m *defaultInventoryTokenModel) ReturnToken(ctx context.Context, preorderID
     args := []any{
         string(payload),
         ticket.PreorderID,
+        strconv.FormatInt(ticket.Item.Epoch, 10),
     }
 
     result, err := m.evalScript(ctx, &m.returnSha, returnTokenScript, keys, args...)
@@ -253,6 +254,7 @@ func (m *defaultInventoryTokenModel) ReturnToken(ctx context.Context, preorderID
     }
 
 	status, details, parseErr := decodeLuaResult(result)
+	fmt.Println("status:", status, "detail: ", details, "parseErr", parseErr)
         if parseErr != nil {
             return parseErr
         }

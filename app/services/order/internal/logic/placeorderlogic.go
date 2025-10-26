@@ -122,8 +122,9 @@ func (l *PlaceOrderLogic) PlaceOrder(in *order.PlaceOrderReq) (*order.PlaceOrder
 
     // 安排订单未支付超时取消任务
     if l.svcCtx.AsynqClient != nil {
+        // 订单取消延时（使用头表过期时间为主，回退到全局 TTL）
         delay := time.Until(po.ExpireAt)
-        if delay <= 0 { delay = time.Second }
+        if delay <= 0 { delay = l.svcCtx.PreorderTTL }
         payload, _ := json.Marshal(mq.CancelOrderTaskPayload{
             OrderId:    orderID,
             PreorderId: in.PreorderId,

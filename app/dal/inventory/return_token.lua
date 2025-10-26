@@ -6,6 +6,7 @@
 -- ARGV:
 --   1: ticket_json（包含 items[1]）
 --   2: preorder_id（可选，用于删除 adm:{preorder_id}）
+--   3: expect_epoch_str（可选，字符串，避免 JSON 数字精度问题）
 
 local ticket_json = ARGV[1]
 if not ticket_json or ticket_json == "" then
@@ -28,7 +29,11 @@ local epoch_key = KEYS[1]
 local item = ticket.item
 local sku = tostring(item.sku or "")
 local qty = tonumber(item.qty or item.quantity or 0)
-local expect_epoch = tostring(item.epoch or "")
+-- 优先使用参数中的精确 epoch 字符串
+local expect_epoch = tostring(ARGV[3] or "")
+if expect_epoch == "" then
+    expect_epoch = tostring(item.epoch or "")
+end
 if sku == "" or not qty or qty <= 0 or expect_epoch == "" then
     return { "INVALID_ITEM" }
 end
@@ -37,7 +42,7 @@ local current_epoch = redis.call("GET", epoch_key)
 if not current_epoch or tostring(current_epoch) ~= expect_epoch then
     -- 跨 epoch，忽略回退，认为已过期
     if ticket_key ~= "" then redis.call("DEL", ticket_key) end
-    return { "OK", 0, 1 }
+    return { "OK", 0, 1, "EPOCH_MISMATCH", tostring(current_epoch or ""), expect_epoch }
 end
 
 -- Build keys dynamically based on expected epoch
@@ -47,13 +52,13 @@ local issued_key = "inv:{" .. sku .. "}:issued:" .. expect_epoch
 local threshold_raw = redis.call("GET", threshold_key)
 if not threshold_raw then
     if ticket_key ~= "" then redis.call("DEL", ticket_key) end
-    return { "OK", 0, 1 }
+    return { "OK", 0, 1, "NO_THRESHOLD" }
 end
 
 local threshold = tonumber(threshold_raw)
 if not threshold then
     if ticket_key ~= "" then redis.call("DEL", ticket_key) end
-    return { "OK", 0, 1 }
+    return { "OK", 0, 1, "INVALID_THRESHOLD" }
 end
 
 local issued = tonumber(redis.call("GET", issued_key) or "0")
@@ -66,4 +71,4 @@ if ticket_key ~= "" then
     redis.call("DEL", ticket_key)
 end
 
-return { "OK", 1, 0 }
+return { "OK", 1, 0, "ROLLED_BACK", tostring(issued), tostring(issued_after) }

@@ -193,8 +193,8 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
         return nil
     }
 
-    // 发送延时任务取消
-    delay := 30 * time.Minute
+    // 发送延时任务取消（统一使用全局 TTL）
+    delay := s.PreorderTTL
     if po, err := s.Preorder.FindOne(c, preorderID); err == nil {
         if d := time.Until(po.ExpireAt); d > 0 { delay = d } else { delay = time.Second * 1 }
     }
