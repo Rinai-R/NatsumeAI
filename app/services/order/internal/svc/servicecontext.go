@@ -2,14 +2,17 @@ package svc
 
 import (
     "database/sql"
+    "time"
 
     orderdal "NatsumeAI/app/dal/order"
     couponsvc "NatsumeAI/app/services/coupon/couponservice"
     invsvc "NatsumeAI/app/services/inventory/inventoryservice"
-    prodsvc "NatsumeAI/app/services/product/productservice"
     "NatsumeAI/app/services/order/internal/config"
+    prodsvc "NatsumeAI/app/services/product/productservice"
 
     "github.com/hibiken/asynq"
+    "github.com/segmentio/kafka-go"
+    "github.com/zeromicro/go-zero/core/logx"
     "github.com/zeromicro/go-zero/core/stores/sqlx"
     "github.com/zeromicro/go-zero/zrpc"
 )
@@ -29,9 +32,12 @@ type ServiceContext struct {
     Product   prodsvc.ProductService
 
     AsynqClient *asynq.Client
+
+    KafkaWriter *kafka.Writer
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+    logx.MustSetup(c.LogConf)
     db := sqlx.NewMysql(c.MysqlConf.DataSource)
     raw, _ := db.RawDB()
     invCli := invsvc.NewInventoryService(zrpc.MustNewClient(c.InventoryRpc))
@@ -43,8 +49,20 @@ func NewServiceContext(c config.Config) *ServiceContext {
     if c.ProductRpc.Target != "" {
         prodCli = prodsvc.NewProductService(zrpc.MustNewClient(c.ProductRpc))
     }
-    // asynq client — use RedisConf
-    asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: c.RedisConf.Host, Password: c.RedisConf.Pass})
+    asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: c.AsynqConf.Addr})
+
+    // Reusable Kafka writer to reduce per-send overhead and latency
+    var kw *kafka.Writer
+    if len(c.KafkaConf.Broker) > 0 && c.KafkaConf.PreOrderTopic != "" {
+        kw = &kafka.Writer{
+            Addr:                    kafka.TCP(c.KafkaConf.Broker...),
+            Topic:                   c.KafkaConf.PreOrderTopic,
+            RequiredAcks:            kafka.RequireOne,
+            Balancer:                &kafka.LeastBytes{},
+            AllowAutoTopicCreation:  true,
+            BatchTimeout:            5 * time.Millisecond,
+        }
+    }
 
     sc := &ServiceContext{
         Config:     c,
@@ -58,6 +76,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
         Coupon:     coupCli,
         Product:    prodCli,
         AsynqClient: asynqClient,
+        KafkaWriter: kw,
     }
 
     return sc

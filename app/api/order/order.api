@@ -1,0 +1,119 @@
+syntax = "v1"
+
+type (
+	Item {
+		product_id int64 `json:"product_id"`
+		quantity   int64 `json:"quantity"`
+	}
+	CheckoutRequest {
+		coupon_id int64 `json:"coupon_id,optional"`
+		item      Item  `json:"item"`
+	}
+	CheckoutResponse {
+		status_code int64  `json:"status_code"`
+		status_msg  string `json:"status_msg"`
+		preorder_id int64  `json:"preorder_id"`
+		expired_at  int64  `json:"expired_at"`
+	}
+	PlaceOrderRequest {
+		preorder_id int64  `json:"preorder_id"`
+		address_id  int64  `json:"address_id,optional"`
+		coupon_id   int64  `json:"coupon_id,optional"`
+		remark      string `json:"remark,optional"`
+	}
+	PlaceOrderResponse {
+		status_code int64  `json:"status_code"`
+		status_msg  string `json:"status_msg"`
+		order_id    int64  `json:"order_id"`
+		status      int32  `json:"status"` // OrderStatus enum value
+	}
+	ConfirmPaymentRequest {
+		order_id       int64  `json:"order_id"`
+		payment_method string `json:"payment_method"`
+		payment_token  string `json:"payment_token,optional"`
+	}
+	ConfirmPaymentResponse {
+		status_code int64  `json:"status_code"`
+		status_msg  string `json:"status_msg"`
+		status      int32  `json:"status"` // OrderStatus enum value
+	}
+	CancelOrderRequest {
+		preorder_id int64  `json:"preorder_id,optional"`
+		order_id    int64  `json:"order_id,optional"`
+		reason      string `json:"reason,optional"`
+	}
+	CancelOrderResponse {
+		status_code int64  `json:"status_code"`
+		status_msg  string `json:"status_msg"`
+		status      int32  `json:"status"` // OrderStatus enum value
+	}
+	OrderItemSnapshot {
+		title       string `json:"title"`
+		cover_image string `json:"cover_image"`
+		attributes  string `json:"attributes"`
+	}
+	OrderItem {
+		product_id  int64             `json:"product_id"`
+		quantity    int64             `json:"quantity"`
+		price_cents int64             `json:"price_cents"`
+		snapshot    OrderItemSnapshot `json:"snapshot"`
+	}
+	OrderInfo {
+		order_id         int64       `json:"order_id"`
+		preorder_id      int64       `json:"preorder_id"`
+		user_id          int64       `json:"user_id"`
+		status           int32       `json:"status"` // OrderStatus enum value
+		total_amount     int64       `json:"total_amount"`
+		pay_amount       int64       `json:"pay_amount"`
+		created_at       int64       `json:"created_at"`
+		paid_at          int64       `json:"paid_at"`
+		cancelled_at     int64       `json:"cancelled_at"`
+		items            []OrderItem `json:"items"`
+		payment_method   string      `json:"payment_method"`
+		address_snapshot string      `json:"address_snapshot"`
+	}
+	GetOrderRequest {
+		order_id int64 `form:"order_id"`
+	}
+	GetOrderResponse {
+		status_code int64     `json:"status_code"`
+		status_msg  string    `json:"status_msg"`
+		order       OrderInfo `json:"order"`
+	}
+	ListOrdersRequest {
+		status    int32 `form:"status,optional"` // OrderStatus enum value
+		page      int64 `form:"page"`
+		page_size int64 `form:"page_size"`
+	}
+	ListOrdersResponse {
+		status_code int64       `json:"status_code"`
+		status_msg  string      `json:"status_msg"`
+		orders      []OrderInfo `json:"orders"`
+		total       int64       `json:"total"`
+	}
+)
+
+@server (
+	middleware: AuthMiddleware
+	group:      order
+)
+service order-api {
+	@handler Checkout
+	post /api/v1/order/checkout (CheckoutRequest) returns (CheckoutResponse)
+
+	@handler PlaceOrder
+	post /api/v1/order/place (PlaceOrderRequest) returns (PlaceOrderResponse)
+
+	@handler ConfirmPayment
+	post /api/v1/order/payment/confirm (ConfirmPaymentRequest) returns (ConfirmPaymentResponse)
+
+	@handler CancelOrder
+	post /api/v1/order/cancel (CancelOrderRequest) returns (CancelOrderResponse)
+
+	@handler GetOrder
+	get /api/v1/order/detail (GetOrderRequest) returns (GetOrderResponse)
+
+	@handler ListOrders
+	get /api/v1/orders (ListOrdersRequest) returns (ListOrdersResponse)
+}
+

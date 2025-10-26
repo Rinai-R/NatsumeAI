@@ -42,9 +42,6 @@ message CheckoutResp {
     string status_msg    = 2;
     int64  preorder_id   = 3;
     int64  expired_at    = 4;
-    int64  original_amount = 5;
-    int64  final_amount = 6;
-    OrderItem locked_item = 7;
 }
 
 

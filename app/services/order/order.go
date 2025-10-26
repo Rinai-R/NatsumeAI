@@ -38,14 +38,17 @@ func main() {
 
     // Start Kafka consumer if configured (no-op unless built with kafka tag)
     if stop := boot.StartKafka(ctx); stop != nil {
-		defer stop() 
-	}
+        defer stop() 
+    }
 
 	if err := consul.RegisterService(c.ListenOn, c.Consul); err != nil {
 		logx.Errorw("register service error", logx.Field("err", err))
 		panic(err)
 	}
-	defer s.Stop()
+    defer s.Stop()
+    if ctx.KafkaWriter != nil {
+        defer ctx.KafkaWriter.Close()
+    }
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()

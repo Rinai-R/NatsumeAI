@@ -568,7 +568,7 @@ func (x *TryGetTokenReq) GetItem() *Item {
 type ReturnTokenReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PreorderId    int64                  `protobuf:"varint,1,opt,name=preorder_id,json=preorderId,proto3" json:"preorder_id,omitempty"`
-	Item          []*Item                `protobuf:"bytes,2,rep,name=item,proto3" json:"item,omitempty"`
+	Item          *Item                  `protobuf:"bytes,2,opt,name=item,proto3" json:"item,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -610,7 +610,7 @@ func (x *ReturnTokenReq) GetPreorderId() int64 {
 	return 0
 }
 
-func (x *ReturnTokenReq) GetItem() []*Item {
+func (x *ReturnTokenReq) GetItem() *Item {
 	if x != nil {
 		return x.Item
 	}
@@ -717,7 +717,7 @@ const file_inventory_proto_rawDesc = "" +
 	"\x0eReturnTokenReq\x12\x1f\n" +
 	"\vpreorder_id\x18\x01 \x01(\x03R\n" +
 	"preorderId\x12#\n" +
-	"\x04item\x18\x02 \x03(\v2\x0f.inventory.ItemR\x04item\"1\n" +
+	"\x04item\x18\x02 \x01(\v2\x0f.inventory.ItemR\x04item\"1\n" +
 	"\x14DecreaseInventoryReq\x12\x19\n" +
 	"\border_id\x18\x01 \x01(\x03R\aorderId2\xf1\x05\n" +
 	"\x10InventoryService\x12G\n" +

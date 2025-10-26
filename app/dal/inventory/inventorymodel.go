@@ -291,6 +291,6 @@ func (m *customInventoryModel) FindOneWithNoCache(ctx context.Context, productId
 
 func (m *customInventoryModel) InsertWithNoCache(ctx context.Context, data *Inventory) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, inventoryRowsExpectAutoSet)
-	ret, err := m.ExecNoCacheCtx(ctx, query, data.ProductId, data.MerchantId, data.Stock, data.Sold, data.ForzenStock)
+	ret, err := m.ExecNoCacheCtx(ctx, query, data.ProductId, data.MerchantId, data.Stock, data.Sold, data.FrozenStock)
 	return ret, err
 }

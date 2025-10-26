@@ -68,6 +68,23 @@ services:
     networks:
       - application
   
+  order-api:
+    build:
+      context: ../..
+      dockerfile: app/api/order/dockerfile
+    image: order-api
+    container_name: order-api
+    ports:
+      - "10005:10005"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=application
+      - traefik.http.routers.order-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/order`)
+      - traefik.http.routers.order-api.entrypoints=web
+      - traefik.http.services.order-api.loadbalancer.server.port=10005
+    networks:
+      - application
+  
   coupon-api:
     build:
       context: ../..
@@ -127,6 +144,15 @@ services:
       dockerfile: app/services/cart/dockerfile
     image: cart-rpc
     container_name: cart-rpc
+    networks:
+      - application
+
+  order-rpc:
+    build:
+      context: ../..
+      dockerfile: app/services/order/dockerfile
+    image: order-rpc
+    container_name: order-rpc
     networks:
       - application
 

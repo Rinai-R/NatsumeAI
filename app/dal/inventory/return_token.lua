@@ -1,10 +1,8 @@
-local cjson = require("cjson")
+-- Note: Redis Lua provides global `cjson`; do not `require`.
 
 -- 单商品版本：固定处理 1 个商品
 -- KEYS:
 --   1: epoch_key (inv:{sku}:epoch)
---   2: threshold_key (inv:{sku}:threshold:{epoch})
---   3: issued_key (inv:{sku}:issued:{epoch})
 -- ARGV:
 --   1: ticket_json（包含 items[1]）
 --   2: preorder_id（可选，用于删除 adm:{preorder_id}）
@@ -26,8 +24,6 @@ if not ok_ticket or type(ticket) ~= "table" or type(ticket.item) ~= "table" then
 end
 
 local epoch_key = KEYS[1]
-local threshold_key = KEYS[2]
-local issued_key = KEYS[3]
 
 local item = ticket.item
 local sku = tostring(item.sku or "")
@@ -43,6 +39,10 @@ if not current_epoch or tostring(current_epoch) ~= expect_epoch then
     if ticket_key ~= "" then redis.call("DEL", ticket_key) end
     return { "OK", 0, 1 }
 end
+
+-- Build keys dynamically based on expected epoch
+local threshold_key = "inv:{" .. sku .. "}:threshold:" .. expect_epoch
+local issued_key = "inv:{" .. sku .. "}:issued:" .. expect_epoch
 
 local threshold_raw = redis.call("GET", threshold_key)
 if not threshold_raw then

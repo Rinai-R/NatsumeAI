@@ -46,14 +46,14 @@ func (l *GetOrderLogic) GetOrder(in *order.GetOrderReq) (*order.GetOrderResp, er
         OrderId:        ord.OrderId,
         PreorderId:     ord.PreorderId,
         UserId:         ord.UserId,
-        Status:         order.OrderStatus_ORDER_STATUS_PENDING,
+        Status:         toProtoStatus(ord.Status),
         TotalAmount:    ord.TotalAmount,
         PayAmount:      ord.PaidAmount,
         CreatedAt:      ord.CreatedAt.Unix(),
         PaidAt:         0,
         CancelledAt:    0,
         PaymentMethod:  ord.PaymentMethod,
-        AddressSnapshot: "",
+        AddressSnapshot: func() string { if ord.AddressSnapshot.Valid { return ord.AddressSnapshot.String }; return "" }(),
     }
     if ord.PaymentAt.Valid { info.PaidAt = ord.PaymentAt.Time.Unix() }
     // load items (optional)
@@ -71,7 +71,11 @@ func (l *GetOrderLogic) listOrderItems(orderID int64) ([]*order.OrderItem, error
     if err != nil { return nil, err }
     res := make([]*order.OrderItem, 0, len(rows))
     for _, r := range rows {
-        itm := &order.OrderItem{ProductId: int64(r.ProductId), Quantity: int64(r.Quantity), PriceCents: int64(r.PriceCents)}
+        itm := &order.OrderItem{
+            ProductId:  int64(r.ProductId),
+            Quantity:   int64(r.Quantity),
+            PriceCents: int64(r.PriceCents),
+        }
         // snapshot parsing is omitted
         res = append(res, itm)
     }

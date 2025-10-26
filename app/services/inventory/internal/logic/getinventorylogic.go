@@ -32,7 +32,6 @@ func (l *GetInventoryLogic) GetInventory(in *inventory.GetInventoryReq) (*invent
 
 	for _, id := range in.ProductIds {
 		product, err := l.svcCtx.InventoryModel.FindOneWithNoCache(l.ctx, id)
-		l.Logger.Error(product, err)
 		if err != nil {
 			items = append(items, &inventory.GetInventoryItem{
 				ProductId: id,

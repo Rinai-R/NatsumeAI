@@ -1,11 +1,11 @@
 package order
 
 import (
-    "context"
-    "fmt"
+	"context"
+	"fmt"
 
-    "github.com/zeromicro/go-zero/core/stores/cache"
-    "github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 var _ OrderPreorderItemsModel = (*customOrderPreorderItemsModel)(nil)

@@ -1,28 +1,42 @@
 package bootstrap
 
 import (
-	"NatsumeAI/app/services/order/internal/mq"
-	"NatsumeAI/app/services/order/internal/svc"
 	"context"
 	"time"
+
+	"NatsumeAI/app/services/order/internal/mq"
+	"NatsumeAI/app/services/order/internal/svc"
 
 	"github.com/hibiken/asynq"
 )
 
 // StartKafka starts Kafka consumer and Asynq server; returns a stop func.
 func StartKafka(sc *svc.ServiceContext) func() {
-    // asynq 延时队列
-    redisOpt := sc.Config.AsynqConf
-    if redisOpt.Addr == "" {
-        redisOpt = asynq.RedisClientOpt{Addr: sc.Config.RedisConf.Host, Password: sc.Config.RedisConf.Pass}
+    // asynq 延时队列（无需密码）
+    addr := sc.Config.AsynqConf.Addr
+    if addr == "" {
+        addr = sc.Config.RedisConf.Host
     }
-    srv := asynq.NewServer(redisOpt, sc.Config.AsynqServerConf)
+    redisOpt := asynq.RedisClientOpt{Addr: addr}
+    srv := asynq.NewServer(redisOpt, asynq.Config{
+        Concurrency: sc.Config.AsynqServerConf.Concurrency,
+        Queues:      sc.Config.AsynqServerConf.Queues,
+    })
     mux := mq.NewAsynqMux(sc)
-    go func() { _ = srv.Run(mux) }()
+    go func() {
+        if err := srv.Run(mux); err != nil {
+            panic(err)
+        }
+    }()
 
     // kafka 消费者
     ctx, cancel := context.WithCancel(context.Background())
-    go func() { _ = mq.StartCheckoutConsumer(ctx, sc) }()
+    go func() { 
+        if err := mq.StartCheckoutConsumer(ctx, sc); err != nil {
+            panic(err)
+        } 
+
+    }()
 
     return func() {
         cancel()

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/hibiken/asynq"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/redis"
@@ -17,24 +16,35 @@ type Config struct {
     CouponRpc    zrpc.RpcClientConf
     ProductRpc   zrpc.RpcClientConf
 
-	Consul consul.Conf
+    Consul consul.Conf
 
-	RedisConf redis.RedisConf
-	MysqlConf sqlx.SqlConf
-	CacheConf cache.CacheConf
+    RedisConf redis.RedisConf
+    MysqlConf sqlx.SqlConf
+    CacheConf cache.CacheConf
 
-	AsynqConf asynq.RedisClientOpt
-	AsynqServerConf asynq.Config
+    // Use lightweight config structs to avoid mapstructure errors on func fields
+    AsynqConf       AsynqRedisConf
+    AsynqServerConf AsynqServerConf
 
     LogConf logx.LogConf
 
     KafkaConf KafkaConf
 }
 
+// Minimal redis client config for Asynq
+type AsynqRedisConf struct {
+    Addr     string
+}
+
+// Minimal asynq server config
+type AsynqServerConf struct {
+    Concurrency int
+    Queues      map[string]int
+}
 
 type KafkaConf struct {
-    Broker []string
-    Group  string
+    Broker       []string
+    Group        string
     PreOrderTopic string
-    OrderTopic string
+    OrderTopic    string
 }

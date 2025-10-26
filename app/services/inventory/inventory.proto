@@ -60,7 +60,7 @@ message TryGetTokenReq {
 
 message ReturnTokenReq {
     int64 preorder_id = 1;
-    repeated Item item = 2;
+    Item item = 2;
 }
 
 message DecreaseInventoryReq {

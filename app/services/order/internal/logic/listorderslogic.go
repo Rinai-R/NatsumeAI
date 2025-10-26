@@ -42,14 +42,15 @@ func (l *ListOrdersLogic) ListOrders(in *order.ListOrdersReq) (*order.ListOrders
     orders := make([]*order.OrderInfo, 0, len(rows))
     for _, r := range rows {
         info := &order.OrderInfo{
-            OrderId: r.OrderId,
-            PreorderId: r.PreorderId,
-            UserId: r.UserId,
-            Status: order.OrderStatus_ORDER_STATUS_PENDING,
-            TotalAmount: r.TotalAmount,
-            PayAmount: r.PaidAmount,
-            CreatedAt: r.CreatedAt.Unix(),
-            PaymentMethod: r.PaymentMethod,
+            OrderId:        r.OrderId,
+            PreorderId:     r.PreorderId,
+            UserId:         r.UserId,
+            Status:         toProtoStatus(r.Status),
+            TotalAmount:    r.TotalAmount,
+            PayAmount:      r.PaidAmount,
+            CreatedAt:      r.CreatedAt.Unix(),
+            PaymentMethod:  r.PaymentMethod,
+            AddressSnapshot: func() string { if r.AddressSnapshot.Valid { return r.AddressSnapshot.String }; return "" }(),
         }
         orders = append(orders, info)
     }

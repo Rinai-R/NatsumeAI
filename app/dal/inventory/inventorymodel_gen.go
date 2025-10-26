@@ -45,7 +45,7 @@ type (
 		MerchantId  int64     `db:"merchant_id"`  // 商家id
 		Stock       int64     `db:"stock"`        // 现有可售库存
 		Sold        int64     `db:"sold"`         // 已经售出的商品数量
-		ForzenStock int64     `db:"forzen_stock"` // 冻结库存
+		FrozenStock int64     `db:"frozen_stock"` // 冻结库存
 		UpdatedAt   time.Time `db:"updated_at"`
 	}
 )
@@ -87,7 +87,7 @@ func (m *defaultInventoryModel) Insert(ctx context.Context, data *Inventory) (sq
 	inventoryProductIdKey := fmt.Sprintf("%s%v", cacheInventoryProductIdPrefix, data.ProductId)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, inventoryRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.ProductId, data.MerchantId, data.Stock, data.Sold, data.ForzenStock)
+		return conn.ExecCtx(ctx, query, data.ProductId, data.MerchantId, data.Stock, data.Sold, data.FrozenStock)
 	}, inventoryProductIdKey)
 	return ret, err
 }
@@ -96,7 +96,7 @@ func (m *defaultInventoryModel) Update(ctx context.Context, data *Inventory) err
 	inventoryProductIdKey := fmt.Sprintf("%s%v", cacheInventoryProductIdPrefix, data.ProductId)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `product_id` = ?", m.table, inventoryRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, data.MerchantId, data.Stock, data.Sold, data.ForzenStock, data.ProductId)
+		return conn.ExecCtx(ctx, query, data.MerchantId, data.Stock, data.Sold, data.FrozenStock, data.ProductId)
 	}, inventoryProductIdKey)
 	return err
 }

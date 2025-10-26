@@ -1,0 +1,20 @@
+Name: order-api
+Host: 0.0.0.0
+Port: 10005
+
+AuthRpc:
+  Target: consul://consul:8500/auth.rpc?wait=14s
+  NonBlock: true 
+
+OrderRpc:
+  Target: consul://consul:8500/order.rpc?wait=14s
+  NonBlock: true 
+
+Consul:
+  Host: consul:8500
+  Key: 
+    auth.rpc
+    order.rpc
+
+LogConf:
+  Level: "error"

@@ -31,7 +31,10 @@ type bizError struct {
 }
 
 func newBizError(code int32, msg string) *bizError {
-	return &bizError{code: code, msg: msg}
+	return &bizError{
+		code: code,
+		msg:  msg,
+	}
 }
 
 func (e *bizError) Error() string {

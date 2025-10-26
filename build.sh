@@ -19,11 +19,13 @@ TARGETS=(
   "product-rpc:app/services/product:app/services/product"
   "cart-rpc:app/services/cart:app/services/cart"
   "coupon-rpc:app/services/coupon:app/services/coupon"
+  "order-rpc:app/services/order:app/services/order"
   "user-api:app/api/user:app/api/user"
   "inventory-api:app/api/inventory:app/api/inventory"
   "product-api:app/api/product:app/api/product"
   "cart-api:app/api/cart:app/api/cart"
   "coupon-api:app/api/coupon:app/api/coupon"
+  "order-api:app/api/order:app/api/order"
 )
 
 usage() {

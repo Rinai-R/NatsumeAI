@@ -34,10 +34,11 @@ RedisConf:
   Tls: false
 
 KafkaConf:
-  Brokers:
+  Broker:
   - kafka:9092
-  PreOrderTopic: "kafka:order:preorder"
-  OrderTopic: "kafka:order:order"
+  Group: "order-group"
+  PreOrderTopic: "order-preorder"
+  OrderTopic: "order-order"
 
 
 AsynqServerConf:
@@ -48,7 +49,10 @@ AsynqServerConf:
     low: 1
 
 AsynqConf:
-  Addr: redis:6379
+  Addr: asynq:6379
 
 LogConf:
-  Level: "error"
+  ServiceName: "order.rpc"
+  Mode: "console"
+  Encoding: "plain"
+  Level: "info"

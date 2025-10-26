@@ -75,7 +75,7 @@ func (l *GetProductLogic) GetProduct(in *product.GetProductReq) (*product.GetPro
 
 	if resp, err := l.svcCtx.InventoryRpc.GetInventory(l.ctx, &inventory.GetInventoryReq{
 		ProductIds: []int64{in.ProductId},
-	}); err != nil && resp.StatusCode == errno.StatusOK && len(resp.Items) > 0 {
+	}); err == nil && resp.StatusCode == errno.StatusOK && len(resp.Items) > 0 {
 		protoProduct.Stock = resp.Items[0].Inventory
 		protoProduct.Sold = resp.Items[0].SoldCount
 	} else {

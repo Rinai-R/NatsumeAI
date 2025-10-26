@@ -318,16 +318,13 @@ func (x *CheckoutReq) GetItem() *Item {
 }
 
 type CheckoutResp struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	StatusCode     int64                  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
-	StatusMsg      string                 `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
-	PreorderId     int64                  `protobuf:"varint,3,opt,name=preorder_id,json=preorderId,proto3" json:"preorder_id,omitempty"`
-	ExpiredAt      int64                  `protobuf:"varint,4,opt,name=expired_at,json=expiredAt,proto3" json:"expired_at,omitempty"`
-	OriginalAmount int64                  `protobuf:"varint,5,opt,name=original_amount,json=originalAmount,proto3" json:"original_amount,omitempty"`
-	FinalAmount    int64                  `protobuf:"varint,6,opt,name=final_amount,json=finalAmount,proto3" json:"final_amount,omitempty"`
-	LockedItem     *OrderItem             `protobuf:"bytes,7,opt,name=locked_item,json=lockedItem,proto3" json:"locked_item,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StatusCode    int64                  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
+	StatusMsg     string                 `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
+	PreorderId    int64                  `protobuf:"varint,3,opt,name=preorder_id,json=preorderId,proto3" json:"preorder_id,omitempty"`
+	ExpiredAt     int64                  `protobuf:"varint,4,opt,name=expired_at,json=expiredAt,proto3" json:"expired_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CheckoutResp) Reset() {
@@ -386,27 +383,6 @@ func (x *CheckoutResp) GetExpiredAt() int64 {
 		return x.ExpiredAt
 	}
 	return 0
-}
-
-func (x *CheckoutResp) GetOriginalAmount() int64 {
-	if x != nil {
-		return x.OriginalAmount
-	}
-	return 0
-}
-
-func (x *CheckoutResp) GetFinalAmount() int64 {
-	if x != nil {
-		return x.FinalAmount
-	}
-	return 0
-}
-
-func (x *CheckoutResp) GetLockedItem() *OrderItem {
-	if x != nil {
-		return x.LockedItem
-	}
-	return nil
 }
 
 type PlaceOrderReq struct {
@@ -1216,7 +1192,7 @@ const file_order_proto_rawDesc = "" +
 	"\vCheckoutReq\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1b\n" +
 	"\tcoupon_id\x18\x02 \x01(\x03R\bcouponId\x12\x1f\n" +
-	"\x04item\x18\x03 \x01(\v2\v.order.ItemR\x04item\"\x8d\x02\n" +
+	"\x04item\x18\x03 \x01(\v2\v.order.ItemR\x04item\"\x8e\x01\n" +
 	"\fCheckoutResp\x12\x1f\n" +
 	"\vstatus_code\x18\x01 \x01(\x03R\n" +
 	"statusCode\x12\x1d\n" +
@@ -1225,11 +1201,7 @@ const file_order_proto_rawDesc = "" +
 	"\vpreorder_id\x18\x03 \x01(\x03R\n" +
 	"preorderId\x12\x1d\n" +
 	"\n" +
-	"expired_at\x18\x04 \x01(\x03R\texpiredAt\x12'\n" +
-	"\x0foriginal_amount\x18\x05 \x01(\x03R\x0eoriginalAmount\x12!\n" +
-	"\ffinal_amount\x18\x06 \x01(\x03R\vfinalAmount\x121\n" +
-	"\vlocked_item\x18\a \x01(\v2\x10.order.OrderItemR\n" +
-	"lockedItem\"\x9d\x01\n" +
+	"expired_at\x18\x04 \x01(\x03R\texpiredAt\"\x9d\x01\n" +
 	"\rPlaceOrderReq\x12\x1f\n" +
 	"\vpreorder_id\x18\x01 \x01(\x03R\n" +
 	"preorderId\x12\x17\n" +
@@ -1358,32 +1330,31 @@ var file_order_proto_goTypes = []any{
 var file_order_proto_depIdxs = []int32{
 	1,  // 0: order.OrderItem.snapshot:type_name -> order.OrderItemSnapshot
 	3,  // 1: order.CheckoutReq.item:type_name -> order.Item
-	2,  // 2: order.CheckoutResp.locked_item:type_name -> order.OrderItem
-	0,  // 3: order.PlaceOrderResp.status:type_name -> order.OrderStatus
-	0,  // 4: order.ConfirmPaymentResp.status:type_name -> order.OrderStatus
-	0,  // 5: order.CancelOrderResp.status:type_name -> order.OrderStatus
-	0,  // 6: order.OrderInfo.status:type_name -> order.OrderStatus
-	2,  // 7: order.OrderInfo.items:type_name -> order.OrderItem
-	13, // 8: order.GetOrderResp.order:type_name -> order.OrderInfo
-	0,  // 9: order.ListOrdersReq.status:type_name -> order.OrderStatus
-	13, // 10: order.ListOrdersResp.orders:type_name -> order.OrderInfo
-	4,  // 11: order.OrderService.Checkout:input_type -> order.CheckoutReq
-	6,  // 12: order.OrderService.PlaceOrder:input_type -> order.PlaceOrderReq
-	8,  // 13: order.OrderService.ConfirmPayment:input_type -> order.ConfirmPaymentReq
-	10, // 14: order.OrderService.CancelOrder:input_type -> order.CancelOrderReq
-	12, // 15: order.OrderService.GetOrder:input_type -> order.GetOrderReq
-	15, // 16: order.OrderService.ListOrders:input_type -> order.ListOrdersReq
-	5,  // 17: order.OrderService.Checkout:output_type -> order.CheckoutResp
-	7,  // 18: order.OrderService.PlaceOrder:output_type -> order.PlaceOrderResp
-	9,  // 19: order.OrderService.ConfirmPayment:output_type -> order.ConfirmPaymentResp
-	11, // 20: order.OrderService.CancelOrder:output_type -> order.CancelOrderResp
-	14, // 21: order.OrderService.GetOrder:output_type -> order.GetOrderResp
-	16, // 22: order.OrderService.ListOrders:output_type -> order.ListOrdersResp
-	17, // [17:23] is the sub-list for method output_type
-	11, // [11:17] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	0,  // 2: order.PlaceOrderResp.status:type_name -> order.OrderStatus
+	0,  // 3: order.ConfirmPaymentResp.status:type_name -> order.OrderStatus
+	0,  // 4: order.CancelOrderResp.status:type_name -> order.OrderStatus
+	0,  // 5: order.OrderInfo.status:type_name -> order.OrderStatus
+	2,  // 6: order.OrderInfo.items:type_name -> order.OrderItem
+	13, // 7: order.GetOrderResp.order:type_name -> order.OrderInfo
+	0,  // 8: order.ListOrdersReq.status:type_name -> order.OrderStatus
+	13, // 9: order.ListOrdersResp.orders:type_name -> order.OrderInfo
+	4,  // 10: order.OrderService.Checkout:input_type -> order.CheckoutReq
+	6,  // 11: order.OrderService.PlaceOrder:input_type -> order.PlaceOrderReq
+	8,  // 12: order.OrderService.ConfirmPayment:input_type -> order.ConfirmPaymentReq
+	10, // 13: order.OrderService.CancelOrder:input_type -> order.CancelOrderReq
+	12, // 14: order.OrderService.GetOrder:input_type -> order.GetOrderReq
+	15, // 15: order.OrderService.ListOrders:input_type -> order.ListOrdersReq
+	5,  // 16: order.OrderService.Checkout:output_type -> order.CheckoutResp
+	7,  // 17: order.OrderService.PlaceOrder:output_type -> order.PlaceOrderResp
+	9,  // 18: order.OrderService.ConfirmPayment:output_type -> order.ConfirmPaymentResp
+	11, // 19: order.OrderService.CancelOrder:output_type -> order.CancelOrderResp
+	14, // 20: order.OrderService.GetOrder:output_type -> order.GetOrderResp
+	16, // 21: order.OrderService.ListOrders:output_type -> order.ListOrdersResp
+	16, // [16:22] is the sub-list for method output_type
+	10, // [10:16] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_order_proto_init() }

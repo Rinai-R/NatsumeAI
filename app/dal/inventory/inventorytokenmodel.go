@@ -18,9 +18,10 @@ import (
 const (
     // 设置为 0 表示不设置 TTL，由上层超时任务负责清理与回退
     defaultTicketTTL         = 0 * time.Second
-	tokenEpochKeyPattern     = "inv:%d:epoch"
-	tokenThresholdKeyPattern = "inv:%d:threshold:%d"
-	tokenIssuedKeyPattern    = "inv:%d:issued:%d"
+	// Use Redis Cluster hash tags to keep related keys in same slot
+	tokenEpochKeyPattern     = "inv:{%d}:epoch"
+	tokenThresholdKeyPattern = "inv:{%d}:threshold:%d"
+	tokenIssuedKeyPattern    = "inv:{%d}:issued:%d"
 	admissionTicketPattern   = "adm:%s"
 )
 
@@ -149,13 +150,10 @@ func (m *defaultInventoryTokenModel) TryGetToken(ctx context.Context, preorderID
 		return fmt.Errorf("marshal ticket: %w", err)
 	}
 
-	keys := make([]string, 0, len(normalized)*3)
+	// Only pass epoch key; script computes threshold/issued keys atomically
+	keys := make([]string, 0, len(normalized))
 	for _, item := range normalized {
-		keys = append(keys,
-			fmt.Sprintf(tokenEpochKeyPattern, item.SKU),
-			fmt.Sprintf(tokenThresholdKeyPattern, item.SKU, item.Epoch),
-			fmt.Sprintf(tokenIssuedKeyPattern, item.SKU, item.Epoch),
-		)
+		keys = append(keys, fmt.Sprintf(tokenEpochKeyPattern, item.SKU))
 	}
 
     args := []any{
@@ -234,13 +232,10 @@ func (m *defaultInventoryTokenModel) ReturnToken(ctx context.Context, preorderID
         return fmt.Errorf("marshal ticket: %w", err)
     }
 
-	keys := make([]string, 0, len(normalized)*3)
+	// Only pass epoch key; script computes threshold/issued keys atomically
+	keys := make([]string, 0, len(normalized))
 	for _, item := range normalized {
-		keys = append(keys,
-			fmt.Sprintf(tokenEpochKeyPattern, item.SKU),
-			fmt.Sprintf(tokenThresholdKeyPattern, item.SKU, item.Epoch),
-			fmt.Sprintf(tokenIssuedKeyPattern, item.SKU, item.Epoch),
-		)
+		keys = append(keys, fmt.Sprintf(tokenEpochKeyPattern, item.SKU))
 	}
 
     if len(normalized) != 1 {
@@ -333,7 +328,10 @@ func normalizeItems(items []TokenItem) ([]TokenItem, error) {
 			return nil, newTokenError("INVALID_QUANTITY", fmt.Sprintf("%d", item.Quantity))
 		}
 
-		key := itemKey{sku: item.SKU, epoch: item.Epoch}
+		key := itemKey{
+			sku:   item.SKU,
+			epoch: item.Epoch,
+		}
 		if _, ok := index[key]; !ok {
 			order = append(order, key)
 		}
@@ -533,10 +531,11 @@ func (m *defaultInventoryTokenModel) applySnapshot(ctx context.Context, sku int6
 		threshold = 0
 	}
 
-	newEpoch := time.Now().UnixNano()
-	if newEpoch <= 0 {
-		newEpoch = time.Now().UnixNano()
-	}
+    // Use millisecond epoch to avoid JSON->Lua double precision loss
+    newEpoch := time.Now().UnixMilli()
+    if newEpoch <= 0 {
+        newEpoch = time.Now().UnixMilli()
+    }
 
 	epochStr := strconv.FormatInt(newEpoch, 10)
 	thresholdStr := strconv.FormatInt(threshold, 10)

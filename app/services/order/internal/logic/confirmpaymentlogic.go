@@ -41,10 +41,24 @@ func (l *ConfirmPaymentLogic) ConfirmPayment(in *order.ConfirmPaymentReq) (*orde
     if err != nil {
         return nil, err
     }
-    if ord.Status != "PENDING_PAYMENT" {
+    switch ord.Status {
+    case "PENDING_PAYMENT":
+        // proceed
+    case "PAID", "COMPLETED":
         resp.StatusCode = 0
         resp.StatusMsg = "ok"
         resp.Status = order.OrderStatus_ORDER_STATUS_CONFIRMED
+        return resp, nil
+    case "CANCELLED":
+        resp.StatusCode = 409
+        resp.StatusMsg = "order cancelled"
+        resp.Status = order.OrderStatus_ORDER_STATUS_CANCELLED
+        return resp, nil
+    default:
+        // unknown state, treat as conflict
+        resp.StatusCode = 409
+        resp.StatusMsg = "invalid order state"
+        resp.Status = order.OrderStatus_ORDER_STATUS_UNKNOWN
         return resp, nil
     }
 
@@ -72,13 +86,16 @@ func (l *ConfirmPaymentLogic) ConfirmPayment(in *order.ConfirmPaymentReq) (*orde
     // 更新订单状态与支付时间
     ord.Status = "PAID"
     ord.PaymentMethod = in.PaymentMethod
-    ord.PaymentAt = sql.NullTime{Time: time.Now(), Valid: true}
+    ord.PaymentAt = sql.NullTime{
+        Time:  time.Now(),
+        Valid: true,
+    }
     if err := l.svcCtx.Orders.Update(l.ctx, ord); err != nil {
         return nil, err
     }
 
     resp.StatusCode = 0
     resp.StatusMsg = "ok"
-    resp.Status = order.OrderStatus_ORDER_STATUS_CONFIRMED
+    resp.Status = toProtoStatus(ord.Status)
     return resp, nil
 }

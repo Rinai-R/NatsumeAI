@@ -32,17 +32,27 @@ func (l *ReturnInventoryLogic) ReturnInventory(in *inventory.InventoryReq) (*inv
     resp := &inventory.InventoryResp{}
 
     var tokenItem *inventorymodel.TokenItem
-    if in != nil && in.OrderId > 0 {
-        if ticket, err := l.svcCtx.InventoryTokenModel.CheckToken(l.ctx, in.PreorderId, true); err != nil {
+    // 优先使用 preorderId，其次使用 orderId（系统中二者相同，但容错更稳妥）
+    var pid int64
+    if in != nil {
+        if in.PreorderId > 0 {
+            pid = in.PreorderId
+        } else if in.OrderId > 0 {
+            pid = in.OrderId
+        }
+    }
+    if pid > 0 {
+        // 仅查询，不消费；待 DB 回滚成功后再归还并删除 ticket
+        if ticket, err := l.svcCtx.InventoryTokenModel.CheckToken(l.ctx, pid, false); err != nil {
             var tokenErr *inventorymodel.TokenError
             if errors.As(err, &tokenErr) {
                 if tokenErr.Code() == "TICKET_NOT_FOUND" {
-                    l.Logger.Infof("return inventory token ticket missing: pre_order=%d", in.PreorderId)
+                    l.Logger.Infof("return inventory token ticket missing: pre_order=%d", pid)
                 } else {
-                    l.Logger.Infof("return inventory token check warning: pre_order=%d code=%s details=%v", in.PreorderId, tokenErr.Code(), tokenErr.Details())
+                    l.Logger.Infof("return inventory token check warning: pre_order=%d code=%s details=%v", pid, tokenErr.Code(), tokenErr.Details())
                 }
             } else {
-                l.Logger.Errorf("return inventory token check failed: pre_order=%d err=%v", in.PreorderId, err)
+                l.Logger.Errorf("return inventory token check failed: pre_order=%d err=%v", pid, err)
             }
         } else if ticket != nil {
             t := ticket.Item
@@ -77,11 +87,11 @@ func (l *ReturnInventoryLogic) ReturnInventory(in *inventory.InventoryReq) (*inv
 		return resp, nil
 	}
 
-    if tokenItem != nil {
-        if tokenErr := l.svcCtx.InventoryTokenModel.ReturnToken(l.ctx, in.OrderId, *tokenItem); tokenErr != nil {
-            l.Logger.Errorf("return inventory token release failed: order=%d err=%v item=%+v", in.OrderId, tokenErr, *tokenItem)
+    if tokenItem != nil && pid > 0 {
+        if tokenErr := l.svcCtx.InventoryTokenModel.ReturnToken(l.ctx, pid, *tokenItem); tokenErr != nil {
+            l.Logger.Errorf("return inventory token release failed: preorder=%d err=%v item=%+v", pid, tokenErr, *tokenItem)
         } else {
-            l.Logger.Infof("return inventory token released: order=%d", in.OrderId)
+            l.Logger.Infof("return inventory token released: preorder=%d", pid)
         }
     }
 

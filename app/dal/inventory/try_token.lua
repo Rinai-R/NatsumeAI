@@ -1,13 +1,11 @@
-local cjson = require("cjson")
+-- Note: Redis Lua provides global `cjson`; do not `require`.
 
 -- KEYS:
 --   1: epoch_key (inv:{sku}:epoch)
---   2: threshold_key (inv:{sku}:threshold:{epoch})
---   3: issued_key (inv:{sku}:issued:{epoch})
 -- ARGV:
 --   1: preorder_id (string)
 --   2: ticket_ttl_seconds (number)
---   3: ticket_json (包含 items[1])
+--   3: ticket_json (包含 item，epoch 字段可有可无)
 
 local preorder_id = tostring(ARGV[1] or "")
 if preorder_id == "" then
@@ -51,12 +49,7 @@ if sku == "" then
     return { "INVALID_SKU" }
 end
 
-local expect_epoch = tostring(item.epoch or "")
-if expect_epoch == "" then
-    redis.call("DEL", ticket_key)
-    return { "INVALID_EPOCH", sku }
-end
-
+-- 注意：不要依赖 ticket 内嵌的 epoch（JSON 数字精度可能丢失）
 local need = tonumber(item.qty or item.quantity or 0)
 if not need or need <= 0 then
     redis.call("DEL", ticket_key)
@@ -64,18 +57,17 @@ if not need or need <= 0 then
 end
 
 local epoch_key = KEYS[1]
-local threshold_key = KEYS[2]
-local issued_key = KEYS[3]
 
 local epoch = redis.call("GET", epoch_key)
 if not epoch then
     redis.call("DEL", ticket_key)
     return { "NO_EPOCH", sku }
 end
-if tostring(epoch) ~= expect_epoch then
-    redis.call("DEL", ticket_key)
-    return { "STALE", sku, epoch }
-end
+
+-- Compute keys after verifying epoch to avoid client-side key drift
+local epoch_str = tostring(epoch)
+local threshold_key = "inv:{" .. sku .. "}:threshold:" .. epoch_str
+local issued_key = "inv:{" .. sku .. "}:issued:" .. epoch_str
 
 local threshold_raw = redis.call("GET", threshold_key)
 if not threshold_raw then

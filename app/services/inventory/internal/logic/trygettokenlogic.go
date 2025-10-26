@@ -42,35 +42,22 @@ func (l *TryGetTokenLogic) TryGetToken(in *inventory.TryGetTokenReq) (*inventory
         return resp, nil
     }
 
-    sku := in.Item.ProductId
     tokenItem := inventorymodel.TokenItem{
         SKU:      in.Item.ProductId,
         Quantity: in.Item.Quantity,
     }
 
-    if err := l.svcCtx.InventoryTokenModel.SyncTokenSnapshot(l.ctx, sku); err != nil {
-        var tokenErr *inventorymodel.TokenError
-        switch {
-        case errors.As(err, &tokenErr):
-			code := errno.InvalidParam
-			if tokenErr.Code() == "SKU_NOT_FOUND" {
-				code = errno.ProductNotFound
-			}
-			resp.StatusCode = int32(code)
-			resp.StatusMsg = tokenErr.Error()
-			l.Logger.Infof("inventory token sync rejected: preorder=%d code=%s details=%v", in.PreorderId, tokenErr.Code(), tokenErr.Details())
-		default:
-			resp.StatusCode = errno.InternalError
-			resp.StatusMsg = err.Error()
-			l.Logger.Errorf("inventory token sync failed: preorder=%d err=%v", in.PreorderId, err)
-		}
-		return resp, nil
-	}
-
     if err := l.svcCtx.InventoryTokenModel.TryGetToken(l.ctx, in.PreorderId, tokenItem); err != nil {
         var tokenErr *inventorymodel.TokenError
         switch {
 		case errors.As(err, &tokenErr):
+			// 幂等：重复请求直接视为成功
+			if tokenErr.Code() == "DUPLICATE" {
+				resp.StatusCode = errno.StatusOK
+				resp.StatusMsg = "ok"
+				l.Logger.Infof("inventory token duplicate treated as ok: preorder=%d sku=%d", in.PreorderId, in.Item.ProductId)
+				return resp, nil
+			}
 			code := errno.InvalidParam
 			if tokenErr.Code() == "SKU_NOT_FOUND" {
 				code = errno.ProductNotFound

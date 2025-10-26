@@ -1,15 +1,16 @@
 package logic
 
 import (
-    "context"
-    "database/sql"
+	"context"
+	"database/sql"
 
-    couponsvcpb "NatsumeAI/app/services/coupon/coupon"
-    invpb "NatsumeAI/app/services/inventory/inventory"
-    "NatsumeAI/app/services/order/internal/svc"
-    "NatsumeAI/app/services/order/order"
+	"NatsumeAI/app/common/consts/errno"
+	couponsvcpb "NatsumeAI/app/services/coupon/coupon"
+	invpb "NatsumeAI/app/services/inventory/inventory"
+	"NatsumeAI/app/services/order/internal/svc"
+	"NatsumeAI/app/services/order/order"
 
-    "github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type CancelOrderLogic struct {
@@ -42,6 +43,11 @@ func (l *CancelOrderLogic) CancelOrder(in *order.CancelOrderReq) (*order.CancelO
         ord, err := l.svcCtx.Orders.FindOne(l.ctx, orderId)
         if err != nil {
             return nil, err
+        }
+        if in.GetUserId() > 0 && ord.UserId != in.GetUserId() {
+            resp.StatusCode = 403
+            resp.StatusMsg = "forbidden"
+            return resp, nil
         }
         preorderId = ord.PreorderId
         // 仅允许未支付订单取消
@@ -79,6 +85,11 @@ func (l *CancelOrderLogic) CancelOrder(in *order.CancelOrderReq) (*order.CancelO
     if err != nil {
         return nil, err
     }
+    if in.GetUserId() > 0 && po.UserId != in.GetUserId() {
+        resp.StatusCode = 403
+        resp.StatusMsg = "forbidden"
+        return resp, nil
+    }
 
     l.rollbackPreorderResources(preorderId, in.GetUserId(), po.CouponId)
 
@@ -99,20 +110,35 @@ func (l *CancelOrderLogic) rollbackPreorderResources(preorderId int64, userId in
     // 获取单商品条目（系统为单商品），用于库存 RPC 的单 item 参数
     var item *invpb.Item
     if rows, err := l.svcCtx.PreItm.ListByPreorder(l.ctx, preorderId); err == nil && len(rows) > 0 {
-        item = &invpb.Item{ProductId: rows[0].ProductId, Quantity: rows[0].Quantity}
+        item = &invpb.Item{
+            ProductId: rows[0].ProductId,
+            Quantity:  rows[0].Quantity,
+        }
     }
     if item == nil {
-        item = &invpb.Item{ProductId: 0, Quantity: 0}
+        item = &invpb.Item{
+            ProductId: 0,
+            Quantity:  0,
+        }
     }
 
     // 回滚预扣库存
-    _, _ = l.svcCtx.Inventory.ReturnPreInventory(l.ctx, &invpb.InventoryReq{OrderId: preorderId, PreorderId: preorderId, Item: item})
+    if rp, err := l.svcCtx.Inventory.ReturnPreInventory(l.ctx, &invpb.InventoryReq{
+        OrderId:    preorderId,
+        PreorderId: preorderId,
+        Item:       item,
+    }); err != nil {
+        l.Logger.Errorf("cancel rollback pre-inventory failed: preorder=%d product=%d qty=%d err=%v", preorderId, item.ProductId, item.Quantity, err)
+    } else if rp != nil && rp.StatusCode != errno.StatusOK {
+        l.Logger.Infof("cancel rollback pre-inventory status: preorder=%d code=%d msg=%s", preorderId, rp.StatusCode, rp.StatusMsg)
+    }
 
     // 释放优惠券
     if couponId > 0 && l.svcCtx.Coupon != nil {
-        _, _ = l.svcCtx.Coupon.ReleaseCoupon(l.ctx, &couponsvcpb.ReleaseCouponReq{UserId: userId, CouponId: couponId, OrderId: preorderId})
+        _, _ = l.svcCtx.Coupon.ReleaseCoupon(l.ctx, &couponsvcpb.ReleaseCouponReq{
+            UserId:  userId,
+            CouponId: couponId,
+            OrderId: preorderId,
+        })
     }
-
-    // 归还令牌（需要带上 item）
-    _, _ = l.svcCtx.Inventory.ReturnToken(l.ctx, &invpb.ReturnTokenReq{PreorderId: preorderId, Item: []*invpb.Item{item}})
 }
