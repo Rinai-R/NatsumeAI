@@ -44,6 +44,8 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql:rw
       - ./config/mysql/my.cnf:/etc/my.cnf:rw
+      # Initialize schemas on first boot
+      - ./config/mysql:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -143,6 +145,23 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - application
+
+  dtm:
+    image: yedf/dtm
+    container_name: dtm
+    environment:
+      STORE_DRIVER: mysql
+      STORE_HOST: mysql
+      STORE_USER: root
+      STORE_PASSWORD: 'Natsume'
+      STORE_PORT: 3306
+    ports:
+      - '36789:36789'
+      - '36790:36790'
+    volumes:
+      - "./config/dtm/:/app/dtm/configs/"
     networks:
       - application
 networks:
