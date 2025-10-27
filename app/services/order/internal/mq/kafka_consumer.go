@@ -74,13 +74,6 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
     if priceCents <= 0 || snap == nil {
         if s.Product == nil {
             // 缺少商品服务且事件未带必要信息，回滚
-            if po, ferr := s.Preorder.FindOne(c, preorderID); ferr == nil && po.CouponId > 0 && s.Coupon != nil {
-                _, _ = s.Coupon.ReleaseCoupon(c, &couponsvcpb.ReleaseCouponReq{
-                    UserId:  po.UserId,
-                    CouponId: po.CouponId,
-                    OrderId: preorderID,
-                })
-            }
             if resp, err := s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{
                 PreorderId: preorderID,
                 Item: &invpb.Item{ProductId: e.ProductId, Quantity: e.Quantity},
@@ -101,9 +94,6 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
             }
         } else {
             // 商品查询失败或不存在，回滚
-            if po, ferr := s.Preorder.FindOne(c, preorderID); ferr == nil && po.CouponId > 0 && s.Coupon != nil {
-                _, _ = s.Coupon.ReleaseCoupon(c, &couponsvcpb.ReleaseCouponReq{UserId: po.UserId, CouponId: po.CouponId, OrderId: preorderID})
-            }
             if resp, err := s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{PreorderId: preorderID, Item: &invpb.Item{ProductId: e.ProductId, Quantity: e.Quantity}}); err != nil {
                 logx.WithContext(c).Errorf("rollback return token failed: preorder=%d product=%d qty=%d err=%v", preorderID, e.ProductId, e.Quantity, err)
             } else if resp != nil && resp.StatusCode != errno.StatusOK {
@@ -112,6 +102,31 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
             _ = s.Preorder.Delete(c, preorderID)
             return nil
         }
+    }
+
+    // 优惠券加锁迁移至消费者，成功后发生的错误才需要释放
+    lockedCoupon := false
+    if e.CouponId > 0 && s.Coupon != nil {
+        if lr, err := s.Coupon.LockCoupon(c, &couponsvcpb.LockCouponReq{
+            UserId:   e.UserId,
+            CouponId: e.CouponId,
+            OrderId:  preorderID,
+        }); err != nil || lr == nil || lr.StatusCode != errno.StatusOK {
+            // 加锁失败，回滚令牌并删除预订单
+            if err != nil {
+                logx.WithContext(c).Errorf("coupon lock rpc failed: preorder=%d coupon=%d user=%d err=%v", preorderID, e.CouponId, e.UserId, err)
+            } else {
+                logx.WithContext(c).Infof("coupon lock rejected: preorder=%d code=%d msg=%s", preorderID, lr.StatusCode, lr.StatusMsg)
+            }
+            if resp, rerr := s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{PreorderId: preorderID, Item: &invpb.Item{ProductId: e.ProductId, Quantity: e.Quantity}}); rerr != nil {
+                logx.WithContext(c).Errorf("rollback return token failed: preorder=%d product=%d qty=%d err=%v", preorderID, e.ProductId, e.Quantity, rerr)
+            } else if resp != nil && resp.StatusCode != errno.StatusOK {
+                logx.WithContext(c).Infof("rollback return token status: preorder=%d code=%d msg=%s", preorderID, resp.StatusCode, resp.StatusMsg)
+            }
+            _ = s.Preorder.Delete(c, preorderID)
+            return nil
+        }
+        lockedCoupon = true
     }
 
     // 快照
@@ -137,12 +152,9 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
             return nil
         }
         // 否则回滚
-        if po, ferr := s.Preorder.FindOne(c, preorderID); ferr == nil && po.CouponId > 0 && s.Coupon != nil {
-            _, _ = s.Coupon.ReleaseCoupon(c, &couponsvcpb.ReleaseCouponReq{
-                UserId: po.UserId, 
-                CouponId: po.CouponId, 
-                OrderId: preorderID,
-            })
+        if lockedCoupon && s.Coupon != nil {
+            // 仅在本次确实已加锁时释放
+            _, _ = s.Coupon.ReleaseCoupon(c, &couponsvcpb.ReleaseCouponReq{UserId: e.UserId, CouponId: e.CouponId, OrderId: preorderID})
         }
         if resp, err := s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{
             PreorderId: preorderID,
@@ -174,12 +186,8 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
         if insertedItemID > 0 {
             _ = s.PreItm.Delete(c, insertedItemID)
         }
-        if po, ferr := s.Preorder.FindOne(c, preorderID); ferr == nil && po.CouponId > 0 && s.Coupon != nil {
-            _, _ = s.Coupon.ReleaseCoupon(c, &couponsvcpb.ReleaseCouponReq{
-                UserId:  po.UserId,
-                CouponId: po.CouponId,
-                OrderId: preorderID,
-            })
+        if lockedCoupon && s.Coupon != nil {
+            _, _ = s.Coupon.ReleaseCoupon(c, &couponsvcpb.ReleaseCouponReq{UserId: e.UserId, CouponId: e.CouponId, OrderId: preorderID})
         }
         _, _ = s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{
             PreorderId: preorderID,

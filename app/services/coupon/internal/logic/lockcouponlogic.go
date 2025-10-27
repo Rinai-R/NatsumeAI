@@ -55,6 +55,10 @@ func (l *LockCouponLogic) LockCoupon(in *coupon.LockCouponReq) (*coupon.LockCoup
 			return newBizError(errno.CouponExpired, "coupon expired")
 		}
 
+		// 幂等：若已被同一预订单锁定，则视为成功
+		if detail.Status == couponmodel.CouponStatusLocked && detail.LockedPreorder == in.OrderId {
+			return nil
+		}
 		if detail.Status != couponmodel.CouponStatusUnused {
 			return newBizError(errno.CouponStatusInvalid, "coupon not unused")
 		}

@@ -32,6 +32,11 @@ type Config struct {
 
     // Preorder expiration in minutes (used to compute ExpireAt and delay tasks)
     PreorderTTLMinutes int
+
+    // DTM configuration (optional). When configured, checkout uses DTM Msg
+    // to atomically commit preorder insert and submit a delivery step that
+    // publishes the checkout event (replacing local outbox).
+    DtmConf DtmConf
 }
 
 // Minimal redis client config for Asynq
@@ -50,4 +55,17 @@ type KafkaConf struct {
     Group        string
     PreOrderTopic string
     OrderTopic    string
+}
+
+// DtmConf configures DTM server and our business callback URL.
+type DtmConf struct {
+    // Server is the dtm server base, for example: http://dtm:36789/api/dtmsvr
+    Server  string
+    // BusiURL is the base http url for callbacks, for example: http://order:8180
+    // We will register handlers under /dtm/* on this server.
+    BusiURL string
+    // BusiListen is the local bind address for the callback HTTP server,
+    // e.g. ":8180" or "0.0.0.0:8180". This can differ from BusiURL's host
+    // because containers may expose different names/ports externally.
+    BusiListen string
 }

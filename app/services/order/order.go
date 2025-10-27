@@ -40,6 +40,10 @@ func main() {
     if stop := boot.StartKafka(ctx); stop != nil {
         defer stop() 
     }
+    // Start DTM HTTP callbacks server if configured
+    if stop := boot.StartDTMHTTP(ctx); stop != nil {
+        defer stop()
+    }
 
 	if err := consul.RegisterService(c.ListenOn, c.Consul); err != nil {
 		logx.Errorw("register service error", logx.Field("err", err))

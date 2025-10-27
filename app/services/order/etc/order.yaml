@@ -54,7 +54,9 @@ AsynqConf:
   Addr: asynq:6379
 
 LogConf:
-  ServiceName: "order.rpc"
-  Mode: "console"
-  Encoding: "plain"
-  Level: "info"
+  Level: "error"
+
+DtmConf:
+  Server: "http://dtm:36789/api/dtmsvr"
+  BusiURL: "http://order-rpc:13005"
+  BusiListen: ":13005"
