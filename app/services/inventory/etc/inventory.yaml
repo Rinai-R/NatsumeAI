@@ -22,4 +22,4 @@ RedisConf:
   Tls: false
 
 LogConf:
-  Level: "error"
+  Level: "info"

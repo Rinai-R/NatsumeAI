@@ -2,6 +2,7 @@ package logic
 
 import (
     "context"
+    "encoding/json"
 
     "NatsumeAI/app/services/order/internal/svc"
     "NatsumeAI/app/services/order/order"
@@ -56,7 +57,7 @@ func (l *GetOrderLogic) GetOrder(in *order.GetOrderReq) (*order.GetOrderResp, er
         AddressSnapshot: func() string { if ord.AddressSnapshot.Valid { return ord.AddressSnapshot.String }; return "" }(),
     }
     if ord.PaymentAt.Valid { info.PaidAt = ord.PaymentAt.Time.Unix() }
-    // load items (optional)
+    // load items from order_items
     items, _ := l.listOrderItems(ord.OrderId)
     info.Items = items
 
@@ -76,7 +77,16 @@ func (l *GetOrderLogic) listOrderItems(orderID int64) ([]*order.OrderItem, error
             Quantity:   int64(r.Quantity),
             PriceCents: int64(r.PriceCents),
         }
-        // snapshot parsing is omitted
+        if r.Snapshot.Valid {
+            var snap struct{
+                Title string `json:"title"`
+                CoverImage string `json:"cover_image"`
+                Attributes string `json:"attributes"`
+            }
+            if err := json.Unmarshal([]byte(r.Snapshot.String), &snap); err == nil {
+                itm.Snapshot = &order.OrderItemSnapshot{Title: snap.Title, CoverImage: snap.CoverImage, Attributes: snap.Attributes}
+            }
+        }
         res = append(res, itm)
     }
     return res, nil

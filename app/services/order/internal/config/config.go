@@ -61,6 +61,10 @@ type KafkaConf struct {
 type DtmConf struct {
     // Server is the dtm server base, for example: http://dtm:36789/api/dtmsvr
     Server  string
+    // GrpcServer is the dtm gRPC address used by dtmgrpc clients, e.g. dtm:36790
+    // If empty, you must set it when using dtmgrpc (Saga/TCC/XA). It is independent
+    // from the HTTP Server used by dtmcli (Msg).
+    GrpcServer string
     // BusiURL is the base http url for callbacks, for example: http://order:8180
     // We will register handlers under /dtm/* on this server.
     BusiURL string

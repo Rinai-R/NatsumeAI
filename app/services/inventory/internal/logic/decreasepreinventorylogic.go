@@ -63,19 +63,24 @@ func (l *DecreasePreInventoryLogic) DecreasePreInventory(in *inventory.Inventory
 
     err = l.svcCtx.InventoryModel.ExecWithTransaction(l.ctx, func(ctx context.Context, s sqlx.Session) error {
         item := in.Item
-        err := l.svcCtx.InventoryModel.
-            FreezeWithSession(ctx, s, item.ProductId, item.Quantity)
-        if err != nil {
+
+        // 幂等：若 (order_id, product_id) 已存在审计记录，视为已完成预扣，保证幂等
+        if exist, qerr := l.svcCtx.InventoryAuditModel.ExistsWithSession(ctx, s, in.OrderId, item.ProductId); qerr != nil {
+            return qerr
+        } else if exist {
+            return nil
+        }
+
+        if err := l.svcCtx.InventoryModel.FreezeWithSession(ctx, s, item.ProductId, item.Quantity); err != nil {
             l.Logger.Debug("rpc: 冻结库存失败：", err, "冻结对象：", item)
             return err
         }
-        _, err = l.svcCtx.InventoryAuditModel.InsertWithSession(l.ctx, s, &inventorymodel.InventoryAudit{
+        if _, err := l.svcCtx.InventoryAuditModel.InsertWithSession(l.ctx, s, &inventorymodel.InventoryAudit{
             OrderId:   in.OrderId,
             ProductId: item.ProductId,
             Quantity:  item.Quantity,
             Status:    inventorymodel.AUDIT_PENDING,
-        })
-        if err != nil {
+        }); err != nil {
             l.Logger.Debug("rpc: 冻结库存插入审计日志失败：", err, "冻结对象：", item)
             return err
         }

@@ -26,6 +26,11 @@ type (
         PlaceIfPending(ctx context.Context, preorderId int64) (bool, error)
         // PlaceIfPendingWithSession same as PlaceIfPending but within a given session.
         PlaceIfPendingWithSession(ctx context.Context, session sqlx.Session, preorderId int64) (bool, error)
+        // MarkReadyIfPending promotes status from PENDING to READY atomically.
+        MarkReadyIfPending(ctx context.Context, preorderId int64) (bool, error)
+        // PlaceIfReady/WithSession sets status to PLACED only when current status is READY and not expired.
+        PlaceIfReady(ctx context.Context, preorderId int64) (bool, error)
+        PlaceIfReadyWithSession(ctx context.Context, session sqlx.Session, preorderId int64) (bool, error)
     }
 
     customOrderPreordersModel struct {
@@ -70,9 +75,9 @@ func (m *customOrderPreordersModel) Delete(ctx context.Context, preorderId int64
 func (m *customOrderPreordersModel) CancelIfPendingAndNoOrder(ctx context.Context, preorderId int64) (bool, error) {
     orderPreordersPreorderIdKey := fmt.Sprintf("%s%v", cacheOrderPreordersPreorderIdPrefix, preorderId)
     res, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-        // 当订单存在并且预订单状态还是pending的时候，取消预订单。
-        query := fmt.Sprintf("update %s op set `status` = ? where op.`preorder_id` = ? and op.`status` = ? and not exists (select 1 from `orders` o where o.`preorder_id` = op.`preorder_id` limit 1)", m.table)
-        return conn.ExecCtx(ctx, query, "CANCELLED", preorderId, "PENDING")
+        // 当订单不存在且预订单状态仍为 PENDING 或 READY 时，取消预订单。
+        query := fmt.Sprintf("update %s op set `status` = ? where op.`preorder_id` = ? and op.`status` in (?, ?) and not exists (select 1 from `orders` o where o.`preorder_id` = op.`preorder_id` limit 1)", m.table)
+        return conn.ExecCtx(ctx, query, "CANCELLED", preorderId, "PENDING", "READY")
     }, orderPreordersPreorderIdKey)
     if err != nil {
         return false, err
@@ -107,6 +112,42 @@ func (m *customOrderPreordersModel) PlaceIfPending(ctx context.Context, preorder
 func (m *customOrderPreordersModel) PlaceIfPendingWithSession(ctx context.Context, session sqlx.Session, preorderId int64) (bool, error) {
     query := fmt.Sprintf("update %s set `status` = ? where `preorder_id` = ? and `status` = ? and `expire_at` > now()", m.table)
     res, err := session.ExecCtx(ctx, query, "PLACED", preorderId, "PENDING")
+    if err != nil {
+        return false, err
+    }
+    n, _ := res.RowsAffected()
+    return n > 0, nil
+}
+
+func (m *customOrderPreordersModel) MarkReadyIfPending(ctx context.Context, preorderId int64) (bool, error) {
+    orderPreordersPreorderIdKey := fmt.Sprintf("%s%v", cacheOrderPreordersPreorderIdPrefix, preorderId)
+    res, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+        query := fmt.Sprintf("update %s set `status` = ? where `preorder_id` = ? and `status` = ?", m.table)
+        return conn.ExecCtx(ctx, query, "READY", preorderId, "PENDING")
+    }, orderPreordersPreorderIdKey)
+    if err != nil {
+        return false, err
+    }
+    n, _ := res.RowsAffected()
+    return n > 0, nil
+}
+
+func (m *customOrderPreordersModel) PlaceIfReady(ctx context.Context, preorderId int64) (bool, error) {
+    orderPreordersPreorderIdKey := fmt.Sprintf("%s%v", cacheOrderPreordersPreorderIdPrefix, preorderId)
+    res, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+        query := fmt.Sprintf("update %s set `status` = ? where `preorder_id` = ? and `status` = ? and `expire_at` > now()", m.table)
+        return conn.ExecCtx(ctx, query, "PLACED", preorderId, "READY")
+    }, orderPreordersPreorderIdKey)
+    if err != nil {
+        return false, err
+    }
+    n, _ := res.RowsAffected()
+    return n > 0, nil
+}
+
+func (m *customOrderPreordersModel) PlaceIfReadyWithSession(ctx context.Context, session sqlx.Session, preorderId int64) (bool, error) {
+    query := fmt.Sprintf("update %s set `status` = ? where `preorder_id` = ? and `status` = ? and `expire_at` > now()", m.table)
+    res, err := session.ExecCtx(ctx, query, "PLACED", preorderId, "READY")
     if err != nil {
         return false, err
     }

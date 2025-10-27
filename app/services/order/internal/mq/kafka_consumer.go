@@ -16,6 +16,10 @@ import (
 
 	"github.com/zeromicro/go-zero/core/logx"
 
+	"strconv"
+
+	"github.com/dtm-labs/client/dtmgrpc"
+	_ "github.com/dtm-labs/dtmdriver-gozero"
 	"github.com/hibiken/asynq"
 	"github.com/segmentio/kafka-go"
 )
@@ -105,28 +109,66 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
     }
 
     // 优惠券加锁迁移至消费者，成功后发生的错误才需要释放
-    lockedCoupon := false
-    if e.CouponId > 0 && s.Coupon != nil {
-        if lr, err := s.Coupon.LockCoupon(c, &couponsvcpb.LockCouponReq{
-            UserId:   e.UserId,
-            CouponId: e.CouponId,
-            OrderId:  preorderID,
-        }); err != nil || lr == nil || lr.StatusCode != errno.StatusOK {
-            // 加锁失败，回滚令牌并删除预订单
-            if err != nil {
-                logx.WithContext(c).Errorf("coupon lock rpc failed: preorder=%d coupon=%d user=%d err=%v", preorderID, e.CouponId, e.UserId, err)
-            } else {
-                logx.WithContext(c).Infof("coupon lock rejected: preorder=%d code=%d msg=%s", preorderID, lr.StatusCode, lr.StatusMsg)
-            }
+    // 使用 DTM gRPC SAGA 编排：锁券(+回滚释放) + 预冻结库存(+回滚释放)
+    if s.Config.DtmConf.Server != "" {
+        gid := "saga-preorder-" + strconv.FormatInt(preorderID, 10)
+        server := s.Config.DtmConf.GrpcServer
+        if server == "" {
+            // fallback to Server if user misconfigured; strip leading scheme if looks like http(s)://host:port/path
+            server = s.Config.DtmConf.Server
+        }
+        saga := dtmgrpc.NewSagaGrpc(server, gid)
+        // 等待分支结果，确保远端资源就绪后再进行本地写入与READY置位
+        saga.Saga.TransBase.WaitResult = true
+
+        // 构建 go-zero target（consul:// 或直连等），driver-gozero 将解析
+        couponTarget, _ := s.Config.CouponRpc.BuildTarget()
+        invTarget, _ := s.Config.InventoryRpc.BuildTarget()
+
+        // Step1: LockCoupon -> ReleaseCoupon
+        if e.CouponId > 0 && s.Coupon != nil {
+            lockReq := &couponsvcpb.LockCouponReq{UserId: e.UserId, CouponId: e.CouponId, OrderId: preorderID}
+            saga.Add(couponTarget+couponsvcpb.CouponService_LockCoupon_FullMethodName, couponTarget+couponsvcpb.CouponService_ReleaseCoupon_FullMethodName, lockReq)
+        }
+
+        // Step2: DecreasePreInventory -> ReturnPreInventory
+        invReq := &invpb.InventoryReq{OrderId: preorderID, PreorderId: preorderID, Item: &invpb.Item{ProductId: e.ProductId, Quantity: e.Quantity}}
+        saga.Add(invTarget+invpb.InventoryService_DecreasePreInventory_FullMethodName, invTarget+invpb.InventoryService_ReturnPreInventory_FullMethodName, invReq)
+
+        if err := saga.Submit(); err != nil {
+            // 提交失败，归还 token 并删除预订单（券/库存由 SAGA 补偿）
             if resp, rerr := s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{PreorderId: preorderID, Item: &invpb.Item{ProductId: e.ProductId, Quantity: e.Quantity}}); rerr != nil {
-                logx.WithContext(c).Errorf("rollback return token failed: preorder=%d product=%d qty=%d err=%v", preorderID, e.ProductId, e.Quantity, rerr)
+                logx.WithContext(c).Errorf("saga submit fail: return token failed: preorder=%d product=%d qty=%d err=%v", preorderID, e.ProductId, e.Quantity, rerr)
             } else if resp != nil && resp.StatusCode != errno.StatusOK {
-                logx.WithContext(c).Infof("rollback return token status: preorder=%d code=%d msg=%s", preorderID, resp.StatusCode, resp.StatusMsg)
+                logx.WithContext(c).Infof("saga submit fail: return token status: preorder=%d code=%d msg=%s", preorderID, resp.StatusCode, resp.StatusMsg)
             }
             _ = s.Preorder.Delete(c, preorderID)
+            return err
+        }
+    } else {
+        // 无 DTM 配置，走原有直连逻辑（略）
+        if e.CouponId > 0 && s.Coupon != nil {
+            if lr, err := s.Coupon.LockCoupon(c, &couponsvcpb.LockCouponReq{UserId: e.UserId, CouponId: e.CouponId, OrderId: preorderID}); err != nil || lr == nil || lr.StatusCode != errno.StatusOK {
+                if err != nil {
+                    logx.WithContext(c).Errorf("coupon lock rpc failed: preorder=%d coupon=%d user=%d err=%v", preorderID, e.CouponId, e.UserId, err)
+                } else {
+                    logx.WithContext(c).Infof("coupon lock rejected: preorder=%d code=%d msg=%s", preorderID, lr.StatusCode, lr.StatusMsg)
+                }
+                if resp, rerr := s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{PreorderId: preorderID, Item: &invpb.Item{ProductId: e.ProductId, Quantity: e.Quantity}}); rerr != nil {
+                    logx.WithContext(c).Errorf("rollback return token failed: preorder=%d product=%d qty=%d err=%v", preorderID, e.ProductId, e.Quantity, rerr)
+                } else if resp != nil && resp.StatusCode != errno.StatusOK {
+                    logx.WithContext(c).Infof("rollback return token status: preorder=%d code=%d msg=%s", preorderID, resp.StatusCode, resp.StatusMsg)
+                }
+                _ = s.Preorder.Delete(c, preorderID)
+                return nil
+            }
+        }
+        if rp, err := s.Inventory.DecreasePreInventory(c, &invpb.InventoryReq{OrderId: preorderID, PreorderId: preorderID, Item: &invpb.Item{ProductId: e.ProductId, Quantity: e.Quantity}}); err != nil || (rp != nil && rp.StatusCode != errno.StatusOK) {
+            if resp, _ := s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{PreorderId: preorderID, Item: &invpb.Item{ProductId: e.ProductId, Quantity: e.Quantity}}); resp != nil { /* log below */ }
+            _ = s.Preorder.Delete(c, preorderID)
+            if err != nil { return err }
             return nil
         }
-        lockedCoupon = true
     }
 
     // 快照
@@ -138,8 +180,8 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
         }
     }
     
-    // 插入预订单项（单商品）
-    var insertedItemID int64
+    // 这里不用事务的原因是这里还没有 ack mq 的消息，所以如果此时服务器挂了会重复投递然后保证至少一次，因此上面
+    // 的事务需要做好幂等
     if res, err := s.PreItm.Insert(c, &orderdal.OrderPreorderItems{
         PreorderId: preorderID, 
         ProductId: e.ProductId, 
@@ -151,18 +193,8 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
         if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
             return nil
         }
-        // 否则回滚
-        if lockedCoupon && s.Coupon != nil {
-            // 仅在本次确实已加锁时释放
-            _, _ = s.Coupon.ReleaseCoupon(c, &couponsvcpb.ReleaseCouponReq{UserId: e.UserId, CouponId: e.CouponId, OrderId: preorderID})
-        }
-        if resp, err := s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{
-            PreorderId: preorderID,
-            Item: &invpb.Item{
-                ProductId: e.ProductId,
-                Quantity:  e.Quantity,
-            },
-        }); err != nil {
+        // 否则清理：归还 token + 删除预订单（SAGA 已完成两阶段，无需手动释放券/库存）
+        if resp, err := s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{PreorderId: preorderID, Item: &invpb.Item{ProductId: e.ProductId, Quantity: e.Quantity}}); err != nil {
             logx.WithContext(c).Errorf("rollback return token failed: preorder=%d product=%d qty=%d err=%v", preorderID, e.ProductId, e.Quantity, err)
         } else if resp != nil && resp.StatusCode != errno.StatusOK {
             logx.WithContext(c).Infof("rollback return token status: preorder=%d code=%d msg=%s", preorderID, resp.StatusCode, resp.StatusMsg)
@@ -170,35 +202,14 @@ func handleCheckout(c context.Context, s *svc.ServiceContext, e CheckoutEvent) e
         _ = s.Preorder.Delete(c, preorderID)
         return err
     } else {
-        insertedItemID, _ = res.LastInsertId()
+        _, _ = res.LastInsertId()
     }
 
-    // 冻结 DB 库存
-    if rp, err := s.Inventory.DecreasePreInventory(c, &invpb.InventoryReq{
-        OrderId:    preorderID,
-        PreorderId: preorderID,
-        Item: &invpb.Item{
-            ProductId: e.ProductId,
-            Quantity:  e.Quantity,
-        },
-    }); err != nil || (rp != nil && rp.StatusCode != errno.StatusOK) {
-        // 冻结失败，回滚
-        if insertedItemID > 0 {
-            _ = s.PreItm.Delete(c, insertedItemID)
-        }
-        if lockedCoupon && s.Coupon != nil {
-            _, _ = s.Coupon.ReleaseCoupon(c, &couponsvcpb.ReleaseCouponReq{UserId: e.UserId, CouponId: e.CouponId, OrderId: preorderID})
-        }
-        _, _ = s.Inventory.ReturnToken(c, &invpb.ReturnTokenReq{
-            PreorderId: preorderID,
-            Item: &invpb.Item{
-                ProductId: e.ProductId,
-                Quantity:  e.Quantity,
-            },
-        })
-        _ = s.Preorder.Delete(c, preorderID)
-        if err != nil { return err }
-        return nil
+    // 标记预订单 READY（仅当当前仍为 PENDING）
+    if ok, err := s.Preorder.MarkReadyIfPending(c, preorderID); err != nil {
+        logx.WithContext(c).Errorf("mark preorder ready failed: preorder=%d err=%v", preorderID, err)
+    } else if ok {
+        logx.WithContext(c).Infof("preorder marked READY: %d", preorderID)
     }
 
     // 发送延时任务取消（统一使用全局 TTL）
@@ -266,7 +277,7 @@ func handleCancelPreorderTask(ctx context.Context, sc *svc.ServiceContext, p Can
     if rows, err := sc.PreItm.ListByPreorder(ctx, p.PreorderId); err == nil && len(rows) > 0 {
         itemProductId, itemQty = rows[0].ProductId, rows[0].Quantity
     }
-    // 解冻库存，同时会 returnToken
+    // 解冻库存，同时会 returnToken，需要做好幂等
     if resp, err := sc.Inventory.ReturnPreInventory(ctx, &invpb.InventoryReq{
         OrderId:    p.PreorderId, 
         PreorderId: p.PreorderId, 

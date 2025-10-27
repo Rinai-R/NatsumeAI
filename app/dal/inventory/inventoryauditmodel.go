@@ -14,12 +14,17 @@ var _ InventoryAuditModel = (*customInventoryAuditModel)(nil)
 type (
 	// InventoryAuditModel is an interface to be customized, add more methods here,
 	// and implement the added methods in customInventoryAuditModel.
-	InventoryAuditModel interface {
-		inventoryAuditModel
-		InsertWithSession(ctx context.Context, session sqlx.Session, data *InventoryAudit) (sql.Result, error)
-		UpdateStatusWithSession(ctx context.Context, session sqlx.Session, orderId, productId int64, status string) error
-		FindWithOrderId(ctx context.Context, orderId int64) (InventoryAudit, error)
-	}
+    InventoryAuditModel interface {
+        inventoryAuditModel
+        InsertWithSession(ctx context.Context, session sqlx.Session, data *InventoryAudit) (sql.Result, error)
+        UpdateStatusWithSession(ctx context.Context, session sqlx.Session, orderId, productId int64, status string) error
+        FindWithOrderId(ctx context.Context, orderId int64) (InventoryAudit, error)
+        // ExistsWithSession checks if an audit record exists for (orderId, productId)
+        // within the given session/transaction.
+        ExistsWithSession(ctx context.Context, session sqlx.Session, orderId, productId int64) (bool, error)
+        // GetStatusWithSession returns (status, true, nil) if audit exists, ("", false, nil) if not found.
+        GetStatusWithSession(ctx context.Context, session sqlx.Session, orderId, productId int64) (string, bool, error)
+    }
 
 	customInventoryAuditModel struct {
 		*defaultInventoryAuditModel
@@ -28,9 +33,9 @@ type (
 
 // NewInventoryAuditModel returns a model for the database table.
 func NewInventoryAuditModel(conn sqlx.SqlConn, c cache.CacheConf, opts ...cache.Option) InventoryAuditModel {
-	return &customInventoryAuditModel{
-		defaultInventoryAuditModel: newInventoryAuditModel(conn, c, opts...),
-	}
+    return &customInventoryAuditModel{
+        defaultInventoryAuditModel: newInventoryAuditModel(conn, c, opts...),
+    }
 }
 
 // audit 用个缓存会减少开销
@@ -57,6 +62,30 @@ func (m *customInventoryAuditModel) InsertWithSession(ctx context.Context, sessi
 	}
 
 	return res, nil
+}
+
+func (m *customInventoryAuditModel) ExistsWithSession(ctx context.Context, session sqlx.Session, orderId, productId int64) (bool, error) {
+    var id int64
+    q := fmt.Sprintf("select `id` from %s where `order_id` = ? and `product_id` = ? limit 1", m.table)
+    if err := session.QueryRowCtx(ctx, &id, q, orderId, productId); err != nil {
+        if err == sql.ErrNoRows || err == sqlx.ErrNotFound {
+            return false, nil
+        }
+        return false, err
+    }
+    return id > 0, nil
+}
+
+func (m *customInventoryAuditModel) GetStatusWithSession(ctx context.Context, session sqlx.Session, orderId, productId int64) (string, bool, error) {
+    var status string
+    q := fmt.Sprintf("select `status` from %s where `order_id` = ? and `product_id` = ? limit 1", m.table)
+    if err := session.QueryRowCtx(ctx, &status, q, orderId, productId); err != nil {
+        if err == sql.ErrNoRows || err == sqlx.ErrNotFound {
+            return "", false, nil
+        }
+        return "", false, err
+    }
+    return status, true, nil
 }
 
 func (m *customInventoryAuditModel) UpdateStatusWithSession(ctx context.Context, session sqlx.Session, orderId, productId int64, status string) error {

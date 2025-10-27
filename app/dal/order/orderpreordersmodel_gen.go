@@ -46,7 +46,7 @@ type (
 		CouponId       int64     `db:"coupon_id"`       // 优惠券ID
 		OriginalAmount int64     `db:"original_amount"` // 原始金额
 		FinalAmount    int64     `db:"final_amount"`    // 最终金额
-		Status         string    `db:"status"`          // 状态，预下单状态，已下单，取消
+		Status         string    `db:"status"`          // 状态：待处理/就绪/已下单/取消
 		ExpireAt       time.Time `db:"expire_at"`       // 预订单过期时间
 		CreatedAt      time.Time `db:"created_at"`
 		UpdatedAt      time.Time `db:"updated_at"`

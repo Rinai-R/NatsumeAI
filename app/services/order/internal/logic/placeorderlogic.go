@@ -1,19 +1,19 @@
 package logic
 
 import (
-    "context"
-    "database/sql"
-    "encoding/json"
-    "time"
+	"context"
+	"database/sql"
+	"encoding/json"
+	"time"
 
-    orderdal "NatsumeAI/app/dal/order"
-    "NatsumeAI/app/services/order/internal/mq"
-    "NatsumeAI/app/services/order/internal/svc"
-    "NatsumeAI/app/services/order/order"
+	orderdal "NatsumeAI/app/dal/order"
+	"NatsumeAI/app/services/order/internal/mq"
+	"NatsumeAI/app/services/order/internal/svc"
+	"NatsumeAI/app/services/order/order"
 
-    "github.com/zeromicro/go-zero/core/logx"
-    "github.com/hibiken/asynq"
-    "github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/hibiken/asynq"
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type PlaceOrderLogic struct {
@@ -57,17 +57,18 @@ func (l *PlaceOrderLogic) PlaceOrder(in *order.PlaceOrderReq) (*order.PlaceOrder
         resp.StatusMsg = "forbidden"
         return resp, nil
     }
-    if time.Now().After(po.ExpireAt) || po.Status != "PENDING" {
+    // 必须要消费之后才可以下单
+    if time.Now().After(po.ExpireAt) || po.Status != "READY" {
         resp.StatusCode = 409
-        resp.StatusMsg = "preorder expired or invalid"
+        resp.StatusMsg = "preorder not ready or expired"
         return resp, nil
     }
 
     // 本地事务：原子更新预订单为 PLACED 并插入订单
     var orderID int64
     err = l.svcCtx.DB.TransactCtx(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-        // 1. 原子置位预订单（需未过期且仍为 PENDING）
-        ok, err := l.svcCtx.Preorder.PlaceIfPendingWithSession(ctx, session, in.PreorderId)
+        // 1. 原子置位预订单（需未过期且状态为 READY）
+        ok, err := l.svcCtx.Preorder.PlaceIfReadyWithSession(ctx, session, in.PreorderId)
         if err != nil {
             return err
         }

@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"context"
-	"errors"
+    "context"
+    "errors"
 
 	"NatsumeAI/app/common/consts/errno"
 	inventorymodel "NatsumeAI/app/dal/inventory"
@@ -68,18 +68,36 @@ func (l *ReturnPreInventoryLogic) ReturnPreInventory(in *inventory.InventoryReq)
 
     err := l.svcCtx.InventoryModel.ExecWithTransaction(l.ctx, func(ctx context.Context, s sqlx.Session) error {
         item := in.Item
-        err := l.svcCtx.InventoryModel.
-            UnfreezeWithSession(ctx, s, item.ProductId, item.Quantity)
-        if err != nil {
-            l.Logger.Debug("rpc: 解冻库存失败：", err, "冻结对象：", item)
-            return err
+        // 幂等：读取当前审计状态
+        status, found, qerr := l.svcCtx.InventoryAuditModel.GetStatusWithSession(ctx, s, pid, item.ProductId)
+        if qerr != nil {
+            return qerr
         }
-        err = l.svcCtx.InventoryAuditModel.UpdateStatusWithSession(ctx, s, in.OrderId, item.ProductId, inventorymodel.AUDIT_CANCLLED)
-        if err != nil {
-            l.Logger.Debug("rpc: 取消库存扣减审计日志失败：", err, "冻结对象：", item)
-            return err
+        if !found {
+            // 未冻结过，视为已解冻
+            return nil
         }
-        return nil
+        switch status {
+        case inventorymodel.AUDIT_CANCLLED:
+            // 已取消，幂等返回
+            return nil
+        case inventorymodel.AUDIT_CONFIRMED:
+            // 已确认发货/支付后扣减，不允许回滚
+            return inventorymodel.ErrInvalidParam
+        case inventorymodel.AUDIT_PENDING:
+            // 正常解冻并置为取消
+            if err := l.svcCtx.InventoryModel.UnfreezeWithSession(ctx, s, item.ProductId, item.Quantity); err != nil {
+                l.Logger.Debug("rpc: 解冻库存失败：", err, "冻结对象：", item)
+                return err
+            }
+            if err := l.svcCtx.InventoryAuditModel.UpdateStatusWithSession(ctx, s, pid, item.ProductId, inventorymodel.AUDIT_CANCLLED); err != nil {
+                l.Logger.Debug("rpc: 取消库存扣减审计日志失败：", err, "冻结对象：", item)
+                return err
+            }
+            return nil
+        default:
+            return inventorymodel.ErrInvalidParam
+        }
     })
 	if err != nil {
 		resp.StatusCode = errno.InternalError

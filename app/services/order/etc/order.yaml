@@ -58,5 +58,6 @@ LogConf:
 
 DtmConf:
   Server: "http://dtm:36789/api/dtmsvr"
+  GrpcServer: "consul://consul:8500/dtmservice"
   BusiURL: "http://order-rpc:13005"
   BusiListen: ":13005"

@@ -17,7 +17,7 @@ import (
 	"NatsumeAI/app/services/order/order"
 	prodpb "NatsumeAI/app/services/product/product"
 
-	"github.com/dtm-labs/dtmcli"
+    "github.com/dtm-labs/client/dtmcli"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 

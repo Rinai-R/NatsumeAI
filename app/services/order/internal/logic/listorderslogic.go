@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
 
 	"NatsumeAI/app/services/order/internal/svc"
 	"NatsumeAI/app/services/order/order"
@@ -52,6 +53,9 @@ func (l *ListOrdersLogic) ListOrders(in *order.ListOrdersReq) (*order.ListOrders
             PaymentMethod:  r.PaymentMethod,
             AddressSnapshot: func() string { if r.AddressSnapshot.Valid { return r.AddressSnapshot.String }; return "" }(),
         }
+        if its, err := l.listOrderItems(r.OrderId); err == nil {
+            info.Items = its
+        }
         orders = append(orders, info)
     }
 
@@ -61,3 +65,30 @@ func (l *ListOrdersLogic) ListOrders(in *order.ListOrdersReq) (*order.ListOrders
     resp.Total = total
     return resp, nil
 }
+
+// listOrderItems loads items from order_items and parses snapshot json.
+func (l *ListOrdersLogic) listOrderItems(orderID int64) ([]*order.OrderItem, error) {
+    rows, err := l.svcCtx.OrdItm.ListByOrder(l.ctx, orderID)
+    if err != nil { return nil, err }
+    res := make([]*order.OrderItem, 0, len(rows))
+    for _, r := range rows {
+        itm := &order.OrderItem{
+            ProductId:  int64(r.ProductId),
+            Quantity:   int64(r.Quantity),
+            PriceCents: int64(r.PriceCents),
+        }
+        if r.Snapshot.Valid {
+            var snap struct{
+                Title string `json:"title"`
+                CoverImage string `json:"cover_image"`
+                Attributes string `json:"attributes"`
+            }
+            if err := json.Unmarshal([]byte(r.Snapshot.String), &snap); err == nil {
+                itm.Snapshot = &order.OrderItemSnapshot{Title: snap.Title, CoverImage: snap.CoverImage, Attributes: snap.Attributes}
+            }
+        }
+        res = append(res, itm)
+    }
+    return res, nil
+}
+

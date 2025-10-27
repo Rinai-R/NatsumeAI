@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `order_preorders` (
     `coupon_id`         BIGINT NOT NULL COMMENT '优惠券ID',
     `original_amount`   BIGINT NOT NULL COMMENT '原始金额',
     `final_amount`      BIGINT NOT NULL COMMENT '最终金额',
-    `status`            ENUM('PENDING','PLACED','CANCELLED') NOT NULL DEFAULT 'PENDING' COMMENT '状态，预下单状态，已下单，取消',
+    `status`            ENUM('PENDING','READY','PLACED','CANCELLED') NOT NULL DEFAULT 'PENDING' COMMENT '状态：待处理/就绪/已下单/取消',
     `expire_at`         DATETIME        NOT NULL COMMENT '预订单过期时间',
     `created_at`        DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`        DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

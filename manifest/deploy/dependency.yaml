@@ -167,11 +167,12 @@ services:
       STORE_USER: root
       STORE_PASSWORD: 'Natsume'
       STORE_PORT: 3306
+      MICRO_SERVICE_END_POINT: "0.0.0.0:36790"
+      MICRO_SERVICE_TARGET: "consul://consul:8500/dtmservice"
+      MICRO_SERVICE_DRIVER: "dtm-driver-gozero"
     ports:
       - '36789:36789'
       - '36790:36790'
-    volumes:
-      - "./config/dtm/:/app/dtm/configs/"
     networks:
       - application
 networks:
