@@ -1,5 +1,5 @@
 API_DIR := ./app/api
-API_MODULES := user checkout order product payment coupon
+API_MODULES := user order product payment coupon agent
 
 .PHONY: api
 .FORCE:
@@ -12,7 +12,7 @@ api-%: .FORCE
 
 
 RPC_DIR := ./app/services
-RPC_MODULES := user checkout auth order product payment coupon inventory
+RPC_MODULES := user auth order product payment coupon inventory agent
 
 .PHONY: rpc
 .FORCE:
@@ -25,7 +25,7 @@ rpc-%: .FORCE
 
 
 MODEL_DIR := ./manifest/sql
-MODEL_MODULES := user checkout order product payment coupon inventory
+MODEL_MODULES := user order product payment coupon inventory agent
 
 .PHONY: model
 .FORCE:

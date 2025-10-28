@@ -100,6 +100,46 @@ message ListAddressesResponse {
     repeated Address addresses = 3;
 }
 
+// 商家申请相关
+message MerchantApplicationInput {
+    // 店铺名称
+    string shop_name = 1;
+    // 联系人姓名
+    string contact_name = 2;
+    // 联系人手机号
+    string contact_phone = 3;
+    // 经营地址
+    string address = 4;
+    // 申请理由
+    string description = 9;
+}
+
+message ApplyMerchantRequest {
+    int64 user_id = 1;
+    MerchantApplicationInput application = 2;
+}
+
+message ApplyMerchantResponse {
+    int64 status_code = 1;
+    string status_msg = 2;
+    int64 application_id = 3;
+    string application_status = 4;
+}
+
+message GetMerchantApplicationStatusRequest {
+    int64 user_id = 1;
+    int64 application_id = 2;
+}
+
+message GetMerchantApplicationStatusResponse {
+    int64 status_code = 1;
+    string status_msg = 2;
+    int64 application_id = 3;
+    string application_status = 4;
+    string reject_reason = 5;
+    int64 reviewed_at = 6;
+}
+
 service UserService {
     rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
     rpc LoginUser(LoginUserRequest) returns (LoginUserResponse);
@@ -107,4 +147,6 @@ service UserService {
     rpc UpdateAddress(UpdateAddressRequest) returns (UpdateAddressResponse);
     rpc DeleteAddress(DeleteAddressRequest) returns (DeleteAddressResponse);
     rpc ListAddresses(ListAddressesRequest) returns (ListAddressesResponse);
+    rpc ApplyMerchant(ApplyMerchantRequest) returns (ApplyMerchantResponse);
+    rpc GetMerchantApplicationStatus(GetMerchantApplicationStatusRequest) returns (GetMerchantApplicationStatusResponse);
 }

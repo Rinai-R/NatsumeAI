@@ -27,16 +27,6 @@ type (
 		order_id    int64  `json:"order_id"`
 		status      int32  `json:"status"` // OrderStatus enum value
 	}
-	ConfirmPaymentRequest {
-		order_id       int64  `json:"order_id"`
-		payment_method string `json:"payment_method"`
-		payment_token  string `json:"payment_token,optional"`
-	}
-	ConfirmPaymentResponse {
-		status_code int64  `json:"status_code"`
-		status_msg  string `json:"status_msg"`
-		status      int32  `json:"status"` // OrderStatus enum value
-	}
 	CancelOrderRequest {
 		preorder_id int64  `json:"preorder_id,optional"`
 		order_id    int64  `json:"order_id,optional"`
@@ -104,9 +94,6 @@ service order-api {
 	@handler PlaceOrder
 	post /api/v1/order/place (PlaceOrderRequest) returns (PlaceOrderResponse)
 
-	@handler ConfirmPayment
-	post /api/v1/order/payment/confirm (ConfirmPaymentRequest) returns (ConfirmPaymentResponse)
-
 	@handler CancelOrder
 	post /api/v1/order/cancel (CancelOrderRequest) returns (CancelOrderResponse)
 
@@ -114,6 +101,6 @@ service order-api {
 	get /api/v1/order/detail (GetOrderRequest) returns (GetOrderResponse)
 
 	@handler ListOrders
-	get /api/v1/orders (ListOrdersRequest) returns (ListOrdersResponse)
+	get /api/v1/order (ListOrdersRequest) returns (ListOrdersResponse)
 }
 

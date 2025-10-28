@@ -1,13 +1,13 @@
 package logic
 
 import (
-    "context"
-    "encoding/json"
+	"context"
+	"encoding/json"
 
-    "NatsumeAI/app/services/order/internal/svc"
-    "NatsumeAI/app/services/order/order"
+	"NatsumeAI/app/services/order/internal/svc"
+	"NatsumeAI/app/services/order/order"
 
-    "github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetOrderLogic struct {
@@ -57,7 +57,7 @@ func (l *GetOrderLogic) GetOrder(in *order.GetOrderReq) (*order.GetOrderResp, er
         AddressSnapshot: func() string { if ord.AddressSnapshot.Valid { return ord.AddressSnapshot.String }; return "" }(),
     }
     if ord.PaymentAt.Valid { info.PaidAt = ord.PaymentAt.Time.Unix() }
-    // load items from order_items
+    // 加载商品快照信息
     items, _ := l.listOrderItems(ord.OrderId)
     info.Items = items
 

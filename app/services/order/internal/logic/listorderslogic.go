@@ -42,6 +42,10 @@ func (l *ListOrdersLogic) ListOrders(in *order.ListOrdersReq) (*order.ListOrders
 
     orders := make([]*order.OrderInfo, 0, len(rows))
     for _, r := range rows {
+        // 0 表示获取所有状态的订单
+        if in.Status != 0 && (in.Status != (toProtoStatus(r.Status))) {
+            continue
+        }
         info := &order.OrderInfo{
             OrderId:        r.OrderId,
             PreorderId:     r.PreorderId,

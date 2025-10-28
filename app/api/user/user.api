@@ -57,6 +57,27 @@ type (
 	ListAddressesResponse {
 		Addresses []Address `json:"addresses"`
 	}
+	// 商家申请
+	MerchantApplicationInput {
+		ShopName     string `json:"shopName"`
+		ContactName  string `json:"contactName"`
+		ContactPhone string `json:"contactPhone"`
+		Address      string `json:"address"`
+		Description  string `json:"description,omitempty"`
+	}
+	ApplyMerchantRequest {
+		Application MerchantApplicationInput `json:"application"`
+	}
+	ApplyMerchantResponse {
+		ApplicationId     int64  `json:"applicationId"`
+		ApplicationStatus string `json:"applicationStatus"`
+	}
+	GetMerchantApplicationStatusResponse {
+		ApplicationId     int64  `json:"applicationId"`
+		ApplicationStatus string `json:"applicationStatus"`
+		RejectReason      string `json:"rejectReason,omitempty"`
+		ReviewedAt        int64  `json:"reviewedAt,omitempty"`
+	}
 )
 
 @server (
@@ -87,5 +108,19 @@ service user-api {
 
 	@handler ListUserAddresses
 	get /api/v1/users/addresses (ListAddressesRequest) returns (ListAddressesResponse)
+}
+
+@server (
+	middleware: AuthMiddleware
+	group:      merchant
+)
+service user-api {
+	// 提交商家申请
+	@handler ApplyMerchant
+	post /api/v1/users/merchant/applications (ApplyMerchantRequest) returns (ApplyMerchantResponse)
+
+	// 查询商家申请状态
+	@handler GetMerchantApplicationStatus
+	get /api/v1/users/merchant/applications/:applicationId/status returns (GetMerchantApplicationStatusResponse)
 }
 

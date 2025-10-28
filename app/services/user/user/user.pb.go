@@ -921,6 +921,344 @@ func (x *ListAddressesResponse) GetAddresses() []*Address {
 	return nil
 }
 
+// 商家申请相关
+type MerchantApplicationInput struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 店铺名称
+	ShopName string `protobuf:"bytes,1,opt,name=shop_name,json=shopName,proto3" json:"shop_name,omitempty"`
+	// 联系人姓名
+	ContactName string `protobuf:"bytes,2,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"`
+	// 联系人手机号
+	ContactPhone string `protobuf:"bytes,3,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"`
+	// 经营地址
+	Address string `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
+	// 申请理由
+	Description   string `protobuf:"bytes,9,opt,name=description,proto3" json:"description,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MerchantApplicationInput) Reset() {
+	*x = MerchantApplicationInput{}
+	mi := &file_user_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MerchantApplicationInput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MerchantApplicationInput) ProtoMessage() {}
+
+func (x *MerchantApplicationInput) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MerchantApplicationInput.ProtoReflect.Descriptor instead.
+func (*MerchantApplicationInput) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *MerchantApplicationInput) GetShopName() string {
+	if x != nil {
+		return x.ShopName
+	}
+	return ""
+}
+
+func (x *MerchantApplicationInput) GetContactName() string {
+	if x != nil {
+		return x.ContactName
+	}
+	return ""
+}
+
+func (x *MerchantApplicationInput) GetContactPhone() string {
+	if x != nil {
+		return x.ContactPhone
+	}
+	return ""
+}
+
+func (x *MerchantApplicationInput) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *MerchantApplicationInput) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+type ApplyMerchantRequest struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	UserId        int64                     `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Application   *MerchantApplicationInput `protobuf:"bytes,2,opt,name=application,proto3" json:"application,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ApplyMerchantRequest) Reset() {
+	*x = ApplyMerchantRequest{}
+	mi := &file_user_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ApplyMerchantRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApplyMerchantRequest) ProtoMessage() {}
+
+func (x *ApplyMerchantRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApplyMerchantRequest.ProtoReflect.Descriptor instead.
+func (*ApplyMerchantRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ApplyMerchantRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *ApplyMerchantRequest) GetApplication() *MerchantApplicationInput {
+	if x != nil {
+		return x.Application
+	}
+	return nil
+}
+
+type ApplyMerchantResponse struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	StatusCode        int64                  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
+	StatusMsg         string                 `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
+	ApplicationId     int64                  `protobuf:"varint,3,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	ApplicationStatus string                 `protobuf:"bytes,4,opt,name=application_status,json=applicationStatus,proto3" json:"application_status,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ApplyMerchantResponse) Reset() {
+	*x = ApplyMerchantResponse{}
+	mi := &file_user_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ApplyMerchantResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApplyMerchantResponse) ProtoMessage() {}
+
+func (x *ApplyMerchantResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApplyMerchantResponse.ProtoReflect.Descriptor instead.
+func (*ApplyMerchantResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ApplyMerchantResponse) GetStatusCode() int64 {
+	if x != nil {
+		return x.StatusCode
+	}
+	return 0
+}
+
+func (x *ApplyMerchantResponse) GetStatusMsg() string {
+	if x != nil {
+		return x.StatusMsg
+	}
+	return ""
+}
+
+func (x *ApplyMerchantResponse) GetApplicationId() int64 {
+	if x != nil {
+		return x.ApplicationId
+	}
+	return 0
+}
+
+func (x *ApplyMerchantResponse) GetApplicationStatus() string {
+	if x != nil {
+		return x.ApplicationStatus
+	}
+	return ""
+}
+
+type GetMerchantApplicationStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ApplicationId int64                  `protobuf:"varint,2,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMerchantApplicationStatusRequest) Reset() {
+	*x = GetMerchantApplicationStatusRequest{}
+	mi := &file_user_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMerchantApplicationStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMerchantApplicationStatusRequest) ProtoMessage() {}
+
+func (x *GetMerchantApplicationStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMerchantApplicationStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetMerchantApplicationStatusRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *GetMerchantApplicationStatusRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *GetMerchantApplicationStatusRequest) GetApplicationId() int64 {
+	if x != nil {
+		return x.ApplicationId
+	}
+	return 0
+}
+
+type GetMerchantApplicationStatusResponse struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	StatusCode        int64                  `protobuf:"varint,1,opt,name=status_code,json=statusCode,proto3" json:"status_code,omitempty"`
+	StatusMsg         string                 `protobuf:"bytes,2,opt,name=status_msg,json=statusMsg,proto3" json:"status_msg,omitempty"`
+	ApplicationId     int64                  `protobuf:"varint,3,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	ApplicationStatus string                 `protobuf:"bytes,4,opt,name=application_status,json=applicationStatus,proto3" json:"application_status,omitempty"`
+	RejectReason      string                 `protobuf:"bytes,5,opt,name=reject_reason,json=rejectReason,proto3" json:"reject_reason,omitempty"`
+	ReviewedAt        int64                  `protobuf:"varint,6,opt,name=reviewed_at,json=reviewedAt,proto3" json:"reviewed_at,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetMerchantApplicationStatusResponse) Reset() {
+	*x = GetMerchantApplicationStatusResponse{}
+	mi := &file_user_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMerchantApplicationStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMerchantApplicationStatusResponse) ProtoMessage() {}
+
+func (x *GetMerchantApplicationStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMerchantApplicationStatusResponse.ProtoReflect.Descriptor instead.
+func (*GetMerchantApplicationStatusResponse) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetMerchantApplicationStatusResponse) GetStatusCode() int64 {
+	if x != nil {
+		return x.StatusCode
+	}
+	return 0
+}
+
+func (x *GetMerchantApplicationStatusResponse) GetStatusMsg() string {
+	if x != nil {
+		return x.StatusMsg
+	}
+	return ""
+}
+
+func (x *GetMerchantApplicationStatusResponse) GetApplicationId() int64 {
+	if x != nil {
+		return x.ApplicationId
+	}
+	return 0
+}
+
+func (x *GetMerchantApplicationStatusResponse) GetApplicationStatus() string {
+	if x != nil {
+		return x.ApplicationStatus
+	}
+	return ""
+}
+
+func (x *GetMerchantApplicationStatusResponse) GetRejectReason() string {
+	if x != nil {
+		return x.RejectReason
+	}
+	return ""
+}
+
+func (x *GetMerchantApplicationStatusResponse) GetReviewedAt() int64 {
+	if x != nil {
+		return x.ReviewedAt
+	}
+	return 0
+}
+
 var File_user_proto protoreflect.FileDescriptor
 
 const file_user_proto_rawDesc = "" +
@@ -1008,14 +1346,45 @@ const file_user_proto_rawDesc = "" +
 	"statusCode\x12\x1d\n" +
 	"\n" +
 	"status_msg\x18\x02 \x01(\tR\tstatusMsg\x12+\n" +
-	"\taddresses\x18\x03 \x03(\v2\r.user.AddressR\taddresses2\xba\x03\n" +
+	"\taddresses\x18\x03 \x03(\v2\r.user.AddressR\taddresses\"\xbb\x01\n" +
+	"\x18MerchantApplicationInput\x12\x1b\n" +
+	"\tshop_name\x18\x01 \x01(\tR\bshopName\x12!\n" +
+	"\fcontact_name\x18\x02 \x01(\tR\vcontactName\x12#\n" +
+	"\rcontact_phone\x18\x03 \x01(\tR\fcontactPhone\x12\x18\n" +
+	"\aaddress\x18\x04 \x01(\tR\aaddress\x12 \n" +
+	"\vdescription\x18\t \x01(\tR\vdescription\"q\n" +
+	"\x14ApplyMerchantRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12@\n" +
+	"\vapplication\x18\x02 \x01(\v2\x1e.user.MerchantApplicationInputR\vapplication\"\xad\x01\n" +
+	"\x15ApplyMerchantResponse\x12\x1f\n" +
+	"\vstatus_code\x18\x01 \x01(\x03R\n" +
+	"statusCode\x12\x1d\n" +
+	"\n" +
+	"status_msg\x18\x02 \x01(\tR\tstatusMsg\x12%\n" +
+	"\x0eapplication_id\x18\x03 \x01(\x03R\rapplicationId\x12-\n" +
+	"\x12application_status\x18\x04 \x01(\tR\x11applicationStatus\"e\n" +
+	"#GetMerchantApplicationStatusRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12%\n" +
+	"\x0eapplication_id\x18\x02 \x01(\x03R\rapplicationId\"\x82\x02\n" +
+	"$GetMerchantApplicationStatusResponse\x12\x1f\n" +
+	"\vstatus_code\x18\x01 \x01(\x03R\n" +
+	"statusCode\x12\x1d\n" +
+	"\n" +
+	"status_msg\x18\x02 \x01(\tR\tstatusMsg\x12%\n" +
+	"\x0eapplication_id\x18\x03 \x01(\x03R\rapplicationId\x12-\n" +
+	"\x12application_status\x18\x04 \x01(\tR\x11applicationStatus\x12#\n" +
+	"\rreject_reason\x18\x05 \x01(\tR\frejectReason\x12\x1f\n" +
+	"\vreviewed_at\x18\x06 \x01(\x03R\n" +
+	"reviewedAt2\xfb\x04\n" +
 	"\vUserService\x12E\n" +
 	"\fRegisterUser\x12\x19.user.RegisterUserRequest\x1a\x1a.user.RegisterUserResponse\x12<\n" +
 	"\tLoginUser\x12\x16.user.LoginUserRequest\x1a\x17.user.LoginUserResponse\x12H\n" +
 	"\rCreateAddress\x12\x1a.user.CreateAddressRequest\x1a\x1b.user.CreateAddressResponse\x12H\n" +
 	"\rUpdateAddress\x12\x1a.user.UpdateAddressRequest\x1a\x1b.user.UpdateAddressResponse\x12H\n" +
 	"\rDeleteAddress\x12\x1a.user.DeleteAddressRequest\x1a\x1b.user.DeleteAddressResponse\x12H\n" +
-	"\rListAddresses\x12\x1a.user.ListAddressesRequest\x1a\x1b.user.ListAddressesResponseB\bZ\x06./userb\x06proto3"
+	"\rListAddresses\x12\x1a.user.ListAddressesRequest\x1a\x1b.user.ListAddressesResponse\x12H\n" +
+	"\rApplyMerchant\x12\x1a.user.ApplyMerchantRequest\x1a\x1b.user.ApplyMerchantResponse\x12u\n" +
+	"\x1cGetMerchantApplicationStatus\x12).user.GetMerchantApplicationStatusRequest\x1a*.user.GetMerchantApplicationStatusResponseB\bZ\x06./userb\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
@@ -1029,23 +1398,28 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_user_proto_goTypes = []any{
-	(*UserProfile)(nil),           // 0: user.UserProfile
-	(*RegisterUserRequest)(nil),   // 1: user.RegisterUserRequest
-	(*RegisterUserResponse)(nil),  // 2: user.RegisterUserResponse
-	(*LoginUserRequest)(nil),      // 3: user.LoginUserRequest
-	(*LoginUserResponse)(nil),     // 4: user.LoginUserResponse
-	(*Address)(nil),               // 5: user.Address
-	(*AddressInput)(nil),          // 6: user.AddressInput
-	(*CreateAddressRequest)(nil),  // 7: user.CreateAddressRequest
-	(*CreateAddressResponse)(nil), // 8: user.CreateAddressResponse
-	(*UpdateAddressRequest)(nil),  // 9: user.UpdateAddressRequest
-	(*UpdateAddressResponse)(nil), // 10: user.UpdateAddressResponse
-	(*DeleteAddressRequest)(nil),  // 11: user.DeleteAddressRequest
-	(*DeleteAddressResponse)(nil), // 12: user.DeleteAddressResponse
-	(*ListAddressesRequest)(nil),  // 13: user.ListAddressesRequest
-	(*ListAddressesResponse)(nil), // 14: user.ListAddressesResponse
+	(*UserProfile)(nil),                          // 0: user.UserProfile
+	(*RegisterUserRequest)(nil),                  // 1: user.RegisterUserRequest
+	(*RegisterUserResponse)(nil),                 // 2: user.RegisterUserResponse
+	(*LoginUserRequest)(nil),                     // 3: user.LoginUserRequest
+	(*LoginUserResponse)(nil),                    // 4: user.LoginUserResponse
+	(*Address)(nil),                              // 5: user.Address
+	(*AddressInput)(nil),                         // 6: user.AddressInput
+	(*CreateAddressRequest)(nil),                 // 7: user.CreateAddressRequest
+	(*CreateAddressResponse)(nil),                // 8: user.CreateAddressResponse
+	(*UpdateAddressRequest)(nil),                 // 9: user.UpdateAddressRequest
+	(*UpdateAddressResponse)(nil),                // 10: user.UpdateAddressResponse
+	(*DeleteAddressRequest)(nil),                 // 11: user.DeleteAddressRequest
+	(*DeleteAddressResponse)(nil),                // 12: user.DeleteAddressResponse
+	(*ListAddressesRequest)(nil),                 // 13: user.ListAddressesRequest
+	(*ListAddressesResponse)(nil),                // 14: user.ListAddressesResponse
+	(*MerchantApplicationInput)(nil),             // 15: user.MerchantApplicationInput
+	(*ApplyMerchantRequest)(nil),                 // 16: user.ApplyMerchantRequest
+	(*ApplyMerchantResponse)(nil),                // 17: user.ApplyMerchantResponse
+	(*GetMerchantApplicationStatusRequest)(nil),  // 18: user.GetMerchantApplicationStatusRequest
+	(*GetMerchantApplicationStatusResponse)(nil), // 19: user.GetMerchantApplicationStatusResponse
 }
 var file_user_proto_depIdxs = []int32{
 	0,  // 0: user.RegisterUserResponse.user:type_name -> user.UserProfile
@@ -1055,23 +1429,28 @@ var file_user_proto_depIdxs = []int32{
 	6,  // 4: user.UpdateAddressRequest.address:type_name -> user.AddressInput
 	5,  // 5: user.UpdateAddressResponse.address:type_name -> user.Address
 	5,  // 6: user.ListAddressesResponse.addresses:type_name -> user.Address
-	1,  // 7: user.UserService.RegisterUser:input_type -> user.RegisterUserRequest
-	3,  // 8: user.UserService.LoginUser:input_type -> user.LoginUserRequest
-	7,  // 9: user.UserService.CreateAddress:input_type -> user.CreateAddressRequest
-	9,  // 10: user.UserService.UpdateAddress:input_type -> user.UpdateAddressRequest
-	11, // 11: user.UserService.DeleteAddress:input_type -> user.DeleteAddressRequest
-	13, // 12: user.UserService.ListAddresses:input_type -> user.ListAddressesRequest
-	2,  // 13: user.UserService.RegisterUser:output_type -> user.RegisterUserResponse
-	4,  // 14: user.UserService.LoginUser:output_type -> user.LoginUserResponse
-	8,  // 15: user.UserService.CreateAddress:output_type -> user.CreateAddressResponse
-	10, // 16: user.UserService.UpdateAddress:output_type -> user.UpdateAddressResponse
-	12, // 17: user.UserService.DeleteAddress:output_type -> user.DeleteAddressResponse
-	14, // 18: user.UserService.ListAddresses:output_type -> user.ListAddressesResponse
-	13, // [13:19] is the sub-list for method output_type
-	7,  // [7:13] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	15, // 7: user.ApplyMerchantRequest.application:type_name -> user.MerchantApplicationInput
+	1,  // 8: user.UserService.RegisterUser:input_type -> user.RegisterUserRequest
+	3,  // 9: user.UserService.LoginUser:input_type -> user.LoginUserRequest
+	7,  // 10: user.UserService.CreateAddress:input_type -> user.CreateAddressRequest
+	9,  // 11: user.UserService.UpdateAddress:input_type -> user.UpdateAddressRequest
+	11, // 12: user.UserService.DeleteAddress:input_type -> user.DeleteAddressRequest
+	13, // 13: user.UserService.ListAddresses:input_type -> user.ListAddressesRequest
+	16, // 14: user.UserService.ApplyMerchant:input_type -> user.ApplyMerchantRequest
+	18, // 15: user.UserService.GetMerchantApplicationStatus:input_type -> user.GetMerchantApplicationStatusRequest
+	2,  // 16: user.UserService.RegisterUser:output_type -> user.RegisterUserResponse
+	4,  // 17: user.UserService.LoginUser:output_type -> user.LoginUserResponse
+	8,  // 18: user.UserService.CreateAddress:output_type -> user.CreateAddressResponse
+	10, // 19: user.UserService.UpdateAddress:output_type -> user.UpdateAddressResponse
+	12, // 20: user.UserService.DeleteAddress:output_type -> user.DeleteAddressResponse
+	14, // 21: user.UserService.ListAddresses:output_type -> user.ListAddressesResponse
+	17, // 22: user.UserService.ApplyMerchant:output_type -> user.ApplyMerchantResponse
+	19, // 23: user.UserService.GetMerchantApplicationStatus:output_type -> user.GetMerchantApplicationStatusResponse
+	16, // [16:24] is the sub-list for method output_type
+	8,  // [8:16] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_user_proto_init() }
@@ -1085,7 +1464,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

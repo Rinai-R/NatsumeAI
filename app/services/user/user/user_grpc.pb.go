@@ -19,12 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_RegisterUser_FullMethodName  = "/user.UserService/RegisterUser"
-	UserService_LoginUser_FullMethodName     = "/user.UserService/LoginUser"
-	UserService_CreateAddress_FullMethodName = "/user.UserService/CreateAddress"
-	UserService_UpdateAddress_FullMethodName = "/user.UserService/UpdateAddress"
-	UserService_DeleteAddress_FullMethodName = "/user.UserService/DeleteAddress"
-	UserService_ListAddresses_FullMethodName = "/user.UserService/ListAddresses"
+	UserService_RegisterUser_FullMethodName                 = "/user.UserService/RegisterUser"
+	UserService_LoginUser_FullMethodName                    = "/user.UserService/LoginUser"
+	UserService_CreateAddress_FullMethodName                = "/user.UserService/CreateAddress"
+	UserService_UpdateAddress_FullMethodName                = "/user.UserService/UpdateAddress"
+	UserService_DeleteAddress_FullMethodName                = "/user.UserService/DeleteAddress"
+	UserService_ListAddresses_FullMethodName                = "/user.UserService/ListAddresses"
+	UserService_ApplyMerchant_FullMethodName                = "/user.UserService/ApplyMerchant"
+	UserService_GetMerchantApplicationStatus_FullMethodName = "/user.UserService/GetMerchantApplicationStatus"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -37,6 +39,8 @@ type UserServiceClient interface {
 	UpdateAddress(ctx context.Context, in *UpdateAddressRequest, opts ...grpc.CallOption) (*UpdateAddressResponse, error)
 	DeleteAddress(ctx context.Context, in *DeleteAddressRequest, opts ...grpc.CallOption) (*DeleteAddressResponse, error)
 	ListAddresses(ctx context.Context, in *ListAddressesRequest, opts ...grpc.CallOption) (*ListAddressesResponse, error)
+	ApplyMerchant(ctx context.Context, in *ApplyMerchantRequest, opts ...grpc.CallOption) (*ApplyMerchantResponse, error)
+	GetMerchantApplicationStatus(ctx context.Context, in *GetMerchantApplicationStatusRequest, opts ...grpc.CallOption) (*GetMerchantApplicationStatusResponse, error)
 }
 
 type userServiceClient struct {
@@ -107,6 +111,26 @@ func (c *userServiceClient) ListAddresses(ctx context.Context, in *ListAddresses
 	return out, nil
 }
 
+func (c *userServiceClient) ApplyMerchant(ctx context.Context, in *ApplyMerchantRequest, opts ...grpc.CallOption) (*ApplyMerchantResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ApplyMerchantResponse)
+	err := c.cc.Invoke(ctx, UserService_ApplyMerchant_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) GetMerchantApplicationStatus(ctx context.Context, in *GetMerchantApplicationStatusRequest, opts ...grpc.CallOption) (*GetMerchantApplicationStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMerchantApplicationStatusResponse)
+	err := c.cc.Invoke(ctx, UserService_GetMerchantApplicationStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -117,6 +141,8 @@ type UserServiceServer interface {
 	UpdateAddress(context.Context, *UpdateAddressRequest) (*UpdateAddressResponse, error)
 	DeleteAddress(context.Context, *DeleteAddressRequest) (*DeleteAddressResponse, error)
 	ListAddresses(context.Context, *ListAddressesRequest) (*ListAddressesResponse, error)
+	ApplyMerchant(context.Context, *ApplyMerchantRequest) (*ApplyMerchantResponse, error)
+	GetMerchantApplicationStatus(context.Context, *GetMerchantApplicationStatusRequest) (*GetMerchantApplicationStatusResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -144,6 +170,12 @@ func (UnimplementedUserServiceServer) DeleteAddress(context.Context, *DeleteAddr
 }
 func (UnimplementedUserServiceServer) ListAddresses(context.Context, *ListAddressesRequest) (*ListAddressesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAddresses not implemented")
+}
+func (UnimplementedUserServiceServer) ApplyMerchant(context.Context, *ApplyMerchantRequest) (*ApplyMerchantResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ApplyMerchant not implemented")
+}
+func (UnimplementedUserServiceServer) GetMerchantApplicationStatus(context.Context, *GetMerchantApplicationStatusRequest) (*GetMerchantApplicationStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMerchantApplicationStatus not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -274,6 +306,42 @@ func _UserService_ListAddresses_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_ApplyMerchant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ApplyMerchantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).ApplyMerchant(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_ApplyMerchant_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).ApplyMerchant(ctx, req.(*ApplyMerchantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_GetMerchantApplicationStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMerchantApplicationStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetMerchantApplicationStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_GetMerchantApplicationStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetMerchantApplicationStatus(ctx, req.(*GetMerchantApplicationStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +372,14 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAddresses",
 			Handler:    _UserService_ListAddresses_Handler,
+		},
+		{
+			MethodName: "ApplyMerchant",
+			Handler:    _UserService_ApplyMerchant_Handler,
+		},
+		{
+			MethodName: "GetMerchantApplicationStatus",
+			Handler:    _UserService_GetMerchantApplicationStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

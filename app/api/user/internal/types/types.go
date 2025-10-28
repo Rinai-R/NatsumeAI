@@ -11,6 +11,15 @@ type Address struct {
 	UpdatedAt int64  `json:"updatedAt,omitempty"`
 }
 
+type ApplyMerchantRequest struct {
+	Application MerchantApplicationInput `json:"application"`
+}
+
+type ApplyMerchantResponse struct {
+	ApplicationId     int64  `json:"applicationId"`
+	ApplicationStatus string `json:"applicationStatus"`
+}
+
 type CreateAddressRequest struct {
 	Detail    string `json:"detail"`
 	IsDefault bool   `json:"isDefault"`
@@ -18,6 +27,13 @@ type CreateAddressRequest struct {
 
 type DeleteAddressRequest struct {
 	AddressId int64 `path:"addressId"`
+}
+
+type GetMerchantApplicationStatusResponse struct {
+	ApplicationId     int64  `json:"applicationId"`
+	ApplicationStatus string `json:"applicationStatus"`
+	RejectReason      string `json:"rejectReason,omitempty"`
+	ReviewedAt        int64  `json:"reviewedAt,omitempty"`
 }
 
 type ListAddressesRequest struct {
@@ -37,6 +53,14 @@ type LoginUserResponse struct {
 	RefreshToken string      `json:"-"`
 	ExpiresIn    int64       `json:"expiresIn"`
 	User         UserProfile `json:"user"`
+}
+
+type MerchantApplicationInput struct {
+	ShopName     string `json:"shopName"`
+	ContactName  string `json:"contactName"`
+	ContactPhone string `json:"contactPhone"`
+	Address      string `json:"address"`
+	Description  string `json:"description,omitempty"`
 }
 
 type RegisterUserRequest struct {

@@ -14,21 +14,26 @@ import (
 )
 
 type (
-	Address               = user.Address
-	AddressInput          = user.AddressInput
-	CreateAddressRequest  = user.CreateAddressRequest
-	CreateAddressResponse = user.CreateAddressResponse
-	DeleteAddressRequest  = user.DeleteAddressRequest
-	DeleteAddressResponse = user.DeleteAddressResponse
-	ListAddressesRequest  = user.ListAddressesRequest
-	ListAddressesResponse = user.ListAddressesResponse
-	LoginUserRequest      = user.LoginUserRequest
-	LoginUserResponse     = user.LoginUserResponse
-	RegisterUserRequest   = user.RegisterUserRequest
-	RegisterUserResponse  = user.RegisterUserResponse
-	UpdateAddressRequest  = user.UpdateAddressRequest
-	UpdateAddressResponse = user.UpdateAddressResponse
-	UserProfile           = user.UserProfile
+	Address                              = user.Address
+	AddressInput                         = user.AddressInput
+	ApplyMerchantRequest                 = user.ApplyMerchantRequest
+	ApplyMerchantResponse                = user.ApplyMerchantResponse
+	CreateAddressRequest                 = user.CreateAddressRequest
+	CreateAddressResponse                = user.CreateAddressResponse
+	DeleteAddressRequest                 = user.DeleteAddressRequest
+	DeleteAddressResponse                = user.DeleteAddressResponse
+	GetMerchantApplicationStatusRequest  = user.GetMerchantApplicationStatusRequest
+	GetMerchantApplicationStatusResponse = user.GetMerchantApplicationStatusResponse
+	ListAddressesRequest                 = user.ListAddressesRequest
+	ListAddressesResponse                = user.ListAddressesResponse
+	LoginUserRequest                     = user.LoginUserRequest
+	LoginUserResponse                    = user.LoginUserResponse
+	MerchantApplicationInput             = user.MerchantApplicationInput
+	RegisterUserRequest                  = user.RegisterUserRequest
+	RegisterUserResponse                 = user.RegisterUserResponse
+	UpdateAddressRequest                 = user.UpdateAddressRequest
+	UpdateAddressResponse                = user.UpdateAddressResponse
+	UserProfile                          = user.UserProfile
 
 	UserService interface {
 		RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
@@ -37,6 +42,8 @@ type (
 		UpdateAddress(ctx context.Context, in *UpdateAddressRequest, opts ...grpc.CallOption) (*UpdateAddressResponse, error)
 		DeleteAddress(ctx context.Context, in *DeleteAddressRequest, opts ...grpc.CallOption) (*DeleteAddressResponse, error)
 		ListAddresses(ctx context.Context, in *ListAddressesRequest, opts ...grpc.CallOption) (*ListAddressesResponse, error)
+		ApplyMerchant(ctx context.Context, in *ApplyMerchantRequest, opts ...grpc.CallOption) (*ApplyMerchantResponse, error)
+		GetMerchantApplicationStatus(ctx context.Context, in *GetMerchantApplicationStatusRequest, opts ...grpc.CallOption) (*GetMerchantApplicationStatusResponse, error)
 	}
 
 	defaultUserService struct {
@@ -78,4 +85,14 @@ func (m *defaultUserService) DeleteAddress(ctx context.Context, in *DeleteAddres
 func (m *defaultUserService) ListAddresses(ctx context.Context, in *ListAddressesRequest, opts ...grpc.CallOption) (*ListAddressesResponse, error) {
 	client := user.NewUserServiceClient(m.cli.Conn())
 	return client.ListAddresses(ctx, in, opts...)
+}
+
+func (m *defaultUserService) ApplyMerchant(ctx context.Context, in *ApplyMerchantRequest, opts ...grpc.CallOption) (*ApplyMerchantResponse, error) {
+	client := user.NewUserServiceClient(m.cli.Conn())
+	return client.ApplyMerchant(ctx, in, opts...)
+}
+
+func (m *defaultUserService) GetMerchantApplicationStatus(ctx context.Context, in *GetMerchantApplicationStatusRequest, opts ...grpc.CallOption) (*GetMerchantApplicationStatusResponse, error) {
+	client := user.NewUserServiceClient(m.cli.Conn())
+	return client.GetMerchantApplicationStatus(ctx, in, opts...)
 }

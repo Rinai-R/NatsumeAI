@@ -1,0 +1,28 @@
+Name: agent.rpc
+ListenOn: 0.0.0.0:12007
+
+Consul:
+  Host: consul:8500 # consul endpoint
+  Key: agent.rpc
+  Meta:
+    Protocol: grpc
+  Tag:
+    - "agent-rpc"
+
+ChatModel:
+  BaseUrl: "https://ark.cn-beijing.volces.com/api/v3"
+  APIKey: "258d78b6-77d9-4b7e-803c-15022898a62c"
+  Model: "deepseek-v3-1-terminus"
+
+Embedding:
+  BaseUrl: "https://ark.cn-beijing.volces.com/api/v3"
+  APIKey: "258d78b6-77d9-4b7e-803c-15022898a62c"
+  Model: "doubao-embedding-large-text-250515"
+
+Rerank:
+  BaseUrl: ""
+  APIKey: ""
+  Model: ""
+
+LogConf:
+  Level: "info"

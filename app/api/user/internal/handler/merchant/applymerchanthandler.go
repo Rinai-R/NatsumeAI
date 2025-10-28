@@ -1,27 +1,27 @@
 // Code scaffolded by goctl. Safe to edit.
 // goctl 1.9.2
 
-package order
+package merchant
 
 import (
 	"net/http"
 
-	"NatsumeAI/app/api/order/internal/logic/order"
-	"NatsumeAI/app/api/order/internal/svc"
-	"NatsumeAI/app/api/order/internal/types"
+	"NatsumeAI/app/api/user/internal/logic/merchant"
+	"NatsumeAI/app/api/user/internal/svc"
+	"NatsumeAI/app/api/user/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func ConfirmPaymentHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func ApplyMerchantHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.ConfirmPaymentRequest
+		var req types.ApplyMerchantRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
 
-		l := order.NewConfirmPaymentLogic(r.Context(), svcCtx)
-		resp, err := l.ConfirmPayment(&req)
+		l := merchant.NewApplyMerchantLogic(r.Context(), svcCtx)
+		resp, err := l.ApplyMerchant(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

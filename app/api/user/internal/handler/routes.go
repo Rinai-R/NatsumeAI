@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	merchant "NatsumeAI/app/api/user/internal/handler/merchant"
 	user "NatsumeAI/app/api/user/internal/handler/user"
 	user_address "NatsumeAI/app/api/user/internal/handler/user_address"
 	"NatsumeAI/app/api/user/internal/svc"
@@ -14,6 +15,24 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/api/v1/users/merchant/applications",
+					Handler: merchant.ApplyMerchantHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/api/v1/users/merchant/applications/:applicationId/status",
+					Handler: merchant.GetMerchantApplicationStatusHandler(serverCtx),
+				},
+			}...,
+		),
+	)
+
 	server.AddRoutes(
 		[]rest.Route{
 			{

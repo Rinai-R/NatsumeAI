@@ -52,3 +52,13 @@ func (s *UserServiceServer) ListAddresses(ctx context.Context, in *user.ListAddr
 	l := logic.NewListAddressesLogic(ctx, s.svcCtx)
 	return l.ListAddresses(in)
 }
+
+func (s *UserServiceServer) ApplyMerchant(ctx context.Context, in *user.ApplyMerchantRequest) (*user.ApplyMerchantResponse, error) {
+	l := logic.NewApplyMerchantLogic(ctx, s.svcCtx)
+	return l.ApplyMerchant(in)
+}
+
+func (s *UserServiceServer) GetMerchantApplicationStatus(ctx context.Context, in *user.GetMerchantApplicationStatusRequest) (*user.GetMerchantApplicationStatusResponse, error) {
+	l := logic.NewGetMerchantApplicationStatusLogic(ctx, s.svcCtx)
+	return l.GetMerchantApplicationStatus(in)
+}

@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package agent;
+
+option go_package = "./agent";
+
+
+message ChatReq {
+  int64 user_id = 1;
+  string query = 2;
+  repeated string prefer_tags = 3;
+  int64 budget_min = 4;
+  int64 budget_max = 5;
+}
+
+// 单个商品推荐
+message Recommendation {
+  int64 product_id = 1;
+  string name = 2;
+  string reason = 3; 
+  int64 price = 4;
+  string picture = 5;
+  repeated string categories = 6;
+}
+
+
+message ChatResp {
+  int32 status_code = 1;
+  string status_msg = 2;
+
+  string answer = 3;
+  repeated Recommendation items = 4;
+}
+
+
+message MerchantApplicationInput {
+  string shop_name = 1;
+  string contact_name = 2;
+  string contact_phone = 3; 
+  string address = 4;
+  string description = 5;
+}
+
+
+enum ReviewDecision {
+  REVIEW_DECISION_UNKNOWN = 0;
+  REVIEW_DECISION_APPROVE = 1;
+  REVIEW_DECISION_REJECT = 2;
+}
+
+// 商家审核请求（同步评估）
+message ReviewMerchantReq {
+  int64 application_id = 1;
+  int64 user_id = 2;
+  MerchantApplicationInput application = 3;
+}
+
+
+message ReviewMerchantResult {
+  int64 application_id = 1;
+  ReviewDecision decision = 2;
+  string reason = 3;
+}
+
+service AgentService {
+  rpc Chat(ChatReq) returns (ChatResp);
+
+  rpc ReviewMerchant(ReviewMerchantReq) returns (ReviewMerchantResult);
+}

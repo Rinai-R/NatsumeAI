@@ -18,6 +18,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.AuthMiddleware},
 			[]rest.Route{
 				{
+					Method:  http.MethodGet,
+					Path:    "/api/v1/order",
+					Handler: order.ListOrdersHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodPost,
 					Path:    "/api/v1/order/cancel",
 					Handler: order.CancelOrderHandler(serverCtx),
@@ -34,18 +39,8 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodPost,
-					Path:    "/api/v1/order/payment/confirm",
-					Handler: order.ConfirmPaymentHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodPost,
 					Path:    "/api/v1/order/place",
 					Handler: order.PlaceOrderHandler(serverCtx),
-				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/api/v1/orders",
-					Handler: order.ListOrdersHandler(serverCtx),
 				},
 			}...,
 		),

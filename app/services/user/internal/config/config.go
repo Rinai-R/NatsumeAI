@@ -10,9 +10,10 @@ import (
 )
 
 type Config struct {
-	zrpc.RpcServerConf
+    zrpc.RpcServerConf
 
 	AuthRpc zrpc.RpcClientConf
+	AgentRpc zrpc.RpcClientConf
 
 	Consul consul.Conf
 
@@ -20,6 +21,24 @@ type Config struct {
 	MysqlConf sqlx.SqlConf
 	CacheConf cache.CacheConf
 
-	LogConf logx.LogConf
+    KafkaConf KafkaConf
+
+    LogConf logx.LogConf
+
+    // Optional: DTM configuration to use commit-and-submit pattern
+    DtmConf DtmConf
 }
 
+
+type KafkaConf struct {
+    Broker       []string
+    Group        string
+    MerchantReviewTopic string
+}
+
+type DtmConf struct {
+    Server     string
+    GrpcServer string
+    BusiURL    string
+    BusiListen string
+}

@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	boot "NatsumeAI/app/services/user/internal/bootstrap"
 	"NatsumeAI/app/services/user/internal/config"
 	"NatsumeAI/app/services/user/internal/server"
 	"NatsumeAI/app/services/user/internal/svc"
@@ -27,19 +28,25 @@ func main() {
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
 
-	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		user.RegisterUserServiceServer(grpcServer, server.NewUserServiceServer(ctx))
+    s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
+        user.RegisterUserServiceServer(grpcServer, server.NewUserServiceServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
 	})
 
-	if err := consul.RegisterService(c.ListenOn, c.Consul); err != nil {
-		logx.Errorw("register service error", logx.Field("err", err))
-		panic(err)
-	}
-	defer s.Stop()
+    // Start DTM HTTP server if configured; else start outbox publisher
+    if stop := boot.StartDTMHTTP(ctx); stop != nil { defer stop() }
+    // start MQ consumer (merchant review)
+    if stop := boot.StartKafka(ctx); stop != nil { defer stop() }
+
+    if err := consul.RegisterService(c.ListenOn, c.Consul); err != nil {
+        logx.Errorw("register service error", logx.Field("err", err))
+        panic(err)
+    }
+    defer s.Stop()
+    if ctx.KafkaWriter != nil { defer ctx.KafkaWriter.Close() }
 
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()

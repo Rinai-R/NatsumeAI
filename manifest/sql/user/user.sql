@@ -18,3 +18,22 @@ CREATE TABLE IF NOT EXISTS `user_addresses` (
     PRIMARY KEY (`id`),
     KEY `idx_user_addresses_user_id` (`user_id`)
 );
+
+
+CREATE TABLE IF NOT EXISTS `merchants` (
+    `id`                         BIGINT          NOT NULL AUTO_INCREMENT COMMENT '商家ID',
+    `user_id`                    BIGINT UNSIGNED NOT NULL COMMENT '申请人用户ID（users.id）',
+    `shop_name`                  VARCHAR(128)    NOT NULL COMMENT '店铺名称',
+    `contact_name`               VARCHAR(64)     NOT NULL DEFAULT '' COMMENT '联系人姓名',
+    `contact_phone`              VARCHAR(32)     NOT NULL DEFAULT '' COMMENT '联系人手机号',
+    `address`                    VARCHAR(255)    NOT NULL DEFAULT '' COMMENT '经营地址',
+    `description`                TEXT            NULL COMMENT '其他补充说明',
+    `status`                     ENUM('PENDING','APPROVED','REJECTED','ESCALATED') NOT NULL DEFAULT 'PENDING' COMMENT '申请状态',
+    `reject_reason`              VARCHAR(255)    NOT NULL DEFAULT '' COMMENT '驳回原因',
+    `reviewed_at`                DATETIME        NULL DEFAULT NULL COMMENT '审核时间',
+    `created_at`                 TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `updated_at`                 TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_merchants_user_id` (`user_id`),
+    KEY `idx_merchants_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

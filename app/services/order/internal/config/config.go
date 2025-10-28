@@ -57,19 +57,14 @@ type KafkaConf struct {
     OrderTopic    string
 }
 
-// DtmConf configures DTM server and our business callback URL.
+
 type DtmConf struct {
-    // Server is the dtm server base, for example: http://dtm:36789/api/dtmsvr
+    
     Server  string
-    // GrpcServer is the dtm gRPC address used by dtmgrpc clients, e.g. dtm:36790
-    // If empty, you must set it when using dtmgrpc (Saga/TCC/XA). It is independent
-    // from the HTTP Server used by dtmcli (Msg).
+
     GrpcServer string
-    // BusiURL is the base http url for callbacks, for example: http://order:8180
-    // We will register handlers under /dtm/* on this server.
+
     BusiURL string
-    // BusiListen is the local bind address for the callback HTTP server,
-    // e.g. ":8180" or "0.0.0.0:8180". This can differ from BusiURL's host
-    // because containers may expose different names/ports externally.
+
     BusiListen string
 }

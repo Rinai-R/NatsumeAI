@@ -27,18 +27,6 @@ type CheckoutResponse struct {
 	Expired_at  int64  `json:"expired_at"`
 }
 
-type ConfirmPaymentRequest struct {
-	Order_id       int64  `json:"order_id"`
-	Payment_method string `json:"payment_method"`
-	Payment_token  string `json:"payment_token,optional"`
-}
-
-type ConfirmPaymentResponse struct {
-	Status_code int64  `json:"status_code"`
-	Status_msg  string `json:"status_msg"`
-	Status      int32  `json:"status"` // OrderStatus enum value
-}
-
 type GetOrderRequest struct {
 	Order_id int64 `form:"order_id"`
 }

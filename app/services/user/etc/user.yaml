@@ -14,8 +14,13 @@ AuthRpc:
   Target: consul://consul:8500/auth.rpc?wait=14s
   NonBlock: true 
 
+AgentRpc:
+  Target: consul://consul:8500/agent.rpc?wait=14s
+  NonBlock: true 
+
 MysqlConf:
   datasource: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"
+
 CacheConf:
   - Host: redis:6379
     Pass: ""
@@ -24,5 +29,17 @@ RedisConf:
   Host: redis:6379
   Tls: false
 
+KafkaConf:
+  Broker:
+  - kafka:9092
+  Group: "user-group"
+  MerchantReviewTopic: "user-merchant-review"
+
+DTMConf:
+  Server: "http://dtm:36789/api/dtmsvr"
+  GrpcServer: "consul://consul:8500/dtmservice"
+  BusiURL: "http://user-rpc:13001"
+  BusiListen: ":13001"
+
 LogConf:
-  Level: "error"
+  Level: "info"

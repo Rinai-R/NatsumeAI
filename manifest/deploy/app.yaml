@@ -164,6 +164,15 @@ services:
     container_name: coupon-rpc
     networks:
       - application
+
+  agent-rpc:
+    build:
+      context: ../..
+      dockerfile: app/services/agent/dockerfile
+    image: agent-rpc
+    container_name: agent-rpc
+    networks:
+      - application
   
 networks:
   application:
