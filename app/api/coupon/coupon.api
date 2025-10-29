@@ -60,7 +60,7 @@ type (
 )
 
 @server (
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware, CasbinMiddleware
 	group:      coupon
 )
 service coupon-api {

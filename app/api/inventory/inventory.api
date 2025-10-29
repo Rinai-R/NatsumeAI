@@ -28,7 +28,7 @@ type (
 )
 
 @server (
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware,CasbinMiddleware
 	group:      inventory_manage
 )
 service inventory-api {

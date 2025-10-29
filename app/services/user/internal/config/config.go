@@ -1,12 +1,13 @@
 package config
 
 import (
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/cache"
-	"github.com/zeromicro/go-zero/core/stores/redis"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"github.com/zeromicro/go-zero/zrpc"
-	"github.com/zeromicro/zero-contrib/zrpc/registry/consul"
+    commoncfg "NatsumeAI/app/common/config"
+    "github.com/zeromicro/go-zero/core/logx"
+    "github.com/zeromicro/go-zero/core/stores/cache"
+    "github.com/zeromicro/go-zero/core/stores/redis"
+    "github.com/zeromicro/go-zero/core/stores/sqlx"
+    "github.com/zeromicro/go-zero/zrpc"
+    "github.com/zeromicro/zero-contrib/zrpc/registry/consul"
 )
 
 type Config struct {
@@ -27,6 +28,9 @@ type Config struct {
 
     // Optional: DTM configuration to use commit-and-submit pattern
     DtmConf DtmConf
+
+    // Casbin settings for user-rpc (policy DB, model, watcher)
+    CasbinMiddleware commoncfg.CasbinMiddlewareConf
 }
 
 

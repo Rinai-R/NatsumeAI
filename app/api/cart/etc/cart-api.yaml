@@ -18,3 +18,14 @@ Consul:
 
 LogConf:
   Level: "error"
+
+CasbinMiddleware:
+  Dns: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"
+  Model: "/server/etc/casbin/model.conf"
+  Watcher:
+    Type: redis
+    Addr: redis:6379
+    Channel: casbin:policy
+    DB: 0
+    Password: ""
+    IgnoreSelf: true

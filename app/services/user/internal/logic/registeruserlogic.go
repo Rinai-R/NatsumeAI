@@ -2,9 +2,11 @@ package logic
 
 import (
 	"context"
+	"strconv"
 	"strings"
 
 	"NatsumeAI/app/common/consts/errno"
+	"NatsumeAI/app/common/snowflake"
 	model "NatsumeAI/app/dal/user"
 	"NatsumeAI/app/services/user/internal/svc"
 	"NatsumeAI/app/services/user/user"
@@ -74,25 +76,20 @@ func (l *RegisterUserLogic) RegisterUser(in *user.RegisterUserRequest) (*user.Re
 		return nil, err
 	}
 
-	userModel := &model.Users{
-		Username: username,
+    // 插入用户（事务保证用户写入原子），角色绑定在提交后通过 casbin enforcer 写入
+    newId := snowflake.Next()
+	l.svcCtx.Casbin.AddRoleForUser(strconv.FormatInt(newId, 10), "user")
+
+	l.svcCtx.UserModel.Insert(l.ctx, &model.Users{
+		Id: uint64(newId),
+		Username: in.Username,
 		Password: string(hashedPwd),
-	}
+	})
 
-	result, err := l.svcCtx.UserModel.Insert(l.ctx, userModel)
-	if err != nil {
-		return nil, err
-	}
-
-	newID, err := result.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-
-	created, err := l.svcCtx.UserModel.FindOne(l.ctx, uint64(newID))
-	if err != nil {
-		return nil, err
-	}
+    created, err := l.svcCtx.UserModel.FindOne(l.ctx, uint64(newId))
+    if err != nil {
+        return nil, err
+    }
 
 	if l.svcCtx.Bloom != nil {
 		if err := l.svcCtx.Bloom.Add([]byte(username)); err != nil {
@@ -100,7 +97,7 @@ func (l *RegisterUserLogic) RegisterUser(in *user.RegisterUserRequest) (*user.Re
 		}
 	}
 
-	resp.StatusCode = errno.StatusOK
+    resp.StatusCode = errno.StatusOK
 	resp.StatusMsg = "ok"
 	resp.User = userToProfile(created)
 

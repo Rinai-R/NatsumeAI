@@ -100,7 +100,7 @@ type (
 )
 
 @server (
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware,CasbinMiddleware
 	group:      product
 )
 service product-api {
@@ -115,7 +115,7 @@ service product-api {
 }
 
 @server (
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware,CasbinMiddleware
 	group:      product_manage
 )
 service product-api {

@@ -84,7 +84,7 @@ type (
 )
 
 @server (
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware,CasbinMiddleware
 	group:      order
 )
 service order-api {

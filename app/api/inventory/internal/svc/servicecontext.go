@@ -4,28 +4,30 @@
 package svc
 
 import (
-	"NatsumeAI/app/api/inventory/internal/config"
-	"NatsumeAI/app/common/middleware"
-	"NatsumeAI/app/services/auth/authservice"
-	"NatsumeAI/app/services/inventory/inventoryservice"
+    "NatsumeAI/app/api/inventory/internal/config"
+    "NatsumeAI/app/common/middleware"
+    "NatsumeAI/app/services/auth/authservice"
+    "NatsumeAI/app/services/inventory/inventoryservice"
 
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/rest"
-	"github.com/zeromicro/go-zero/zrpc"
+    "github.com/zeromicro/go-zero/core/logx"
+    "github.com/zeromicro/go-zero/rest"
+    "github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
-	Config         config.Config
-	AuthMiddleware rest.Middleware
-	InventoryRpc inventoryservice.InventoryService
+    Config         config.Config
+    AuthMiddleware rest.Middleware
+    CasbinMiddleware rest.Middleware
+    InventoryRpc inventoryservice.InventoryService
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	logx.MustSetup(c.LogConf)
-	return &ServiceContext{
-		Config:         c,
-		AuthMiddleware: middleware.NewAuthMiddleware(
-			authservice.NewAuthService(zrpc.MustNewClient(c.AuthRpc))).Handle,
-		InventoryRpc: inventoryservice.NewInventoryService(zrpc.MustNewClient(c.InventoryRpc)),
-	}
+    logx.MustSetup(c.LogConf)
+    return &ServiceContext{
+        Config:         c,
+        AuthMiddleware: middleware.NewAuthMiddleware(
+            authservice.NewAuthService(zrpc.MustNewClient(c.AuthRpc))).Handle,
+        CasbinMiddleware: middleware.NewCasbinMiddleware(c.CasbinMiddleware.MustNewDistributedEnforcer()).Handle,
+        InventoryRpc: inventoryservice.NewInventoryService(zrpc.MustNewClient(c.InventoryRpc)),
+    }
 }

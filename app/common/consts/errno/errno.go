@@ -9,6 +9,8 @@ const (
 	TokenEmpty = 40000 + iota
 	AccessTokenExpired
 	RefreshTokenExpired
+	CasbinError
+	NoPermission
 )
 
 const (

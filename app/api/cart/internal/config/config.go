@@ -4,19 +4,22 @@
 package config
 
 import (
-	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/rest"
-	"github.com/zeromicro/go-zero/zrpc"
-	"github.com/zeromicro/zero-contrib/zrpc/registry/consul"
+    commoncfg "NatsumeAI/app/common/config"
+    "github.com/zeromicro/go-zero/core/logx"
+    "github.com/zeromicro/go-zero/rest"
+    "github.com/zeromicro/go-zero/zrpc"
+    "github.com/zeromicro/zero-contrib/zrpc/registry/consul"
 )
 
 type Config struct {
-	rest.RestConf
+    rest.RestConf
 
-	AuthRpc zrpc.RpcClientConf
-	CartRpc zrpc.RpcClientConf
+    AuthRpc zrpc.RpcClientConf
+    CartRpc zrpc.RpcClientConf
 
-	Consul consul.Conf
+    Consul consul.Conf
 
-	LogConf logx.LogConf
+    LogConf logx.LogConf
+
+    CasbinMiddleware commoncfg.CasbinMiddlewareConf
 }

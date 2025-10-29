@@ -32,7 +32,7 @@ type (
 )
 
 @server (
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware, CasbinMiddleware
 	group:      cart
 )
 service cart-api {

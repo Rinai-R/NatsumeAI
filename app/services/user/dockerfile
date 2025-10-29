@@ -22,6 +22,7 @@ WORKDIR /server
 
 # 复制服务目录（含预编译二进制和配置）
 COPY app/services/user/ /server/
+COPY manifest/casbin/ /server/etc/casbin/
 
 # 给可执行文件增加执行权限
 RUN chmod +x /server/user-rpc

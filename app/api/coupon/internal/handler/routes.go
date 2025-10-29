@@ -4,45 +4,44 @@
 package handler
 
 import (
-    "net/http"
+	"net/http"
 
-    coupon "NatsumeAI/app/api/coupon/internal/handler/coupon"
-    coupon_manage "NatsumeAI/app/api/coupon/internal/handler/coupon_manage"
-    "NatsumeAI/app/api/coupon/internal/svc"
+	coupon "NatsumeAI/app/api/coupon/internal/handler/coupon"
+	coupon_manage "NatsumeAI/app/api/coupon/internal/handler/coupon_manage"
+	"NatsumeAI/app/api/coupon/internal/svc"
 
-    "github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/rest"
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
-    server.AddRoutes(
-        rest.WithMiddlewares(
-            []rest.Middleware{serverCtx.AuthMiddleware},
-            []rest.Route{
-                {
-                    Method:  http.MethodPost,
-                    Path:    "/api/v1/coupons/claim",
-                    Handler: coupon.ClaimCouponHandler(serverCtx),
-                },
-                {
-                    Method:  http.MethodGet,
-                    Path:    "/api/v1/coupons",
-                    Handler: coupon.ListUserCouponsHandler(serverCtx),
-                },
-            }...,
-        ),
-    )
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware, serverCtx.CasbinMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/api/v1/coupons",
+					Handler: coupon.ListUserCouponsHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/api/v1/coupons/claim",
+					Handler: coupon.ClaimCouponHandler(serverCtx),
+				},
+			}...,
+		),
+	)
 
-    server.AddRoutes(
-        rest.WithMiddlewares(
-            []rest.Middleware{serverCtx.AuthMiddleware},
-            []rest.Route{
-                {
-                    Method:  http.MethodPost,
-                    Path:    "/api/v1/coupons/publish",
-                    Handler: coupon_manage.PublishCouponHandler(serverCtx),
-                },
-            }...,
-        ),
-    )
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AuthMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/api/v1/coupons/publish",
+					Handler: coupon_manage.PublishCouponHandler(serverCtx),
+				},
+			}...,
+		),
+	)
 }
-

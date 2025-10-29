@@ -3,59 +3,58 @@
 
 package types
 
-type CouponItem struct {
-    CouponId        int64  `json:"couponId"`
-    CouponType      int32  `json:"couponType"`
-    Status          int32  `json:"status"`
-    DiscountAmount  int64  `json:"discountAmount"`
-    DiscountPercent int32  `json:"discountPercent"`
-    MinSpendAmount  int64  `json:"minSpendAmount"`
-    UserId          int64  `json:"userId"`
-    LockedPreorder  int64  `json:"lockedPreorder"`
-    StartAt         int64  `json:"startAt"`
-    EndAt           int64  `json:"endAt"`
-    Source          string `json:"source"`
-    Remarks         string `json:"remarks"`
+type ClaimCouponRequest struct {
+	CampaignId int64 `json:"campaignId"`
 }
 
 type CouponActionResponse struct {
-    StatusCode int32  `json:"statusCode"`
-    StatusMsg  string `json:"statusMsg"`
+	StatusCode int32  `json:"statusCode"`
+	StatusMsg  string `json:"statusMsg"`
 }
 
-type ClaimCouponRequest struct {
-    CampaignId int64 `json:"campaignId"`
+type CouponItem struct {
+	CouponId        int64  `json:"couponId"`   // 实例ID（用户持有的券）
+	CouponType      int32  `json:"couponType"` // 1:现金券 2:折扣券
+	Status          int32  `json:"status"`     // 1:未使用 2:已锁定 3:已使用 4:已过期
+	DiscountAmount  int64  `json:"discountAmount"`
+	DiscountPercent int32  `json:"discountPercent"`
+	MinSpendAmount  int64  `json:"minSpendAmount"`
+	UserId          int64  `json:"userId"`
+	LockedPreorder  int64  `json:"lockedPreorder"`
+	StartAt         int64  `json:"startAt"`
+	EndAt           int64  `json:"endAt"`
+	Source          string `json:"source"`
+	Remarks         string `json:"remarks"`
 }
 
 type ListUserCouponsRequest struct {
-    Status   int32 `form:"status,optional"`
-    Page     int32 `form:"page,optional"`
-    PageSize int32 `form:"pageSize,optional"`
+	Status   int32 `form:"status,optional"` // 0:全部 1:未用 2:锁定 3:已用 4:过期
+	Page     int32 `form:"page,optional"`
+	PageSize int32 `form:"pageSize,optional"`
 }
 
 type ListUserCouponsResponse struct {
-    StatusCode int32        `json:"statusCode"`
-    StatusMsg  string       `json:"statusMsg"`
-    Coupons    []CouponItem `json:"coupons"`
-    Total      int64        `json:"total"`
+	StatusCode int32        `json:"statusCode"`
+	StatusMsg  string       `json:"statusMsg"`
+	Coupons    []CouponItem `json:"coupons"`
+	Total      int64        `json:"total"`
 }
 
 type PublishCouponRequest struct {
-    CouponType      int32  `json:"couponType"`
-    DiscountAmount  int64  `json:"discountAmount"`
-    DiscountPercent int32  `json:"discountPercent"`
-    MinSpendAmount  int64  `json:"minSpendAmount"`
-    TotalIssue      int64  `json:"totalIssue"`
-    PerUserLimit    int64  `json:"perUserLimit"`
-    StartAt         int64  `json:"startAt"`
-    EndAt           int64  `json:"endAt"`
-    Source          string `json:"source"`
-    Remarks         string `json:"remarks"`
+	CouponType      int32  `json:"couponType"` // 1:现金券 2:折扣券
+	DiscountAmount  int64  `json:"discountAmount"`
+	DiscountPercent int32  `json:"discountPercent"`
+	MinSpendAmount  int64  `json:"minSpendAmount"`
+	TotalIssue      int64  `json:"totalIssue"`
+	PerUserLimit    int64  `json:"perUserLimit"`
+	StartAt         int64  `json:"startAt"` // 秒级时间戳
+	EndAt           int64  `json:"endAt"`
+	Source          string `json:"source"`
+	Remarks         string `json:"remarks"`
 }
 
 type PublishCouponResponse struct {
-    StatusCode int32  `json:"statusCode"`
-    StatusMsg  string `json:"statusMsg"`
-    CampaignId int64  `json:"campaignId"`
+	StatusCode int32  `json:"statusCode"`
+	StatusMsg  string `json:"statusMsg"`
+	CampaignId int64  `json:"campaignId"`
 }
-

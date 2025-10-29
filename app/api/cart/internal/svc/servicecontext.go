@@ -4,26 +4,29 @@
 package svc
 
 import (
-	"NatsumeAI/app/api/cart/internal/config"
-	"NatsumeAI/app/common/middleware"
-	"NatsumeAI/app/services/auth/authservice"
-	"NatsumeAI/app/services/cart/cartservice"
+    "NatsumeAI/app/api/cart/internal/config"
+    "NatsumeAI/app/common/middleware"
+    "NatsumeAI/app/services/auth/authservice"
+    "NatsumeAI/app/services/cart/cartservice"
 
-	"github.com/zeromicro/go-zero/rest"
-	"github.com/zeromicro/go-zero/zrpc"
+    "github.com/zeromicro/go-zero/rest"
+    "github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
-	Config         config.Config
-	AuthMiddleware rest.Middleware
-	CartRpc cartservice.CartService
+    Config         config.Config
+    AuthMiddleware rest.Middleware
+    CasbinMiddleware rest.Middleware
+    CartRpc cartservice.CartService
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	return &ServiceContext{
-		Config:         c,
-		AuthMiddleware: middleware.NewAuthMiddleware(
-			authservice.NewAuthService(zrpc.MustNewClient(c.AuthRpc))).Handle,
-		CartRpc: cartservice.NewCartService(zrpc.MustNewClient(c.CartRpc)),
-	}
+    return &ServiceContext{
+        Config:         c,
+        AuthMiddleware: middleware.NewAuthMiddleware(
+            authservice.NewAuthService(zrpc.MustNewClient(c.AuthRpc))).Handle,
+        CasbinMiddleware: middleware.NewCasbinMiddleware(
+            c.CasbinMiddleware.MustNewDistributedEnforcer()).Handle,
+        CartRpc: cartservice.NewCartService(zrpc.MustNewClient(c.CartRpc)),
+    }
 }

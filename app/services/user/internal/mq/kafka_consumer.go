@@ -3,6 +3,7 @@ package mq
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"NatsumeAI/app/services/agent/agent"
@@ -87,5 +88,8 @@ func updateMerchant(sc *svc.ServiceContext, appID int64, status, reason string) 
 
     if err := sc.MerchantsModel.Update(context.Background(), rec); err != nil {
         logx.Errorw("update merchant application failed", logx.Field("err", err), logx.Field("application_id", appID))
+    }
+    if status == "APPROVED" {
+        sc.Casbin.AddRoleForUser(strconv.FormatInt(int64(rec.UserId), 10), "merchant")
     }
 }

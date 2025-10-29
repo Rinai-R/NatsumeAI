@@ -4,6 +4,7 @@
 package config
 
 import (
+    commoncfg "NatsumeAI/app/common/config"
     "github.com/zeromicro/go-zero/core/logx"
     "github.com/zeromicro/go-zero/rest"
     "github.com/zeromicro/go-zero/zrpc"
@@ -19,5 +20,6 @@ type Config struct {
     Consul consul.Conf
 
     LogConf logx.LogConf
-}
 
+    CasbinMiddleware commoncfg.CasbinMiddlewareConf
+}

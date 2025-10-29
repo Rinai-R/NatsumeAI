@@ -15,17 +15,20 @@ import (
 )
 
 type ServiceContext struct {
-	Config         config.Config
-	AuthMiddleware rest.Middleware
-	ProductRpc productservice.ProductService
+    Config         config.Config
+    AuthMiddleware rest.Middleware
+    CasbinMiddleware rest.Middleware
+    ProductRpc productservice.ProductService
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	logx.MustSetup(c.LogConf)
-	return &ServiceContext{
-		Config:         c,
-		AuthMiddleware: middleware.NewAuthMiddleware(
-			authservice.NewAuthService(zrpc.MustNewClient(c.AuthRpc))).Handle,
-		ProductRpc: productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
-	}
+    logx.MustSetup(c.LogConf)
+    return &ServiceContext{
+        Config:         c,
+        AuthMiddleware: middleware.NewAuthMiddleware(
+            authservice.NewAuthService(zrpc.MustNewClient(c.AuthRpc))).Handle,
+        CasbinMiddleware: middleware.NewCasbinMiddleware(
+            c.CasbinMiddleware.MustNewDistributedEnforcer()).Handle,
+        ProductRpc: productservice.NewProductService(zrpc.MustNewClient(c.ProductRpc)),
+    }
 }

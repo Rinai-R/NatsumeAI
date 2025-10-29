@@ -1,0 +1,44 @@
+g, root, merchant
+g, merchant, user
+
+g3, GET, GET
+g3, POST, POST
+g3, PUT, PUT
+g3, DELETE, DELETE
+
+p, user, /api/v1/users/login, POST
+p, user, /api/v1/users/register, POST
+
+p, user, /api/v1/users/addresses, GET
+p, user, /api/v1/users/addresses, POST
+p, user, /api/v1/users/addresses/:addressId, PUT
+p, user, /api/v1/users/addresses/:addressId, DELETE
+
+p, user, /api/v1/users/merchant/applications, POST
+p, user, /api/v1/users/merchant/applications/:applicationId/status, GET
+
+p, user, /api/v1/products/:productId, GET
+p, user, /api/v1/products/feed, GET
+p, user, /api/v1/products/search, GET
+
+p, user, /api/v1/cart, GET
+p, user, /api/v1/cart, POST
+p, user, /api/v1/cart/:productId, PUT
+p, user, /api/v1/cart/:productId, DELETE
+
+p, user, /api/v1/order, GET
+p, user, /api/v1/order/detail, GET
+p, user, /api/v1/order/checkout, POST
+p, user, /api/v1/order/place, POST
+p, user, /api/v1/order/cancel, POST
+
+p, user, /api/v1/coupons, GET
+p, user, /api/v1/coupons/claim, POST
+
+p, merchant, /api/v1/products, POST
+p, merchant, /api/v1/products/:productId, PUT
+p, merchant, /api/v1/products/:productId, DELETE
+p, merchant, /api/v1/products/:productId/categories, POST
+p, merchant, /api/v1/inventory, GET
+p, merchant, /api/v1/inventory, PUT
+p, merchant, /api/v1/coupons/publish, POST

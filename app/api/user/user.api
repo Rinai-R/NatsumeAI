@@ -92,7 +92,7 @@ service user-api {
 }
 
 @server (
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware,CasbinMiddleware
 	group:      user_address
 )
 service user-api {
@@ -111,7 +111,7 @@ service user-api {
 }
 
 @server (
-	middleware: AuthMiddleware
+	middleware: AuthMiddleware,CasbinMiddleware
 	group:      merchant
 )
 service user-api {
