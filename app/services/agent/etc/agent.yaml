@@ -25,5 +25,12 @@ Rerank:
   APIKey: ""
   Model: ""
 
+KafkaConf:
+  Broker:
+  - kafka:9092
+  Group: "canal-sync"
+  ProductsTopic: "natsume_products"
+  ProductCategoryTopic: "natsume_product_categories"
+
 LogConf:
   Level: "info"

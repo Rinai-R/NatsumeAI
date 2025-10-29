@@ -61,6 +61,21 @@ services:
           --name "runner-1" \
           --labels "docker:host" \
           && act_runner daemon
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: kafka-ui
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      AUTH_TYPE: LOGIN_FORM
+      SPRING_SECURITY_USER_NAME: admin
+      SPRING_SECURITY_USER_PASSWORD: admin
+    ports:
+      - "58080:8080"
+    restart: unless-stopped
+    networks:
+      - application
+
 networks:
   application:
     external: true

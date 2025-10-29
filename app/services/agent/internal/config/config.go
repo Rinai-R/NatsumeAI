@@ -15,6 +15,8 @@ type Config struct {
 	Rerank ModelConf
 
 	LogConf logx.LogConf
+
+	KafkaConf KafkaConf
 }
 
 
@@ -22,4 +24,11 @@ type ModelConf struct {
 	BaseUrl string
 	APIKey string
 	Model string
+}
+
+type KafkaConf struct {
+    Broker []string
+    Group  string
+	ProductsTopic string
+	ProductCategoryTopic string
 }

@@ -175,6 +175,32 @@ services:
       - '36790:36790'
     networks:
       - application
+
+  canal:
+    image: canal/canal-server:latest
+    container_name: canal
+    environment:
+      - canal.auto.scan=false
+      - canal.destinations=mysql
+      - canal.serverMode=kafka
+      - canal.instance.master.address=mysql:3306
+      - canal.instance.dbUsername=canal
+      - canal.instance.dbPassword=canal
+      - canal.instance.connectionCharset=UTF-8
+      - canal.instance.tsdb.enable=true
+      - canal.instance.gtidon=false
+      - canal.instance.filter.regex=Natsume\.product.*
+
+      - canal.mq.partitionHash=Natsume\.product_.*:id
+      - canal.mq.flatMessage=true
+      - kafka.bootstrap.servers=kafka:9092
+      - kafka.acks=all
+      - kafka.linger.ms=200
+      - canal.mq.dynamicTopic=Natsume\..*
+    restart: unless-stopped
+    networks:
+      - application
+
 networks:
   application:
     external: true
