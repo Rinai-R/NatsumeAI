@@ -63,31 +63,47 @@ func (l *RegisterUserLogic) RegisterUser(in *user.RegisterUserRequest) (*user.Re
 		}
 	}
 
-	if _, err := l.svcCtx.UserModel.FindOneByUsername(l.ctx, username); err == nil {
-		resp.StatusCode = errno.UserAlreadyExists
-		resp.StatusMsg = "user already exists"
-		return resp, nil
-	} else if err != model.ErrNotFound {
-		return nil, err
-	}
+    if _, err := l.svcCtx.UserModel.FindOneByUsername(l.ctx, username); err == nil {
+        resp.StatusCode = errno.UserAlreadyExists
+        resp.StatusMsg  = "user already exists"
+        return resp, nil
+    } else if err != model.ErrNotFound {
+        l.Logger.Errorf("find user by username failed: %v", err)
+        resp.StatusCode = errno.InternalError
+        resp.StatusMsg  = "db error"
+        return resp, nil
+    }
 
 	hashedPwd, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
 	}
 
-    // 插入用户（事务保证用户写入原子），角色绑定在提交后通过 casbin enforcer 写入
     newId := snowflake.Next()
-	l.svcCtx.Casbin.AddRoleForUser(strconv.FormatInt(newId, 10), "user")
+    if _, err := l.svcCtx.UserModel.Insert(l.ctx, &model.Users{
+        Id:       uint64(newId),
+        Username: username,
+        Password: string(hashedPwd),
+    }); err != nil {
+        if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
+            resp.StatusCode = errno.UserAlreadyExists
+            resp.StatusMsg  = "user already exists"
+            return resp, nil
+        }
+        l.Logger.Errorf("insert user failed: %v", err)
+        resp.StatusCode = errno.InternalError
+        resp.StatusMsg  = "insert user failed"
+        return resp, nil
+    }
 
-	l.svcCtx.UserModel.Insert(l.ctx, &model.Users{
-		Id: uint64(newId),
-		Username: in.Username,
-		Password: string(hashedPwd),
-	})
+    // casbin 角色
+    if _, err := l.svcCtx.Casbin.AddRoleForUser(strconv.FormatInt(newId, 10), "user"); err != nil {
+        l.Logger.Errorf("casbin add role failed: %v", err)
+    }
 
     created, err := l.svcCtx.UserModel.FindOne(l.ctx, uint64(newId))
     if err != nil {
+		l.Logger.Error("create user error: ", err)
         return nil, err
     }
 

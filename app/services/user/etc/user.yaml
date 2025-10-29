@@ -43,7 +43,7 @@ DTMConf:
   BusiListen: ":13001"
 
 LogConf:
-  Level: "info"
+  Level: "error"
 
 CasbinMiddleware:
   Dns: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"

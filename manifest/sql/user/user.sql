@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `users` (
-    `id`            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一主键，雪花执行',
+    `id`            BIGINT UNSIGNED NOT NULL COMMENT '唯一主键，雪花执行',
     `username`      VARCHAR(64) NOT NULL COMMENT '唯一的用户名',
-    `password` VARCHAR(255) NOT NULL COMMENT '密码这块，肯定是加密过的密码',
+    `password`      VARCHAR(255) NOT NULL COMMENT '密码这块，肯定是加密过的密码',
     `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最近更新时间',
     PRIMARY KEY (`id`),
