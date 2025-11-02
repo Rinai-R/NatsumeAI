@@ -21,6 +21,7 @@ TARGETS=(
   "coupon-rpc:app/services/coupon:app/services/coupon"
   "order-rpc:app/services/order:app/services/order"
   "agent-rpc:app/services/agent:app/services/agent"
+  "indexer:app/services/indexer:app/services/indexer"
   "user-api:app/api/user:app/api/user"
   "inventory-api:app/api/inventory:app/api/inventory"
   "product-api:app/api/product:app/api/product"

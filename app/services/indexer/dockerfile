@@ -1,0 +1,24 @@
+FROM ubuntu:latest
+
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirrors.aliyun.com/ubuntu/|g' /etc/apt/sources.list
+RUN apt-get update && apt-get install -y \
+    libc6 \
+    libgcc1 \
+    tzdata \
+    ntpdate \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN echo "Asia/Shanghai" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
+RUN ntpdate -s time.nist.gov
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
+
+WORKDIR /server
+
+COPY app/services/indexer/ /server/
+
+RUN chmod +x /server/indexer
+
+CMD ["/server/indexer"]
+

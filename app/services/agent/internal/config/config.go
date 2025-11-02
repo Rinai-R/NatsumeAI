@@ -12,23 +12,13 @@ type Config struct {
 
 	ChatModel ModelConf
 	Embedding ModelConf
-	Rerank ModelConf
+	Rerank    ModelConf
 
 	LogConf logx.LogConf
-
-	KafkaConf KafkaConf
 }
-
 
 type ModelConf struct {
 	BaseUrl string
-	APIKey string
-	Model string
-}
-
-type KafkaConf struct {
-    Broker []string
-    Group  string
-	ProductsTopic string
-	ProductCategoryTopic string
+	APIKey  string
+	Model   string
 }

@@ -173,6 +173,15 @@ services:
     container_name: agent-rpc
     networks:
       - application
+
+  indexer:
+    build:
+      context: ../..
+      dockerfile: app/services/indexer/dockerfile
+    image: indexer
+    container_name: indexer
+    networks:
+      - application
   
 networks:
   application:

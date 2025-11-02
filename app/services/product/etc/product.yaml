@@ -26,3 +26,17 @@ RedisConf:
 
 LogConf:
   Level: "error"
+
+ElasticConf:
+  Addresses:
+    - http://elasticsearch:9200
+  Username: ""
+  Password: ""
+  IndexName: "products"
+  EmbeddingDimension: 384
+  Alpha: 0.5
+
+Embedding:
+  BaseURL: "https://ark.cn-beijing.volces.com/api/v3"
+  APIKey: ""
+  Model: "doubao-embedding-large-text-250515"

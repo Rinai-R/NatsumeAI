@@ -1,0 +1,22 @@
+LogConf:
+  Level: "info"
+
+KafkaConf:
+  Brokers:
+    - kafka:9092
+  Group: "canal-sync"
+  ProductsTopic: "natsume_products"
+  ProductCategoryTopic: "natsume_product_categories"
+
+ElasticConf:
+  Addresses:
+    - http://elasticsearch:9200
+  Username: ""
+  Password: ""
+  IndexName: "products"
+  EmbeddingDimension: 384
+
+Embedding:
+  BaseURL: "https://ark.cn-beijing.volces.com/api/v3"
+  APIKey: "258d78b6-77d9-4b7e-803c-15022898a62c"
+  Model: "doubao-embedding-large-text-250515"
