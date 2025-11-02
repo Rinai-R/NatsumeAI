@@ -33,7 +33,7 @@ ElasticConf:
   Username: ""
   Password: ""
   IndexName: "products"
-  EmbeddingDimension: 384
+  EmbeddingDimension: 2048
   Alpha: 0.5
 
 Embedding:

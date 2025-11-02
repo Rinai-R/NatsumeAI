@@ -14,7 +14,7 @@ ElasticConf:
   Username: ""
   Password: ""
   IndexName: "products"
-  EmbeddingDimension: 384
+  EmbeddingDimension: 2048
 
 Embedding:
   BaseURL: "https://ark.cn-beijing.volces.com/api/v3"
