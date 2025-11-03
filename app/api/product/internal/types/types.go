@@ -92,6 +92,7 @@ type SearchProductsRequest struct {
 	Offset     int32    `form:"offset,optional"`
 	SortBy     string   `form:"sortBy,optional"`
 	SortOrder  string   `form:"sortOrder,optional"`
+	Alpha      float32  `form:"alpha, optional"`
 }
 
 type SearchProductsResponse struct {

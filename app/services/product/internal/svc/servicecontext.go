@@ -106,11 +106,3 @@ func (s *ServiceContext) EmbeddingDimension() int {
 	}
 	return 2048
 }
-
-func (s *ServiceContext) HybridAlpha() float64 {
-	alpha := s.Config.ElasticConf.Alpha
-	if alpha <= 0 || alpha >= 1 {
-		return 0.5
-	}
-	return alpha
-}

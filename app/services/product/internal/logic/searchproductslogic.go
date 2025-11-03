@@ -102,8 +102,14 @@ func (l *SearchProductsLogic) SearchProducts(in *product.SearchProductsReq) (*pr
 	fmt.Println(textScores, vectorScores)
 	normText := normalizeScores(textScores)
 	normVector := normalizeScores(vectorScores)
-	fmt.Println(normText, normVector)
-	alpha := l.svcCtx.HybridAlpha()
+	
+	alpha := func(input float32) float64 {
+		if input < 0 || input > 1 {
+			return 0.5
+		}
+		return float64(input)
+	}(in.GetAlpha())
+
 	type candidate struct {
 		id    string
 		score float64
@@ -188,26 +194,6 @@ func buildQueryClauses(in *product.SearchProductsReq) (must []any, filter []any)
 	return must, filter
 }
 
-func buildSearchQuery(in *product.SearchProductsReq) map[string]any {
-	must, filter := buildQueryClauses(in)
-	boolQuery := map[string]any{}
-
-	if len(must) > 0 {
-		boolQuery["must"] = must
-	}
-	if len(filter) > 0 {
-		boolQuery["filter"] = filter
-	}
-	if len(boolQuery) == 0 {
-		boolQuery["must"] = []any{map[string]any{
-			"match_all": map[string]any{},
-		}}
-	}
-
-	return map[string]any{
-		"bool": boolQuery,
-	}
-}
 
 type esSearchResponse struct {
 	Hits struct {
@@ -382,15 +368,4 @@ func (l *SearchProductsLogic) searchVectorCandidates(vector []float64, filter []
 	}
 
 	return nil
-}
-
-func float32SliceTo64(src []float32) []float64 {
-	if len(src) == 0 {
-		return nil
-	}
-	dst := make([]float64, len(src))
-	for i, v := range src {
-		dst[i] = float64(v)
-	}
-	return dst
 }

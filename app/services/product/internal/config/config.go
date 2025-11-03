@@ -31,7 +31,6 @@ type ElasticConf struct {
 	Password           string
 	IndexName          string
 	EmbeddingDimension int
-	Alpha              float64
 }
 
 type EmbeddingConf struct {

@@ -53,7 +53,7 @@ func (l *SearchProductsLogic) SearchProducts(req *types.SearchProductsRequest) (
 		in.Offset = req.Offset
 		in.SortBy = strings.TrimSpace(req.SortBy)
 		in.SortOrder = strings.TrimSpace(req.SortOrder)
-
+		in.Alpha = req.Alpha
 		if len(req.Categories) > 0 {
 			in.Categories = make([]string, 0, len(req.Categories))
 			for _, c := range req.Categories {

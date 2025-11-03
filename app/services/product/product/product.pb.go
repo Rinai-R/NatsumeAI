@@ -999,6 +999,7 @@ type SearchProductsReq struct {
 	Offset        int32                  `protobuf:"varint,6,opt,name=offset,proto3" json:"offset,omitempty"`
 	SortBy        string                 `protobuf:"bytes,7,opt,name=sort_by,json=sortBy,proto3" json:"sort_by,omitempty"`
 	SortOrder     string                 `protobuf:"bytes,8,opt,name=sort_order,json=sortOrder,proto3" json:"sort_order,omitempty"`
+	Alpha         float32                `protobuf:"fixed32,9,opt,name=alpha,proto3" json:"alpha,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1087,6 +1088,13 @@ func (x *SearchProductsReq) GetSortOrder() string {
 		return x.SortOrder
 	}
 	return ""
+}
+
+func (x *SearchProductsReq) GetAlpha() float32 {
+	if x != nil {
+		return x.Alpha
+	}
+	return 0
 }
 
 type SearchProductsResp struct {
@@ -1267,7 +1275,7 @@ const file_product_proto_rawDesc = "" +
 	"status_msg\x18\x02 \x01(\tR\tstatusMsg\x123\n" +
 	"\bproducts\x18\x03 \x03(\v2\x17.product.ProductSummaryR\bproducts\x12\x1f\n" +
 	"\vnext_cursor\x18\x04 \x01(\tR\n" +
-	"nextCursor\"\xed\x01\n" +
+	"nextCursor\"\x83\x02\n" +
 	"\x11SearchProductsReq\x12\x18\n" +
 	"\akeyword\x18\x01 \x01(\tR\akeyword\x12\x1e\n" +
 	"\n" +
@@ -1279,7 +1287,8 @@ const file_product_proto_rawDesc = "" +
 	"\x06offset\x18\x06 \x01(\x05R\x06offset\x12\x17\n" +
 	"\asort_by\x18\a \x01(\tR\x06sortBy\x12\x1d\n" +
 	"\n" +
-	"sort_order\x18\b \x01(\tR\tsortOrder\"\xaa\x01\n" +
+	"sort_order\x18\b \x01(\tR\tsortOrder\x12\x14\n" +
+	"\x05alpha\x18\t \x01(\x02R\x05alpha\"\xaa\x01\n" +
 	"\x12SearchProductsResp\x12\x1f\n" +
 	"\vstatus_code\x18\x01 \x01(\x05R\n" +
 	"statusCode\x12\x1d\n" +
