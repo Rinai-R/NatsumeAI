@@ -19,8 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AgentService_Chat_FullMethodName           = "/agent.AgentService/Chat"
-	AgentService_ReviewMerchant_FullMethodName = "/agent.AgentService/ReviewMerchant"
+	AgentService_Chat_FullMethodName = "/agent.AgentService/Chat"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -28,7 +27,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AgentServiceClient interface {
 	Chat(ctx context.Context, in *ChatReq, opts ...grpc.CallOption) (*ChatResp, error)
-	ReviewMerchant(ctx context.Context, in *ReviewMerchantReq, opts ...grpc.CallOption) (*ReviewMerchantResult, error)
 }
 
 type agentServiceClient struct {
@@ -49,22 +47,11 @@ func (c *agentServiceClient) Chat(ctx context.Context, in *ChatReq, opts ...grpc
 	return out, nil
 }
 
-func (c *agentServiceClient) ReviewMerchant(ctx context.Context, in *ReviewMerchantReq, opts ...grpc.CallOption) (*ReviewMerchantResult, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ReviewMerchantResult)
-	err := c.cc.Invoke(ctx, AgentService_ReviewMerchant_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // AgentServiceServer is the server API for AgentService service.
 // All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility.
 type AgentServiceServer interface {
 	Chat(context.Context, *ChatReq) (*ChatResp, error)
-	ReviewMerchant(context.Context, *ReviewMerchantReq) (*ReviewMerchantResult, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
@@ -77,9 +64,6 @@ type UnimplementedAgentServiceServer struct{}
 
 func (UnimplementedAgentServiceServer) Chat(context.Context, *ChatReq) (*ChatResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Chat not implemented")
-}
-func (UnimplementedAgentServiceServer) ReviewMerchant(context.Context, *ReviewMerchantReq) (*ReviewMerchantResult, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReviewMerchant not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
@@ -120,24 +104,6 @@ func _AgentService_Chat_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentService_ReviewMerchant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReviewMerchantReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentServiceServer).ReviewMerchant(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentService_ReviewMerchant_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServiceServer).ReviewMerchant(ctx, req.(*ReviewMerchantReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -148,10 +114,6 @@ var AgentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Chat",
 			Handler:    _AgentService_Chat_Handler,
-		},
-		{
-			MethodName: "ReviewMerchant",
-			Handler:    _AgentService_ReviewMerchant_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
