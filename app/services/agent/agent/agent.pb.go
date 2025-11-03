@@ -21,55 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ReviewDecision int32
-
-const (
-	ReviewDecision_REVIEW_DECISION_UNKNOWN ReviewDecision = 0
-	ReviewDecision_REVIEW_DECISION_APPROVE ReviewDecision = 1
-	ReviewDecision_REVIEW_DECISION_REJECT  ReviewDecision = 2
-)
-
-// Enum value maps for ReviewDecision.
-var (
-	ReviewDecision_name = map[int32]string{
-		0: "REVIEW_DECISION_UNKNOWN",
-		1: "REVIEW_DECISION_APPROVE",
-		2: "REVIEW_DECISION_REJECT",
-	}
-	ReviewDecision_value = map[string]int32{
-		"REVIEW_DECISION_UNKNOWN": 0,
-		"REVIEW_DECISION_APPROVE": 1,
-		"REVIEW_DECISION_REJECT":  2,
-	}
-)
-
-func (x ReviewDecision) Enum() *ReviewDecision {
-	p := new(ReviewDecision)
-	*p = x
-	return p
-}
-
-func (x ReviewDecision) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (ReviewDecision) Descriptor() protoreflect.EnumDescriptor {
-	return file_agent_proto_enumTypes[0].Descriptor()
-}
-
-func (ReviewDecision) Type() protoreflect.EnumType {
-	return &file_agent_proto_enumTypes[0]
-}
-
-func (x ReviewDecision) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use ReviewDecision.Descriptor instead.
-func (ReviewDecision) EnumDescriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{0}
-}
-
 type ChatReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -299,203 +250,6 @@ func (x *ChatResp) GetItems() []*Recommendation {
 	return nil
 }
 
-type MerchantApplicationInput struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ShopName      string                 `protobuf:"bytes,1,opt,name=shop_name,json=shopName,proto3" json:"shop_name,omitempty"`
-	ContactName   string                 `protobuf:"bytes,2,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"`
-	ContactPhone  string                 `protobuf:"bytes,3,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"`
-	Address       string                 `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
-	Description   string                 `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MerchantApplicationInput) Reset() {
-	*x = MerchantApplicationInput{}
-	mi := &file_agent_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MerchantApplicationInput) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MerchantApplicationInput) ProtoMessage() {}
-
-func (x *MerchantApplicationInput) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MerchantApplicationInput.ProtoReflect.Descriptor instead.
-func (*MerchantApplicationInput) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *MerchantApplicationInput) GetShopName() string {
-	if x != nil {
-		return x.ShopName
-	}
-	return ""
-}
-
-func (x *MerchantApplicationInput) GetContactName() string {
-	if x != nil {
-		return x.ContactName
-	}
-	return ""
-}
-
-func (x *MerchantApplicationInput) GetContactPhone() string {
-	if x != nil {
-		return x.ContactPhone
-	}
-	return ""
-}
-
-func (x *MerchantApplicationInput) GetAddress() string {
-	if x != nil {
-		return x.Address
-	}
-	return ""
-}
-
-func (x *MerchantApplicationInput) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-// 商家审核请求（同步评估）
-type ReviewMerchantReq struct {
-	state         protoimpl.MessageState    `protogen:"open.v1"`
-	ApplicationId int64                     `protobuf:"varint,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	UserId        int64                     `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Application   *MerchantApplicationInput `protobuf:"bytes,3,opt,name=application,proto3" json:"application,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ReviewMerchantReq) Reset() {
-	*x = ReviewMerchantReq{}
-	mi := &file_agent_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ReviewMerchantReq) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ReviewMerchantReq) ProtoMessage() {}
-
-func (x *ReviewMerchantReq) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ReviewMerchantReq.ProtoReflect.Descriptor instead.
-func (*ReviewMerchantReq) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ReviewMerchantReq) GetApplicationId() int64 {
-	if x != nil {
-		return x.ApplicationId
-	}
-	return 0
-}
-
-func (x *ReviewMerchantReq) GetUserId() int64 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-func (x *ReviewMerchantReq) GetApplication() *MerchantApplicationInput {
-	if x != nil {
-		return x.Application
-	}
-	return nil
-}
-
-type ReviewMerchantResult struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ApplicationId int64                  `protobuf:"varint,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
-	Decision      ReviewDecision         `protobuf:"varint,2,opt,name=decision,proto3,enum=agent.ReviewDecision" json:"decision,omitempty"`
-	Reason        string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ReviewMerchantResult) Reset() {
-	*x = ReviewMerchantResult{}
-	mi := &file_agent_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ReviewMerchantResult) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ReviewMerchantResult) ProtoMessage() {}
-
-func (x *ReviewMerchantResult) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ReviewMerchantResult.ProtoReflect.Descriptor instead.
-func (*ReviewMerchantResult) Descriptor() ([]byte, []int) {
-	return file_agent_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ReviewMerchantResult) GetApplicationId() int64 {
-	if x != nil {
-		return x.ApplicationId
-	}
-	return 0
-}
-
-func (x *ReviewMerchantResult) GetDecision() ReviewDecision {
-	if x != nil {
-		return x.Decision
-	}
-	return ReviewDecision_REVIEW_DECISION_UNKNOWN
-}
-
-func (x *ReviewMerchantResult) GetReason() string {
-	if x != nil {
-		return x.Reason
-	}
-	return ""
-}
-
 var File_agent_proto protoreflect.FileDescriptor
 
 const file_agent_proto_rawDesc = "" +
@@ -526,28 +280,9 @@ const file_agent_proto_rawDesc = "" +
 	"\n" +
 	"status_msg\x18\x02 \x01(\tR\tstatusMsg\x12\x16\n" +
 	"\x06answer\x18\x03 \x01(\tR\x06answer\x12+\n" +
-	"\x05items\x18\x04 \x03(\v2\x15.agent.RecommendationR\x05items\"\xbb\x01\n" +
-	"\x18MerchantApplicationInput\x12\x1b\n" +
-	"\tshop_name\x18\x01 \x01(\tR\bshopName\x12!\n" +
-	"\fcontact_name\x18\x02 \x01(\tR\vcontactName\x12#\n" +
-	"\rcontact_phone\x18\x03 \x01(\tR\fcontactPhone\x12\x18\n" +
-	"\aaddress\x18\x04 \x01(\tR\aaddress\x12 \n" +
-	"\vdescription\x18\x05 \x01(\tR\vdescription\"\x96\x01\n" +
-	"\x11ReviewMerchantReq\x12%\n" +
-	"\x0eapplication_id\x18\x01 \x01(\x03R\rapplicationId\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12A\n" +
-	"\vapplication\x18\x03 \x01(\v2\x1f.agent.MerchantApplicationInputR\vapplication\"\x88\x01\n" +
-	"\x14ReviewMerchantResult\x12%\n" +
-	"\x0eapplication_id\x18\x01 \x01(\x03R\rapplicationId\x121\n" +
-	"\bdecision\x18\x02 \x01(\x0e2\x15.agent.ReviewDecisionR\bdecision\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason*f\n" +
-	"\x0eReviewDecision\x12\x1b\n" +
-	"\x17REVIEW_DECISION_UNKNOWN\x10\x00\x12\x1b\n" +
-	"\x17REVIEW_DECISION_APPROVE\x10\x01\x12\x1a\n" +
-	"\x16REVIEW_DECISION_REJECT\x10\x022\x80\x01\n" +
+	"\x05items\x18\x04 \x03(\v2\x15.agent.RecommendationR\x05items27\n" +
 	"\fAgentService\x12'\n" +
-	"\x04Chat\x12\x0e.agent.ChatReq\x1a\x0f.agent.ChatResp\x12G\n" +
-	"\x0eReviewMerchant\x12\x18.agent.ReviewMerchantReq\x1a\x1b.agent.ReviewMerchantResultB\tZ\a./agentb\x06proto3"
+	"\x04Chat\x12\x0e.agent.ChatReq\x1a\x0f.agent.ChatRespB\tZ\a./agentb\x06proto3"
 
 var (
 	file_agent_proto_rawDescOnce sync.Once
@@ -561,30 +296,21 @@ func file_agent_proto_rawDescGZIP() []byte {
 	return file_agent_proto_rawDescData
 }
 
-var file_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_agent_proto_goTypes = []any{
-	(ReviewDecision)(0),              // 0: agent.ReviewDecision
-	(*ChatReq)(nil),                  // 1: agent.ChatReq
-	(*Recommendation)(nil),           // 2: agent.Recommendation
-	(*ChatResp)(nil),                 // 3: agent.ChatResp
-	(*MerchantApplicationInput)(nil), // 4: agent.MerchantApplicationInput
-	(*ReviewMerchantReq)(nil),        // 5: agent.ReviewMerchantReq
-	(*ReviewMerchantResult)(nil),     // 6: agent.ReviewMerchantResult
+	(*ChatReq)(nil),        // 0: agent.ChatReq
+	(*Recommendation)(nil), // 1: agent.Recommendation
+	(*ChatResp)(nil),       // 2: agent.ChatResp
 }
 var file_agent_proto_depIdxs = []int32{
-	2, // 0: agent.ChatResp.items:type_name -> agent.Recommendation
-	4, // 1: agent.ReviewMerchantReq.application:type_name -> agent.MerchantApplicationInput
-	0, // 2: agent.ReviewMerchantResult.decision:type_name -> agent.ReviewDecision
-	1, // 3: agent.AgentService.Chat:input_type -> agent.ChatReq
-	5, // 4: agent.AgentService.ReviewMerchant:input_type -> agent.ReviewMerchantReq
-	3, // 5: agent.AgentService.Chat:output_type -> agent.ChatResp
-	6, // 6: agent.AgentService.ReviewMerchant:output_type -> agent.ReviewMerchantResult
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1, // 0: agent.ChatResp.items:type_name -> agent.Recommendation
+	0, // 1: agent.AgentService.Chat:input_type -> agent.ChatReq
+	2, // 2: agent.AgentService.Chat:output_type -> agent.ChatResp
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_agent_proto_init() }
@@ -597,14 +323,13 @@ func file_agent_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agent_proto_rawDesc), len(file_agent_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   6,
+			NumEnums:      0,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_agent_proto_goTypes,
 		DependencyIndexes: file_agent_proto_depIdxs,
-		EnumInfos:         file_agent_proto_enumTypes,
 		MessageInfos:      file_agent_proto_msgTypes,
 	}.Build()
 	File_agent_proto = out.File

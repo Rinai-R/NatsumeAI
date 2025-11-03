@@ -14,16 +14,12 @@ import (
 )
 
 type (
-	ChatReq                  = agent.ChatReq
-	ChatResp                 = agent.ChatResp
-	MerchantApplicationInput = agent.MerchantApplicationInput
-	Recommendation           = agent.Recommendation
-	ReviewMerchantReq        = agent.ReviewMerchantReq
-	ReviewMerchantResult     = agent.ReviewMerchantResult
+	ChatReq        = agent.ChatReq
+	ChatResp       = agent.ChatResp
+	Recommendation = agent.Recommendation
 
 	AgentService interface {
 		Chat(ctx context.Context, in *ChatReq, opts ...grpc.CallOption) (*ChatResp, error)
-		ReviewMerchant(ctx context.Context, in *ReviewMerchantReq, opts ...grpc.CallOption) (*ReviewMerchantResult, error)
 	}
 
 	defaultAgentService struct {
@@ -40,9 +36,4 @@ func NewAgentService(cli zrpc.Client) AgentService {
 func (m *defaultAgentService) Chat(ctx context.Context, in *ChatReq, opts ...grpc.CallOption) (*ChatResp, error) {
 	client := agent.NewAgentServiceClient(m.cli.Conn())
 	return client.Chat(ctx, in, opts...)
-}
-
-func (m *defaultAgentService) ReviewMerchant(ctx context.Context, in *ReviewMerchantReq, opts ...grpc.CallOption) (*ReviewMerchantResult, error) {
-	client := agent.NewAgentServiceClient(m.cli.Conn())
-	return client.ReviewMerchant(ctx, in, opts...)
 }
