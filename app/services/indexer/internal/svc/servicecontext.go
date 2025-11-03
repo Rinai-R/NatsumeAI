@@ -71,5 +71,5 @@ func (s *ServiceContext) EmbeddingDimension() int {
 	if s.Config.ElasticConf.EmbeddingDimension > 0 {
 		return s.Config.ElasticConf.EmbeddingDimension
 	}
-	return 384
+	return 2048
 }

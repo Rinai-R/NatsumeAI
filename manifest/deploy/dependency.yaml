@@ -149,15 +149,14 @@ services:
       - action.auto_create_index=true
     ports:
       - "9200:9200"
-      - "9300:9300"
     volumes:
       - ./data/elasticsearch:/usr/share/elasticsearch/data:rw
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    command: >
-      sh -c "bin/elasticsearch-plugin install --batch https://release.infinilabs.com/analysis-ik/stable/elasticsearch-analysis-ik-8.17.0.zip && exec bin/elasticsearch"
+    # command: >
+    #   sh -c "bin/elasticsearch-plugin install --batch https://release.infinilabs.com/analysis-ik/stable/elasticsearch-analysis-ik-8.17.0.zip && exec bin/elasticsearch"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health | grep '\"status\"'"]
       interval: 15s

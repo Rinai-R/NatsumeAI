@@ -3,3 +3,4 @@ app/api/*/*-api
 app/services/*/*-rpc
 .cache/
 .gocache/
+app/services/indexer/indexer
