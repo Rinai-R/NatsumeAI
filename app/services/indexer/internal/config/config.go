@@ -24,6 +24,8 @@ type ElasticConf struct {
 	Password           string
 	IndexName          string
 	EmbeddingDimension int
+	Shards             int
+	Replicas           int
 }
 
 type EmbeddingConf struct {

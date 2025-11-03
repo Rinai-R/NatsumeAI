@@ -2,7 +2,9 @@ package svc
 
 import (
 	"NatsumeAI/app/services/indexer/internal/config"
+	"NatsumeAI/app/services/indexer/internal/es"
 	"context"
+	"errors"
 	"strings"
 
 	embeddingark "github.com/cloudwego/eino-ext/components/embedding/ark"
@@ -11,16 +13,19 @@ import (
 )
 
 type ServiceContext struct {
-	Config   config.Config
-	ESClient *elasticsearch.Client
-	Embedder *embeddingark.Embedder
+	Config           config.Config
+	ESClient         *elasticsearch.Client
+	Embedder         *embeddingark.Embedder
+	vectorIndexReady bool
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	logx.MustSetup(c.LogConf)
 
-	var esClient *elasticsearch.Client
-	var embedder *embeddingark.Embedder
+	ctx := &ServiceContext{
+		Config: c,
+	}
+
 	if len(c.ElasticConf.Addresses) > 0 {
 		client, err := elasticsearch.NewClient(elasticsearch.Config{
 			Addresses: c.ElasticConf.Addresses,
@@ -30,8 +35,26 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		if err != nil {
 			logx.Errorw("init elasticsearch client failed", logx.Field("err", err))
 		} else {
-			esClient = client
+			ctx.ESClient = client
 			logx.Infow("elasticsearch client initialized", logx.Field("addresses", c.ElasticConf.Addresses))
+			if info, err := es.EnsureProductIndex(context.Background(), client, es.ProductIndexParams{
+				IndexName:        ctx.ProductIndexName(),
+				EmbeddingDims:    ctx.EmbeddingDimension(),
+				NumberOfShards:   c.ElasticConf.Shards,
+				NumberOfReplicas: c.ElasticConf.Replicas,
+			}); err != nil {
+				if errors.Is(err, es.ErrIncompatibleEmbeddingMapping) {
+					logx.Errorw("product index embedding mapping incompatible",
+						logx.Field("index", ctx.ProductIndexName()),
+						logx.Field("err", err))
+				} else {
+					logx.Errorw("ensure product index failed",
+						logx.Field("index", ctx.ProductIndexName()),
+						logx.Field("err", err))
+				}
+			} else {
+				ctx.vectorIndexReady = info.SupportsVector
+			}
 		}
 	} else {
 		logx.Infow("elasticsearch client disabled, no addresses configured")
@@ -46,18 +69,14 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		if err != nil {
 			logx.Errorw("init embedding model failed", logx.Field("err", err))
 		} else {
-			embedder = emb
+			ctx.Embedder = emb
 			logx.Infow("embedding model initialized", logx.Field("model", c.Embedding.Model))
 		}
 	} else {
 		logx.Infow("embedding client disabled, missing model or api key")
 	}
 
-	return &ServiceContext{
-		Config:   c,
-		ESClient: esClient,
-		Embedder: embedder,
-	}
+	return ctx
 }
 
 func (s *ServiceContext) ProductIndexName() string {
@@ -65,6 +84,10 @@ func (s *ServiceContext) ProductIndexName() string {
 		return idx
 	}
 	return "products"
+}
+
+func (s *ServiceContext) VectorIndexEnabled() bool {
+	return s.vectorIndexReady
 }
 
 func (s *ServiceContext) EmbeddingDimension() int {

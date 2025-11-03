@@ -162,13 +162,15 @@ func upsertProductDocument(ctx context.Context, sc *svc.ServiceContext, indexNam
 		"updated_at":  row.UpdatedAt,
 	}
 
-	if embedding, err := buildProductEmbedding(ctx, sc, row); len(embedding) > 0 {
-		doc["embedding"] = embedding
-		if err != nil {
-			logx.Errorw("product embedding fallback to deterministic vector", logx.Field("id", docID), logx.Field("err", err))
+	if sc.VectorIndexEnabled() {
+		if embedding, err := buildProductEmbedding(ctx, sc, row); len(embedding) > 0 {
+			doc["embedding"] = embedding
+			if err != nil {
+				logx.Errorw("product embedding fallback to deterministic vector", logx.Field("id", docID), logx.Field("err", err))
+			}
+		} else if err != nil {
+			logx.Errorw("compute product embedding failed", logx.Field("id", docID), logx.Field("err", err))
 		}
-	} else if err != nil {
-		logx.Errorw("compute product embedding failed", logx.Field("id", docID), logx.Field("err", err))
 	}
 
 	if eventType == "INSERT" {
