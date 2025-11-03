@@ -33,37 +33,6 @@ message ChatResp {
 }
 
 
-message MerchantApplicationInput {
-  string shop_name = 1;
-  string contact_name = 2;
-  string contact_phone = 3; 
-  string address = 4;
-  string description = 5;
-}
-
-
-enum ReviewDecision {
-  REVIEW_DECISION_UNKNOWN = 0;
-  REVIEW_DECISION_APPROVE = 1;
-  REVIEW_DECISION_REJECT = 2;
-}
-
-// 商家审核请求（同步评估）
-message ReviewMerchantReq {
-  int64 application_id = 1;
-  int64 user_id = 2;
-  MerchantApplicationInput application = 3;
-}
-
-
-message ReviewMerchantResult {
-  int64 application_id = 1;
-  ReviewDecision decision = 2;
-  string reason = 3;
-}
-
 service AgentService {
   rpc Chat(ChatReq) returns (ChatResp);
-
-  rpc ReviewMerchant(ReviewMerchantReq) returns (ReviewMerchantResult);
 }

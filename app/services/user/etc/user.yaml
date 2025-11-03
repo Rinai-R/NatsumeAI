@@ -14,11 +14,6 @@ AuthRpc:
   Target: consul://consul:8500/auth.rpc?wait=14s
   NonBlock: true 
 
-AgentRpc:
-  Target: consul://consul:8500/agent.rpc?wait=14s
-  NonBlock: true 
-  Timeout: 10000
-  
 MysqlConf:
   datasource: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"
 
@@ -44,6 +39,11 @@ DTMConf:
 
 LogConf:
   Level: "error"
+
+ChatModel:
+  BaseUrl: "https://ark.cn-beijing.volces.com/api/v3"
+  APIKey: "258d78b6-77d9-4b7e-803c-15022898a62c"
+  Model: "deepseek-v3-1-terminus"
 
 CasbinMiddleware:
   Dns: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"

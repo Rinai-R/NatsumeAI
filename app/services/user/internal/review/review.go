@@ -1,12 +1,11 @@
-package reviewer
+package review
 
 import (
+	"NatsumeAI/app/services/user/internal/svc"
 	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
-
-	"NatsumeAI/app/services/agent/internal/svc"
 
 	"github.com/cloudwego/eino-ext/components/model/ark"
 	mdl "github.com/cloudwego/eino/components/model"
