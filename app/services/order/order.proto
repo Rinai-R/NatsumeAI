@@ -4,142 +4,145 @@ package order;
 
 option go_package = "./order";
 
-// 订单状态
+// OrderStatus enumerates lifecycle states for an order.
 enum OrderStatus {
     ORDER_STATUS_UNKNOWN   = 0;
-    ORDER_STATUS_PENDING   = 1; // 预订单已生成，待支付
-    ORDER_STATUS_CONFIRMED = 2; // 支付成功，待发货
-    ORDER_STATUS_CANCELLED = 3; // 用户/系统取消或超时
-    ORDER_STATUS_COMPLETED = 4; // 已履约完成
+    ORDER_STATUS_PENDING   = 1; // Preorder placed, waiting for payment.
+    ORDER_STATUS_CONFIRMED = 2; // Payment succeeded.
+    ORDER_STATUS_CANCELLED = 3; // Cancelled by user or system.
+    ORDER_STATUS_COMPLETED = 4; // Fulfilled.
+    ORDER_STATUS_PAYING    = 5; // Payment in-progress.
 }
 
 message OrderItemSnapshot {
     string title         = 1;
-    string cover_image   = 2; 
+    string cover_image   = 2;
     string attributes    = 3;
 }
 
 message OrderItem {
     int64  product_id    = 1;
-    int64  quantity      = 2; 
+    int64  quantity      = 2;
     int64  price_cents   = 3;
     OrderItemSnapshot snapshot = 4;
 }
 
 message Item {
     int64 product_id = 1;
-    int64 quantity = 2;
+    int64 quantity   = 2;
 }
 
 message CheckoutReq {
-    int64 user_id  = 1;
+    int64 user_id   = 1;
     int64 coupon_id = 2;
-    Item item   = 3;
+    Item  item      = 3;
 }
 
 message CheckoutResp {
-    int64  status_code   = 1;
-    string status_msg    = 2;
-    int64  preorder_id   = 3;
-    int64  expired_at    = 4;
+    int64  status_code = 1;
+    string status_msg  = 2;
+    int64  preorder_id = 3;
+    int64  expired_at  = 4;
 }
 
-
 message PlaceOrderReq {
-    int64 preorder_id    = 1;
-    int64 user_id        = 2;
-    int64 address_id     = 3;
-    int64 coupon_id      = 4;
-    string remark        = 5;
+    int64 preorder_id = 1;
+    int64 user_id     = 2;
+    int64 address_id  = 3;
+    int64 coupon_id   = 4;
+    string remark     = 5;
 }
 
 message PlaceOrderResp {
-    int64  status_code   = 1;
-    string status_msg    = 2;
-    int64  order_id      = 3;
-    OrderStatus status   = 4;
+    int64       status_code = 1;
+    string      status_msg  = 2;
+    int64       order_id    = 3;
+    OrderStatus status      = 4;
 }
 
-
 message ConfirmPaymentReq {
-    int64 order_id        = 1;
-    int64 user_id         = 2;
+    int64  order_id       = 1;
+    int64  user_id        = 2;
     string payment_method = 3;
     string payment_token  = 4;
 }
 
 message ConfirmPaymentResp {
-    int64  status_code   = 1;
-    string status_msg    = 2;
-    OrderStatus status   = 3;
+    int64       status_code = 1;
+    string      status_msg  = 2;
+    OrderStatus status      = 3;
 }
 
+message MarkPayingReq {
+    int64 order_id = 1;
+    int64 user_id  = 2;
+}
+
+message MarkPayingResp {
+    int64       status_code = 1;
+    string      status_msg  = 2;
+    OrderStatus status      = 3;
+}
 
 message CancelOrderReq {
     int64 preorder_id = 1;
     int64 order_id    = 2;
-    string reason        = 3;
-    int64 user_id = 4;
+    string reason     = 3;
+    int64 user_id     = 4;
 }
 
 message CancelOrderResp {
-    int64  status_code   = 1;
-    string status_msg    = 2;
-    OrderStatus status   = 3;
+    int64       status_code = 1;
+    string      status_msg  = 2;
+    OrderStatus status      = 3;
 }
 
-// 查询订单
 message GetOrderReq {
-    int64 order_id       = 1;
-    int64 user_id        = 2;
+    int64 order_id = 1;
+    int64 user_id  = 2;
 }
 
 message OrderInfo {
-    int64  order_id      = 1;
-    int64  preorder_id   = 2;
-    int64  user_id       = 3;
-    OrderStatus status   = 4;
-    int64  total_amount  = 5;
-    int64  pay_amount    = 6;
-    int64  created_at    = 7;
-    int64  paid_at       = 8;
-    int64  cancelled_at  = 9;
-    repeated OrderItem items = 10;
-    string payment_method = 11;
-    string address_snapshot = 12;
+    int64       order_id        = 1;
+    int64       preorder_id     = 2;
+    int64       user_id         = 3;
+    OrderStatus status          = 4;
+    int64       total_amount    = 5;
+    int64       pay_amount      = 6;
+    int64       created_at      = 7;
+    int64       paid_at         = 8;
+    int64       cancelled_at    = 9;
+    repeated OrderItem items   = 10;
+    string      payment_method  = 11;
+    string      address_snapshot = 12;
 }
 
 message GetOrderResp {
-    int64  status_code   = 1;
-    string status_msg    = 2;
-    OrderInfo order      = 3;
+    int64     status_code = 1;
+    string    status_msg  = 2;
+    OrderInfo order       = 3;
 }
 
 message ListOrdersReq {
-    int64 user_id        = 1;
-    OrderStatus status   = 2;
-    int64  page          = 3;
-    int64  page_size     = 4;
+    int64       user_id   = 1;
+    OrderStatus status    = 2;
+    int64       page      = 3;
+    int64       page_size = 4;
 }
 
 message ListOrdersResp {
-    int64  status_code   = 1;
-    string status_msg    = 2;
-    repeated OrderInfo orders = 3;
-    int64  total         = 4;
+    int64            status_code = 1;
+    string           status_msg  = 2;
+    repeated OrderInfo orders    = 3;
+    int64            total       = 4;
 }
 
 service OrderService {
-    // Checkout（结账，预订单）
     rpc Checkout (CheckoutReq) returns (CheckoutResp);
-    // 提交订单（生成正式订单）
     rpc PlaceOrder (PlaceOrderReq) returns (PlaceOrderResp);
-    // 支付确认（支付成功）
     rpc ConfirmPayment (ConfirmPaymentReq) returns (ConfirmPaymentResp);
-    // 主动取消或超时取消订单
+    rpc MarkPaying (MarkPayingReq) returns (MarkPayingResp);
     rpc CancelOrder (CancelOrderReq) returns (CancelOrderResp);
-    // 查询单个订单
     rpc GetOrder (GetOrderReq) returns (GetOrderResp);
-    // 分页查询订单
     rpc ListOrders (ListOrdersReq) returns (ListOrdersResp);
 }

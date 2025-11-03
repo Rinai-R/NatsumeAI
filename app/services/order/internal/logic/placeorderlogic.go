@@ -95,6 +95,18 @@ func (l *PlaceOrderLogic) PlaceOrder(in *order.PlaceOrderReq) (*order.PlaceOrder
         }
         oid, _ := res.LastInsertId()
         orderID = oid
+
+        if rows, err := l.svcCtx.PreItm.ListByPreorder(l.ctx, in.PreorderId); err == nil && len(rows) > 0 {
+            for _, it := range rows {
+                _, _ = l.svcCtx.OrdItm.InsertWithSession(l.ctx, session, &orderdal.OrderItems{
+                    OrderId:    uint64(orderID),
+                    ProductId:  uint64(it.ProductId),
+                    Quantity:   uint64(it.Quantity),
+                    PriceCents: uint64(it.PriceCents),
+                    Snapshot:   it.Snapshot,
+                })
+            }
+        }
         return nil
     })
     if err != nil {
@@ -108,18 +120,6 @@ func (l *PlaceOrderLogic) PlaceOrder(in *order.PlaceOrderReq) (*order.PlaceOrder
 
     // 锁券已在 Checkout 完成，这里不再重复锁券；核销在 ConfirmPayment。
 
-    // 复制预订单条目到订单条目（单商品场景）
-    if rows, err := l.svcCtx.PreItm.ListByPreorder(l.ctx, in.PreorderId); err == nil && len(rows) > 0 {
-        for _, it := range rows {
-            _, _ = l.svcCtx.OrdItm.Insert(l.ctx, &orderdal.OrderItems{
-                OrderId:    uint64(orderID),
-                ProductId:  uint64(it.ProductId),
-                Quantity:   uint64(it.Quantity),
-                PriceCents: uint64(it.PriceCents),
-                Snapshot:   it.Snapshot,
-            })
-        }
-    }
 
     // 安排订单未支付超时取消任务
     if l.svcCtx.AsynqClient != nil {

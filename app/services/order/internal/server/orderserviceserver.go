@@ -41,6 +41,12 @@ func (s *OrderServiceServer) ConfirmPayment(ctx context.Context, in *order.Confi
 	return l.ConfirmPayment(in)
 }
 
+// 标记订单为支付中
+func (s *OrderServiceServer) MarkPaying(ctx context.Context, in *order.MarkPayingReq) (*order.MarkPayingResp, error) {
+	l := logic.NewMarkPayingLogic(ctx, s.svcCtx)
+	return l.MarkPaying(in)
+}
+
 // 主动取消或超时取消订单
 func (s *OrderServiceServer) CancelOrder(ctx context.Context, in *order.CancelOrderReq) (*order.CancelOrderResp, error) {
 	l := logic.NewCancelOrderLogic(ctx, s.svcCtx)

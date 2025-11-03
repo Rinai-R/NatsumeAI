@@ -1,0 +1,43 @@
+Name: payment.rpc
+ListenOn: 0.0.0.0:12006
+
+Consul:
+  Host: consul:8500
+  Key:
+    payment.rpc
+  Meta:
+    Protocol: grpc
+  Tag:
+    - "payment-rpc"
+
+MysqlConf:
+  datasource: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"
+
+RedisConf:
+  Host: redis:6379
+  Pass: ""
+  Tls: false
+
+CacheConf:
+  - Host: redis:6379
+    Pass: ""
+    Type: node
+
+AsynqConf:
+  Addr: asynq:6379
+
+AsynqServerConf:
+  Concurrency: 10
+  Queues:
+    default: 5
+    payment: 5
+
+OrderRpc:
+  Target: consul://consul:8500/order.rpc?wait=14s
+  NonBlock: true
+
+LogConf:
+  Level: "error"
+
+PaymentTimeoutMinutes: 15
+SnowflakeNode: 1

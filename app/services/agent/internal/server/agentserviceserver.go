@@ -27,8 +27,3 @@ func (s *AgentServiceServer) Chat(ctx context.Context, in *agent.ChatReq) (*agen
 	l := logic.NewChatLogic(ctx, s.svcCtx)
 	return l.Chat(in)
 }
-
-func (s *AgentServiceServer) ReviewMerchant(ctx context.Context, in *agent.ReviewMerchantReq) (*agent.ReviewMerchantResult, error) {
-	l := logic.NewReviewMerchantLogic(ctx, s.svcCtx)
-	return l.ReviewMerchant(in)
-}

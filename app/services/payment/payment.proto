@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package payment;
+
+option go_package = "./payment";
+
+enum PaymentStatus {
+    PAYMENT_STATUS_UNKNOWN   = 0;
+    PAYMENT_STATUS_INIT      = 1;
+    PAYMENT_STATUS_PROCESSING = 2;
+    PAYMENT_STATUS_SUCCESS   = 3;
+    PAYMENT_STATUS_FAILED    = 4;
+    PAYMENT_STATUS_CANCELLED = 5;
+    PAYMENT_STATUS_EXPIRED   = 6;
+}
+
+message PaymentInfo {
+    int64 payment_id     = 1;
+    string payment_no    = 2;
+    PaymentStatus status = 3;
+    int64 order_id       = 4;
+    int64 user_id        = 5;
+    int64 amount         = 6;
+    string currency      = 7;
+    string channel       = 8;
+    string credential    = 9;
+    int64 timeout_at     = 10;
+}
+
+message CreatePaymentReq {
+    int64 order_id   = 1;
+    int64 user_id    = 2;
+    int64 amount     = 3;
+    string currency  = 4;
+    string channel   = 5;
+    string client_ip = 6;
+    string subject   = 7;
+}
+
+message CreatePaymentResp {
+    int64 status_code = 1;
+    string status_msg = 2;
+    PaymentInfo payment = 3;
+}
+
+message GetPaymentReq {
+    int64 payment_id = 1;
+    string payment_no = 2;
+    int64 order_id = 3;
+}
+
+message GetPaymentResp {
+    int64 status_code = 1;
+    string status_msg = 2;
+    PaymentInfo payment = 3;
+}
+
+service PaymentService {
+    rpc CreatePayment (CreatePaymentReq) returns (CreatePaymentResp);
+    rpc GetPayment (GetPaymentReq) returns (GetPaymentResp);
+}

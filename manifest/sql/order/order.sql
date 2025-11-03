@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
     `preorder_id`       BIGINT NOT NULL COMMENT '预订单ID',
     `user_id`           BIGINT NOT NULL COMMENT '用户ID',
     `coupon_id`         BIGINT NOT NULL COMMENT '优惠券ID',
-    `status`            ENUM('PENDING_PAYMENT','PAID','CANCELLED','COMPLETED','REFUNDED') NOT NULL DEFAULT 'PENDING_PAYMENT' COMMENT '订单状态',
+    `status`            ENUM('PENDING_PAYMENT','PAYING','PAID','CANCELLED','COMPLETED','REFUNDED') NOT NULL DEFAULT 'PENDING_PAYMENT' COMMENT '订单状态',
     
 
     `total_amount`      BIGINT NOT NULL DEFAULT 0 COMMENT '订单商品总金额(分)',

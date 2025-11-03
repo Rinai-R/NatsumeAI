@@ -1,11 +1,12 @@
 package order
 
 import (
-    "context"
-    "fmt"
+	"context"
+	"database/sql"
+	"fmt"
 
-    "github.com/zeromicro/go-zero/core/stores/cache"
-    "github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 var _ OrderItemsModel = (*customOrderItemsModel)(nil)
@@ -17,6 +18,7 @@ type (
         orderItemsModel
         // ListByOrder returns items for an order
         ListByOrder(ctx context.Context, orderId int64) ([]*OrderItems, error)
+        InsertWithSession(ctx context.Context, session sqlx.Session, data *OrderItems) (sql.Result, error)
     }
 
 	customOrderItemsModel struct {
@@ -42,4 +44,10 @@ func (m *customOrderItemsModel) ListByOrder(ctx context.Context, orderId int64) 
         res = append(res, &rows[i])
     }
     return res, nil
+}
+
+
+func (m *customOrderItemsModel) InsertWithSession(ctx context.Context, session sqlx.Session, data *OrderItems) (sql.Result, error) {
+    query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, orderItemsRowsExpectAutoSet)
+    return session.ExecCtx(ctx, query, data.OrderId, data.ProductId, data.Quantity, data.PriceCents, data.Snapshot)
 }
