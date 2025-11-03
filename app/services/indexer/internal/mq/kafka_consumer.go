@@ -4,12 +4,9 @@ import (
 	"NatsumeAI/app/services/indexer/internal/svc"
 	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -158,18 +155,21 @@ func upsertProductDocument(ctx context.Context, sc *svc.ServiceContext, indexNam
 		"description": row.Description,
 		"picture":     row.Picture,
 		"price":       row.Price,
-		"created_at":  row.CreatedAt,
-		"updated_at":  row.UpdatedAt,
+	}
+
+	if createdAt := normalizeProductTimestamp(row.CreatedAt); createdAt != "" {
+		doc["created_at"] = createdAt
+	}
+
+	if updatedAt := normalizeProductTimestamp(row.UpdatedAt); updatedAt != "" {
+		doc["updated_at"] = updatedAt
 	}
 
 	if sc.VectorIndexEnabled() {
-		if embedding, err := buildProductEmbedding(ctx, sc, row); len(embedding) > 0 {
-			doc["embedding"] = embedding
-			if err != nil {
-				logx.Errorw("product embedding fallback to deterministic vector", logx.Field("id", docID), logx.Field("err", err))
-			}
-		} else if err != nil {
+		if embedding, err := buildProductEmbedding(ctx, sc, row); err != nil {
 			logx.Errorw("compute product embedding failed", logx.Field("id", docID), logx.Field("err", err))
+		} else if len(embedding) > 0 {
+			doc["embedding"] = embedding
 		}
 	}
 
@@ -352,6 +352,10 @@ func addString(slice []string, value string) []string {
 }
 
 func buildProductEmbedding(ctx context.Context, sc *svc.ServiceContext, row ProductRow) ([]float64, error) {
+	if sc.Embedder == nil {
+		return nil, nil
+	}
+
 	textParts := []string{
 		row.Name,
 		row.Description,
@@ -363,55 +367,55 @@ func buildProductEmbedding(ctx context.Context, sc *svc.ServiceContext, row Prod
 		text = strconv.FormatInt(row.ID, 10)
 	}
 
-	fallback := fallbackEmbedding(text, sc.EmbeddingDimension())
-
-	if sc.Embedder == nil {
-		return fallback, nil
-	}
-
 	embeds, err := sc.Embedder.EmbedStrings(ctx, []string{text})
 	if err != nil {
-		return fallback, err
+		return nil, err
 	}
 	if len(embeds) == 0 || len(embeds[0]) == 0 {
-		return fallback, fmt.Errorf("empty embedding response")
+		return nil, fmt.Errorf("empty embedding response")
 	}
 	if expected := sc.EmbeddingDimension(); expected > 0 && len(embeds[0]) != expected {
-		return fallback, fmt.Errorf("embedding dimension mismatch, expect %d got %d", expected, len(embeds[0]))
+		return nil, fmt.Errorf("embedding dimension mismatch, expect %d got %d", expected, len(embeds[0]))
 	}
 	return embeds[0], nil
 }
 
-func fallbackEmbedding(text string, dim int) []float64 {
-	if dim <= 0 {
-		return nil
+func normalizeProductTimestamp(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
 	}
-	if text == "" {
-		text = "empty"
-	}
-	vec := make([]float64, dim)
-	for i := 0; i < dim; i++ {
-		hasher := sha256.Sum256(append([]byte(text), byte(i)))
-		val := binary.LittleEndian.Uint32(hasher[:4])
-		vec[i] = (float64(int32(val%20000)-10000) / 10000.0)
-	}
-	normalizeVector64(vec)
-	return vec
-}
 
-func normalizeVector64(vec []float64) {
-	var sum float64
-	for _, v := range vec {
-		sum += v * v
+	layouts := []string{
+		time.RFC3339Nano,
+		time.RFC3339,
+		"2006-01-02 15:04:05.999999999",
+		"2006-01-02 15:04:05",
+		"2006-01-02T15:04:05.999999999",
+		"2006-01-02T15:04:05",
 	}
-	if sum <= 0 {
-		return
+
+	for _, layout := range layouts {
+		var (
+			parsed time.Time
+			err    error
+		)
+
+		switch layout {
+		case "2006-01-02 15:04:05.999999999", "2006-01-02 15:04:05":
+			parsed, err = time.ParseInLocation(layout, raw, time.Local)
+		default:
+			parsed, err = time.Parse(layout, raw)
+		}
+
+		if err == nil {
+			return parsed.Format(time.RFC3339Nano)
+		}
 	}
-	norm := math.Sqrt(sum)
-	if norm == 0 {
-		return
+
+	if !strings.Contains(raw, "T") && strings.Contains(raw, " ") {
+		return strings.Replace(raw, " ", "T", 1)
 	}
-	for i := range vec {
-		vec[i] /= norm
-	}
+
+	return raw
 }

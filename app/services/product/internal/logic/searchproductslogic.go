@@ -3,12 +3,9 @@ package logic
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"sort"
 	"strings"
 
@@ -75,7 +72,7 @@ func (l *SearchProductsLogic) SearchProducts(in *product.SearchProductsReq) (*pr
 	vectorDocs := make(map[string]esHitSource)
 	vector, embedErr := l.computeQueryEmbedding(in)
 	if embedErr != nil {
-		l.Logger.Errorf("generate query embedding failed, fallback to deterministic vector: %v", embedErr)
+		l.Logger.Errorf("generate query embedding failed: %v", embedErr)
 	}
 	if len(vector) > 0 {
 		if err := l.searchVectorCandidates(vector, keywordFilter, candidateSize, vectorScores, vectorDocs); err != nil {
@@ -250,56 +247,21 @@ func (l *SearchProductsLogic) computeQueryEmbedding(in *product.SearchProductsRe
 		return nil, nil
 	}
 
-	fallback := deterministicEmbedding(text, dim)
 	if l.svcCtx.Embedder == nil {
-		return fallback, nil
+		return nil, fmt.Errorf("embedder not configured")
 	}
 
 	embeddings, err := l.svcCtx.Embedder.EmbedStrings(l.ctx, []string{text})
 	if err != nil {
-		return fallback, err
+		return nil, err
 	}
 	if len(embeddings) == 0 || len(embeddings[0]) == 0 {
-		return fallback, fmt.Errorf("empty embedding response")
+		return nil, fmt.Errorf("empty embedding response")
 	}
 	if expected := l.svcCtx.EmbeddingDimension(); expected > 0 && len(embeddings[0]) != expected {
-		return fallback, fmt.Errorf("embedding dimension mismatch, expect %d got %d", expected, len(embeddings[0]))
+		return nil, fmt.Errorf("embedding dimension mismatch, expect %d got %d", expected, len(embeddings[0]))
 	}
 	return embeddings[0], nil
-}
-
-func deterministicEmbedding(text string, dim int) []float64 {
-	if dim <= 0 {
-		return nil
-	}
-	if text == "" {
-		text = "empty"
-	}
-	vec := make([]float64, dim)
-	for i := 0; i < dim; i++ {
-		hasher := sha256.Sum256(append([]byte(text), byte(i)))
-		val := binary.LittleEndian.Uint32(hasher[:4])
-		vec[i] = (float64(int32(val%20000)-10000) / 10000.0)
-	}
-	normalizeVector64(vec)
-	return vec
-}
-
-func normalizeVector64(vec []float64) {
-	var sum float64
-	for _, v := range vec {
-		sum += v * v
-	}
-	if sum <= 0 {
-		return
-	}
-	norm := math.Sqrt(sum)
-	if norm == 0 {
-		return
-	}
-	for i := range vec {
-		vec[i] /= norm
-	}
 }
 
 func normalizeScores(scores map[string]float64) map[string]float64 {
