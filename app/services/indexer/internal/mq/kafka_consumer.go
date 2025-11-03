@@ -158,8 +158,14 @@ func upsertProductDocument(ctx context.Context, sc *svc.ServiceContext, indexNam
 		"description": row.Description,
 		"picture":     row.Picture,
 		"price":       row.Price,
-		"created_at":  row.CreatedAt,
-		"updated_at":  row.UpdatedAt,
+	}
+
+	if createdAt := normalizeProductTimestamp(row.CreatedAt); createdAt != "" {
+		doc["created_at"] = createdAt
+	}
+
+	if updatedAt := normalizeProductTimestamp(row.UpdatedAt); updatedAt != "" {
+		doc["updated_at"] = updatedAt
 	}
 
 	if sc.VectorIndexEnabled() {
@@ -414,4 +420,44 @@ func normalizeVector64(vec []float64) {
 	for i := range vec {
 		vec[i] /= norm
 	}
+}
+
+func normalizeProductTimestamp(raw string) string {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return ""
+	}
+
+	layouts := []string{
+		time.RFC3339Nano,
+		time.RFC3339,
+		"2006-01-02 15:04:05.999999999",
+		"2006-01-02 15:04:05",
+		"2006-01-02T15:04:05.999999999",
+		"2006-01-02T15:04:05",
+	}
+
+	for _, layout := range layouts {
+		var (
+			parsed time.Time
+			err    error
+		)
+
+		switch layout {
+		case "2006-01-02 15:04:05.999999999", "2006-01-02 15:04:05":
+			parsed, err = time.ParseInLocation(layout, raw, time.Local)
+		default:
+			parsed, err = time.Parse(layout, raw)
+		}
+
+		if err == nil {
+			return parsed.Format(time.RFC3339Nano)
+		}
+	}
+
+	if !strings.Contains(raw, "T") && strings.Contains(raw, " ") {
+		return strings.Replace(raw, " ", "T", 1)
+	}
+
+	return raw
 }
