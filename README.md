@@ -1,6 +1,6 @@
 # NatsumeAI
 
-一个基于 go-zero 的微服务电商，集成了 Agent，可观测性，权限控制，CI/CD 等技术的应用。
+一个基于 go-zero 的微服务电商，集成了权限认证，CDC，agent，分布式事务等技术。
 
 ## 前置环境
 
