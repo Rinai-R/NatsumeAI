@@ -99,10 +99,10 @@ func (l *SearchProductsLogic) SearchProducts(in *product.SearchProductsReq) (*pr
 		resp.Products = []*product.ProductSummary{}
 		return resp, nil
 	}
-
+	fmt.Println(textScores, vectorScores)
 	normText := normalizeScores(textScores)
 	normVector := normalizeScores(vectorScores)
-
+	fmt.Println(normText, normVector)
 	alpha := l.svcCtx.HybridAlpha()
 	type candidate struct {
 		id    string
@@ -129,7 +129,7 @@ func (l *SearchProductsLogic) SearchProducts(in *product.SearchProductsReq) (*pr
 	if end > len(candidates) {
 		end = len(candidates)
 	}
-
+	fmt.Println(candidates)
 	resp.Products = make([]*product.ProductSummary, 0, end-start)
 	for _, cand := range candidates[start:end] {
 		if src, ok := documents[cand.id]; ok {
@@ -268,30 +268,14 @@ func normalizeScores(scores map[string]float64) map[string]float64 {
 	if len(scores) == 0 {
 		return map[string]float64{}
 	}
-	var minScore, maxScore float64
-	first := true
-	for _, score := range scores {
-		if first {
-			minScore, maxScore = score, score
-			first = false
-			continue
-		}
-		if score < minScore {
-			minScore = score
-		}
-		if score > maxScore {
-			maxScore = score
-		}
+	var maxScore float64 = 0
+	for _, v := range scores {
+		maxScore = max(v, maxScore)
 	}
 	normalized := make(map[string]float64, len(scores))
-	if maxScore-minScore <= 1e-9 {
-		for id := range scores {
-			normalized[id] = 1
-		}
-		return normalized
-	}
-	for id, score := range scores {
-		normalized[id] = (score - minScore) / (maxScore - minScore)
+
+	for k, v := range scores {
+		normalized[k] = v / maxScore
 	}
 	return normalized
 }
