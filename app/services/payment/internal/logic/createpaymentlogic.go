@@ -55,7 +55,7 @@ func (l *CreatePaymentLogic) CreatePayment(in *paymentpb.CreatePaymentReq) (*pay
 		resp.StatusMsg = "ok"
 		resp.Payment = toPaymentInfo(existing)
 		return resp, nil
-	} else if err != sql.ErrNoRows {
+	} else if err != paymentdal.ErrNotFound {
 		return nil, err
 	}
 
@@ -105,6 +105,8 @@ func (l *CreatePaymentLogic) CreatePayment(in *paymentpb.CreatePaymentReq) (*pay
 			resp.StatusMsg = "ok"
 			resp.Payment = toPaymentInfo(existing)
 			return resp, nil
+		} else if findErr != paymentdal.ErrNotFound {
+			return nil, findErr
 		}
 		return nil, err
 	}

@@ -33,6 +33,7 @@ func StartMerchantReviewConsumer(ctx context.Context, sc *svc.ServiceContext) er
 	defer r.Close()
 
 	for {
+		fmt.Println("消息来了")
 		m, err := r.FetchMessage(ctx)
 		if err != nil {
 			if ctx.Err() != nil {

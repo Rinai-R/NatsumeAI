@@ -8,9 +8,6 @@ option go_package = "./agent";
 message ChatReq {
   int64 user_id = 1;
   string query = 2;
-  repeated string prefer_tags = 3;
-  int64 budget_min = 4;
-  int64 budget_max = 5;
 }
 
 // 单个商品推荐

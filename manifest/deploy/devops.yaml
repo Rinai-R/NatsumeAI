@@ -46,7 +46,7 @@ services:
     environment:
       # docker 网络过于垃圾，只能用容器名替代了。
       - GITEA_INSTANCE_URL=http://gitea:3000
-      - GITEA_RUNNER_REGISTRATION_TOKEN=17iZa0Xo3CfcXL7zG9wIJL2ZeI8MaY5SSG3AqgEJ
+      - GITEA_RUNNER_REGISTRATION_TOKEN=psXWrwAIlKVxiRneqY4DBCCKdGGRjdsMI5x1Z2rM
     entrypoint: ["/bin/sh","-c"]
     command:
       - |

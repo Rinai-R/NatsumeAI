@@ -30,7 +30,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	logx.MustSetup(c.LogConf)
 
 	db := sqlx.NewMysql(c.MysqlConf.DataSource)
-	pOrders := paymentdal.NewPaymentOrdersModel(db)
+	pOrders := paymentdal.NewPaymentOrdersModel(db, c.CacheConf)
 
 	orderCli := order.NewOrderServiceClient(zrpc.MustNewClient(c.OrderRpc).Conn())
 

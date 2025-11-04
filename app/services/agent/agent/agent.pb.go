@@ -25,9 +25,6 @@ type ChatReq struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Query         string                 `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
-	PreferTags    []string               `protobuf:"bytes,3,rep,name=prefer_tags,json=preferTags,proto3" json:"prefer_tags,omitempty"`
-	BudgetMin     int64                  `protobuf:"varint,4,opt,name=budget_min,json=budgetMin,proto3" json:"budget_min,omitempty"`
-	BudgetMax     int64                  `protobuf:"varint,5,opt,name=budget_max,json=budgetMax,proto3" json:"budget_max,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -74,27 +71,6 @@ func (x *ChatReq) GetQuery() string {
 		return x.Query
 	}
 	return ""
-}
-
-func (x *ChatReq) GetPreferTags() []string {
-	if x != nil {
-		return x.PreferTags
-	}
-	return nil
-}
-
-func (x *ChatReq) GetBudgetMin() int64 {
-	if x != nil {
-		return x.BudgetMin
-	}
-	return 0
-}
-
-func (x *ChatReq) GetBudgetMax() int64 {
-	if x != nil {
-		return x.BudgetMax
-	}
-	return 0
 }
 
 // 单个商品推荐
@@ -254,16 +230,10 @@ var File_agent_proto protoreflect.FileDescriptor
 
 const file_agent_proto_rawDesc = "" +
 	"\n" +
-	"\vagent.proto\x12\x05agent\"\x97\x01\n" +
+	"\vagent.proto\x12\x05agent\"8\n" +
 	"\aChatReq\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x14\n" +
-	"\x05query\x18\x02 \x01(\tR\x05query\x12\x1f\n" +
-	"\vprefer_tags\x18\x03 \x03(\tR\n" +
-	"preferTags\x12\x1d\n" +
-	"\n" +
-	"budget_min\x18\x04 \x01(\x03R\tbudgetMin\x12\x1d\n" +
-	"\n" +
-	"budget_max\x18\x05 \x01(\x03R\tbudgetMax\"\xab\x01\n" +
+	"\x05query\x18\x02 \x01(\tR\x05query\"\xab\x01\n" +
 	"\x0eRecommendation\x12\x1d\n" +
 	"\n" +
 	"product_id\x18\x01 \x01(\x03R\tproductId\x12\x12\n" +

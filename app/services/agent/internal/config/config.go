@@ -10,6 +10,8 @@ type Config struct {
 	zrpc.RpcServerConf
 	Consul consul.Conf
 
+	ProductRpc zrpc.RpcClientConf
+
 	ChatModel ModelConf
 	Embedding ModelConf
 	Rerank    ModelConf

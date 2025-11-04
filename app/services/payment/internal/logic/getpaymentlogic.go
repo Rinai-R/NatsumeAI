@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"database/sql"
 
 	paymentdal "NatsumeAI/app/dal/payment"
 	"NatsumeAI/app/services/payment/internal/svc"
@@ -48,7 +47,7 @@ func (l *GetPaymentLogic) GetPayment(in *paymentpb.GetPaymentReq) (*paymentpb.Ge
 	}
 
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if err == paymentdal.ErrNotFound {
 			resp.StatusCode = 404
 			resp.StatusMsg = "payment not found"
 			return resp, nil

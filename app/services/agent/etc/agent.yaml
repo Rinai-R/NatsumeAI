@@ -10,6 +10,10 @@ Consul:
   Tag:
     - "agent-rpc"
 
+ProductRpc:
+  Target: consul://consul:8500/product.rpc?wait=14s
+  NonBlock: true 
+
 ChatModel:
   BaseUrl: "https://ark.cn-beijing.volces.com/api/v3"
   APIKey: "258d78b6-77d9-4b7e-803c-15022898a62c"

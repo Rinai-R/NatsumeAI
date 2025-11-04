@@ -45,10 +45,14 @@ api-format: $(addprefix api-format-,$(API_MODULES))
 api-format-%: .FORCE
 	@cd $(API_DIR)/$* && goctl api format --dir .
 
-.PHONY: dependency
+.PHONY: dependency dependency-prep
 
-dependency:
+dependency: dependency-prep
 	docker compose -f ./manifest/deploy/dependency.yaml up -d
+
+dependency-prep:
+	@mkdir -p ./manifest/deploy/data/elasticsearch
+	@chmod -R 777 ./manifest/deploy/data/elasticsearch
 
 .PHONY: app
 
