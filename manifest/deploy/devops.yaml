@@ -19,14 +19,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "222:22"
+      - "3000:3000"
     depends_on:
       - db
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=application
-      - traefik.http.routers.gitea.rule=Host(`gitea.natsume.com`)
-      - traefik.http.routers.gitea.entrypoints=web
-      - traefik.http.services.gitea.loadbalancer.server.port=3000
   db:
     image: docker.io/library/postgres:14
     restart: always
@@ -51,7 +46,7 @@ services:
     environment:
       # docker 网络过于垃圾，只能用容器名替代了。
       - GITEA_INSTANCE_URL=http://gitea:3000
-      - GITEA_RUNNER_REGISTRATION_TOKEN=nhM4xI2OUeFnffCt9EHEv2pzCnh8ecx9SRmmiQ1k
+      - GITEA_RUNNER_REGISTRATION_TOKEN=17iZa0Xo3CfcXL7zG9wIJL2ZeI8MaY5SSG3AqgEJ
     entrypoint: ["/bin/sh","-c"]
     command:
       - |

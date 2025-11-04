@@ -11,7 +11,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=application
-      - traefik.http.routers.user-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/users`)
+      - traefik.http.routers.user-api.rule=PathPrefix(`/api/v1/users`)
       - traefik.http.routers.user-api.entrypoints=web
       - traefik.http.services.user-api.loadbalancer.server.port=10001
     networks:
@@ -28,7 +28,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=application
-      - traefik.http.routers.inventory-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/inventory`)
+      - traefik.http.routers.inventory-api.rule=PathPrefix(`/api/v1/inventory`)
       - traefik.http.routers.inventory-api.entrypoints=web
       - traefik.http.services.inventory-api.loadbalancer.server.port=10002
     networks:
@@ -45,7 +45,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=application
-      - traefik.http.routers.product-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/products`)
+      - traefik.http.routers.product-api.rule=PathPrefix(`/api/v1/products`)
       - traefik.http.routers.product-api.entrypoints=web
       - traefik.http.services.product-api.loadbalancer.server.port=10003
     networks:
@@ -62,7 +62,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=application
-      - traefik.http.routers.cart-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/cart`)
+      - traefik.http.routers.cart-api.rule=PathPrefix(`/api/v1/cart`)
       - traefik.http.routers.cart-api.entrypoints=web
       - traefik.http.services.cart-api.loadbalancer.server.port=10004
     networks:
@@ -79,7 +79,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=application
-      - traefik.http.routers.order-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/order`)
+      - traefik.http.routers.order-api.rule=PathPrefix(`/api/v1/order`)
       - traefik.http.routers.order-api.entrypoints=web
       - traefik.http.services.order-api.loadbalancer.server.port=10005
     networks:
@@ -96,7 +96,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=application
-      - traefik.http.routers.coupon-api.rule=Host(`natsume.com`) && PathPrefix(`/api/v1/coupons`)
+      - traefik.http.routers.coupon-api.rule=PathPrefix(`/api/v1/coupons`)
       - traefik.http.routers.coupon-api.entrypoints=web
       - traefik.http.services.coupon-api.loadbalancer.server.port=10006
     networks:
