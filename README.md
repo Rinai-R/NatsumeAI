@@ -32,7 +32,8 @@ make dependency-prep
 make dependency
 make devops
 ```
-3. 引入 sql 文件
+
+3. 引入 sql 文件，执行 ./tools/ 下的 casbin 脚本
 
 4. 启动程序
 ```bash
