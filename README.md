@@ -6,7 +6,7 @@
 
 ## 文档
 
-(apifox 接口文档)[https://u6pteyxjh0.apifox.cn/]
+[apifox 接口文档](https://u6pteyxjh0.apifox.cn/)
 
 ## 前置环境
 
