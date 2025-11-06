@@ -1,0 +1,31 @@
+syntax = "v1"
+
+type (
+	ChatRequest {
+		query string `form:"query"`
+	}
+	Recommendation {
+		product_id int64
+		name       string
+		reason     string
+		price      int64
+		picture    string
+		categories []string
+	}
+	ChatResponse {
+		status_code int32
+		status_msg  string
+		answer      string
+		items       []Recommendation
+	}
+)
+
+@server (
+	middleware: AuthMiddleware,CasbinMiddleware
+	group:      agent
+)
+service agent-api {
+	@handler Chat
+	post /api/v1/agent (ChatRequest) returns (ChatResponse)
+}
+

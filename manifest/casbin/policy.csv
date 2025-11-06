@@ -35,6 +35,8 @@ p, user, /api/v1/order/cancel, POST
 p, user, /api/v1/coupons, GET
 p, user, /api/v1/coupons/claim, POST
 
+p, user, /api/v1/agent, POST
+
 p, merchant, /api/v1/products, POST
 p, merchant, /api/v1/products/:productId, PUT
 p, merchant, /api/v1/products/:productId, DELETE

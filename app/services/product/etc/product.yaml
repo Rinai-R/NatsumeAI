@@ -1,5 +1,6 @@
 Name: product.rpc
 ListenOn: 0.0.0.0:12003
+Timeout: 20000
 
 Consul:
   Host: consul:8500 # consul endpoint

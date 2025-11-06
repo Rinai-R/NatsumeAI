@@ -28,6 +28,7 @@ TARGETS=(
   "cart-api:app/api/cart:app/api/cart"
   "coupon-api:app/api/coupon:app/api/coupon"
   "order-api:app/api/order:app/api/order"
+  "agent-api:app/api/agent:app/api/agent"
 )
 
 usage() {

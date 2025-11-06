@@ -4,6 +4,10 @@
 
 待完善...
 
+## 文档
+
+(apifox 接口文档)[https://u6pteyxjh0.apifox.cn/]
+
 ## 前置环境
 
 一台电脑
@@ -24,11 +28,13 @@ chmod +x ./build.sh
 
 2. 启动依赖
 ```bash
+make dependency-prep
 make dependency
 make devops
 ```
+3. 引入 sql 文件
 
-3. 启动程序
+4. 启动程序
 ```bash
 make app
 ```

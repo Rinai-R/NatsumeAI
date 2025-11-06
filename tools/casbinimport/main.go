@@ -1,21 +1,21 @@
 package main
 
 import (
-    "flag"
-    "fmt"
-    "log"
+	"flag"
+	"fmt"
+	"log"
 
-    "github.com/casbin/casbin/v2"
-    fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
-    gormadapter "github.com/casbin/gorm-adapter/v3"
+	"github.com/casbin/casbin/v2"
+	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 )
 
 // A tiny helper to import Casbin policies from CSV into MySQL using gorm-adapter.
 // Usage:
-//   go run ./tools/casbinimport \
-//     -dsn    "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local" \
-//     -model  "manifest/casbin/model.conf" \
-//     -policy "manifest/casbin/policy.csv"
+// go run ./tools/casbinimport \
+//      -dsn    "root:Natsume@tcp(localhost:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local" \
+//      -model  "manifest/casbin/model.conf" \
+//      -policy "manifest/casbin/policy.csv"
 func main() {
     dsn := flag.String("dsn", "", "MySQL DSN for casbin gorm-adapter")
     model := flag.String("model", "manifest/casbin/model.conf", "path to Casbin model.conf")

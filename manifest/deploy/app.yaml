@@ -102,6 +102,23 @@ services:
     networks:
       - application
 
+  agent-api:
+    build:
+      context: ../..
+      dockerfile: app/api/agent/dockerfile
+    image: agent-api
+    container_name: agent-api
+    ports:
+      - "10007:10007"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=application
+      - traefik.http.routers.agent-api.rule=PathPrefix(`/api/v1/agent`)
+      - traefik.http.routers.agent-api.entrypoints=web
+      - traefik.http.services.agent-api.loadbalancer.server.port=10007
+    networks:
+      - application
+
   user-rpc:
     build:
       context: ../..

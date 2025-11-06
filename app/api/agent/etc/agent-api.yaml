@@ -1,0 +1,32 @@
+Name: agent-api
+Host: 0.0.0.0
+Port: 10007
+Timeout: 20000
+
+AgentRpc:
+  Target: consul://consul:8500/agent.rpc?wait=14s
+  NonBlock: true
+  Timeout: 20000
+AuthRpc:
+  Target: consul://consul:8500/auth.rpc?wait=14s
+  NonBlock: true 
+
+Consul:
+  Host: consul:8500
+  Key: 
+    agent.rpc
+    auth.rpc
+
+LogConf:
+  Level: "error"
+
+CasbinMiddleware:
+  Dns: "root:Natsume@tcp(mysql:3306)/Natsume?charset=utf8mb4&parseTime=True&loc=Local"
+  Model: "/server/etc/casbin/model.conf"
+  Watcher:
+    Type: redis
+    Addr: redis:6379
+    Channel: casbin:policy
+    DB: 0
+    Password: ""
+    IgnoreSelf: true

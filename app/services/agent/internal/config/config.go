@@ -20,7 +20,8 @@ type Config struct {
 }
 
 type ModelConf struct {
-	BaseUrl string
-	APIKey  string
-	Model   string
+	BaseUrl  string
+	APIKey   string
+	Model    string
+	Thinking string
 }

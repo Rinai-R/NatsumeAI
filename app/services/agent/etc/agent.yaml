@@ -1,6 +1,6 @@
 Name: agent.rpc
 ListenOn: 0.0.0.0:12007
-Timeout: 10000
+Timeout: 20000
 
 Consul:
   Host: consul:8500 # consul endpoint
@@ -13,21 +13,25 @@ Consul:
 ProductRpc:
   Target: consul://consul:8500/product.rpc?wait=14s
   NonBlock: true 
+  Timeout: 20000 
 
 ChatModel:
   BaseUrl: "https://ark.cn-beijing.volces.com/api/v3"
   APIKey: "258d78b6-77d9-4b7e-803c-15022898a62c"
-  Model: "deepseek-v3-1-terminus"
+  Model: "doubao-seed-1-6-flash-250828"
+  Thinking: "disabled"
 
 Embedding:
   BaseUrl: "https://ark.cn-beijing.volces.com/api/v3"
   APIKey: "258d78b6-77d9-4b7e-803c-15022898a62c"
   Model: "doubao-embedding-large-text-250515"
+  Thinking: ""
 
 Rerank:
   BaseUrl: ""
   APIKey: ""
   Model: ""
+  Thinking: ""
 
 LogConf:
   Level: "info"

@@ -2,11 +2,13 @@ package svc
 
 import (
 	"context"
+	"strings"
 
 	"NatsumeAI/app/services/agent/internal/config"
 	"NatsumeAI/app/services/product/product"
 
 	"github.com/cloudwego/eino-ext/components/model/ark"
+	arkmodel "github.com/volcengine/volcengine-go-sdk/service/arkruntime/model"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -24,11 +26,22 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	sc := &ServiceContext{Config: c}
 
-	cm, err := ark.NewChatModel(context.Background(), &ark.ChatModelConfig{
+	chatCfg := &ark.ChatModelConfig{
 		BaseURL: c.ChatModel.BaseUrl,
 		APIKey:  c.ChatModel.APIKey,
 		Model:   c.ChatModel.Model,
-	})
+	}
+	if mode := strings.TrimSpace(c.ChatModel.Thinking); mode != "" {
+		thinkingType := arkmodel.ThinkingType(strings.ToLower(mode))
+		switch thinkingType {
+		case arkmodel.ThinkingTypeEnabled, arkmodel.ThinkingTypeDisabled, arkmodel.ThinkingTypeAuto:
+			chatCfg.Thinking = &arkmodel.Thinking{Type: thinkingType}
+		default:
+			logx.Errorf("unknown thinking mode %q, keep default", mode)
+		}
+	}
+
+	cm, err := ark.NewChatModel(context.Background(), chatCfg)
 	if err != nil {
 		logx.Errorw("init ark chat model failed", logx.Field("err", err))
 	} else {
