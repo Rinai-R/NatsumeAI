@@ -38,5 +38,5 @@ ElasticConf:
 
 Embedding:
   BaseURL: "https://ark.cn-beijing.volces.com/api/v3"
-  APIKey: "258d78b6-77d9-4b7e-803c-15022898a62c"
+  APIKey: ""
   Model: "doubao-embedding-large-text-250515"

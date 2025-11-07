@@ -42,7 +42,7 @@ LogConf:
 
 ChatModel:
   BaseUrl: "https://ark.cn-beijing.volces.com/api/v3"
-  APIKey: "258d78b6-77d9-4b7e-803c-15022898a62c"
+  APIKey: ""
   Model: "deepseek-v3-1-terminus"
 
 CasbinMiddleware:
